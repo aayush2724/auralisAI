@@ -134,7 +134,7 @@ async def ab_test_results(
             sessions_per_variant=sessions_per_variant,
         )
 
-    except Exception as exc:
+    except Exception:
         logger.exception("Error in GET /ab-test/results")
         raise HTTPException(
             status_code=500,

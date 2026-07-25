@@ -300,7 +300,7 @@ async def chat(
         raise HTTPException(status_code=403, detail=str(e))
     except HTTPException:
         raise  # Re-raise 400/401/403/429 unchanged
-    except Exception as exc:
+    except Exception:
         logger.exception("Error in POST /chat for session %s", session_id)
         raise HTTPException(
             status_code=500,
@@ -401,7 +401,7 @@ async def chat_websocket(websocket: WebSocket) -> None:
             )
     except WebSocketDisconnect:
         logger.info("WS /ws/chat disconnected | user=%s", user.email)
-    except Exception as exc:
+    except Exception:
         logger.exception("WS /ws/chat failed for user=%s", user.email)
         await websocket.send_json(
             {
@@ -481,7 +481,7 @@ async def get_session_facts(
 
     except HTTPException:
         raise
-    except Exception as exc:
+    except Exception:
         logger.exception("Error in GET /session/%s", session_id)
         raise HTTPException(
             status_code=500,

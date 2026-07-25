@@ -21,6 +21,7 @@ Auto-generated OpenAPI docs (Feature 14)
 
 from __future__ import annotations
 
+import os
 import time
 from contextlib import asynccontextmanager
 
@@ -67,8 +68,6 @@ async def lifespan(app: FastAPI):
     Logs a clean shutdown message.
     """
     logger.info("Auralis API starting up — initialising database …")
-
-    import os
 
     gemini_key = os.getenv("GEMINI_API_KEY")
     if not gemini_key or gemini_key.startswith("your_"):
@@ -143,8 +142,6 @@ app = FastAPI(
 
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
-
-import os
 
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
 if allowed_origins_env:

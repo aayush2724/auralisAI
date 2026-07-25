@@ -121,7 +121,7 @@ async def kb_ingest(
             upload_dir=str(upload_dir),
             index_updated=True,
         )
-    except Exception as exc:
+    except Exception:
         # Broad exception caught because ingest_directory wraps multiple third-party loaders and operations
         logger.exception("Ingestion failed")
         raise HTTPException(

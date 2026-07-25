@@ -138,5 +138,5 @@ async def ab_test_results(
         logger.exception("Error in GET /ab-test/results")
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred while computing A/B test results: {exc}",
+            detail="An internal error occurred. Please try again or contact support.",
         )

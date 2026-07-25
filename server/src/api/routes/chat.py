@@ -304,7 +304,7 @@ async def chat(
         logger.exception("Error in POST /chat for session %s", session_id)
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred while processing your request: {exc}",
+            detail="An internal error occurred. Please try again or contact support.",
         )
 
 
@@ -406,7 +406,7 @@ async def chat_websocket(websocket: WebSocket) -> None:
         await websocket.send_json(
             {
                 "type": "error",
-                "detail": f"An error occurred while processing your request: {exc}",
+                "detail": "An internal error occurred. Please try again or contact support.",
             }
         )
         await websocket.close(code=1011, reason="Server error")
@@ -485,5 +485,5 @@ async def get_session_facts(
         logger.exception("Error in GET /session/%s", session_id)
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred while retrieving session facts: {exc}",
+            detail="An internal error occurred. Please try again or contact support.",
         )

@@ -126,7 +126,7 @@ async def kb_ingest(
         logger.exception("Ingestion failed")
         raise HTTPException(
             status_code=500,
-            detail=f"Ingestion failed: {exc}",
+            detail="An internal error occurred. Please try again or contact support.",
         )
 
 

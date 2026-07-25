@@ -330,7 +330,7 @@ class TestPostChatEndpoint:
         payload = {"session_id": "session_123", "message": "Hello"}
         response = client.post("/chat", json=payload)
         assert response.status_code == 500
-        assert "An error occurred while processing" in response.json()["detail"]
+        assert "An internal error occurred" in response.json()["detail"]
 
 
 # ─── GET /session/{session_id} tests ───────────────────────────────────────────

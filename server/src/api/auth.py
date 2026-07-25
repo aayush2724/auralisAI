@@ -80,7 +80,7 @@ _VALID_ROLES: tuple[str, ...] = ("admin", "sales_rep", "viewer")
 
 # ─── Crypto ───────────────────────────────────────────────────────────────────
 
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=4)
+_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 

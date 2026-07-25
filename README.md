@@ -408,7 +408,7 @@ Run `make format` before committing, or install pre-commit hooks with `pre-commi
  [✅] Prometheus observability
  [✅] Docker Compose full-stack orchestration
  [✅] CI/CD via GitHub Actions
- [⬜] Voice input / STT integration
+ [✅] Voice input / STT integration
  [⬜] Slack / CRM webhook integrations
  [⬜] Multi-tenant workspace support
  [✅] Fine-tuned classification model

@@ -1,0 +1,114 @@
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+export function useSpeechRecognition() {
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [supported, setSupported] = useState(true);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setSupported(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event: any) => {
+      let currentTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        currentTranscript += event.results[i][0].transcript;
+      }
+      setTranscript(currentTranscript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      // If we are still supposed to be listening but it ended (e.g., silence timeout), restart it
+      if (isListening) {
+         try {
+           recognition.start();
+         } catch (e) {
+           setIsListening(false);
+         }
+      } else {
+         setIsListening(false);
+      }
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []); // Intentionally leaving out isListening from dependencies to avoid recreating the instance
+
+  // We need a separate effect to handle the isListening restarts properly without redefining the recognition object
+  useEffect(() => {
+    if (!recognitionRef.current) return;
+    
+    // We override onend so it captures the latest isListening state
+    recognitionRef.current.onend = () => {
+      if (isListening) {
+        try {
+          recognitionRef.current.start();
+        } catch (e) {
+          setIsListening(false);
+        }
+      }
+    };
+  }, [isListening]);
+
+
+  const startListening = useCallback(() => {
+    if (!supported || !recognitionRef.current) return;
+    setTranscript('');
+    try {
+      recognitionRef.current.start();
+      setIsListening(true);
+    } catch (e) {
+      console.error('Error starting speech recognition:', e);
+    }
+  }, [supported]);
+
+  const stopListening = useCallback(() => {
+    if (!supported || !recognitionRef.current) return;
+    setIsListening(false);
+    try {
+      recognitionRef.current.stop();
+    } catch (e) {
+      console.error('Error stopping speech recognition:', e);
+    }
+  }, [supported]);
+
+  const toggleListening = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  }, [isListening, startListening, stopListening]);
+
+  return {
+    isListening,
+    transcript,
+    setTranscript,
+    supported,
+    startListening,
+    stopListening,
+    toggleListening,
+  };
+}

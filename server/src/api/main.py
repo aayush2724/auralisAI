@@ -150,19 +150,23 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # ─── CORS ─────────────────────────────────────────────────────────────────────
 
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
-if allowed_origins_env:
+if allowed_origins_env and allowed_origins_env.strip() != "*":
     origins = [origin.strip() for origin in allowed_origins_env.split(",")]
 else:
     origins = [
         "http://localhost:3000",
         "http://localhost:5173",
         "https://auralis-ai-demo.vercel.app",
+        "https://auralis-client-five.vercel.app",
     ]
+
+if "https://auralis-client-five.vercel.app" not in origins:
+    origins.append("https://auralis-client-five.vercel.app")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"https://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

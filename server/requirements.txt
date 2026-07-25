@@ -36,4 +36,4 @@ structlog
 prometheus-client
 prometheus-fastapi-instrumentator
 ruff==0.8.0
-black==24.4.2
+black==26.5.1

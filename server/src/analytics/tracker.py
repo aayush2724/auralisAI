@@ -144,16 +144,14 @@ async def _insert_event(
     persona = state.get("persona") or {}
 
     engine = _get_engine()
-    sql = text(
-        """
+    sql = text("""
         INSERT INTO conversation_events
             (session_id, turn_number, objection_label, sentiment_label,
              persona_label, confidence, did_convert, variant, created_at)
         VALUES
             (:session_id, :turn_number, :objection_label, :sentiment_label,
              :persona_label, :confidence, :did_convert, :variant, :now)
-    """
-    )
+    """)
     params = {
         "session_id": session_id,
         "turn_number": turn_number,
@@ -274,9 +272,7 @@ async def get_dashboard_data() -> DashboardData:
         }
 
         # ── 4. Sentiment trend (last 30 days, daily buckets) ──────────────────
-        r = await conn.execute(
-            text(
-                """
+        r = await conn.execute(text("""
                 SELECT
                     DATE(created_at AT TIME ZONE 'UTC') AS day,
                     SUM(CASE WHEN sentiment_label = 'positive' THEN 1 ELSE 0 END) AS positive,
@@ -286,9 +282,7 @@ async def get_dashboard_data() -> DashboardData:
                 WHERE created_at >= now() - INTERVAL '30 days'
                 GROUP BY day
                 ORDER BY day DESC
-            """
-            )
-        )
+            """))
         sentiment_trend: list[dict[str, Any]] = [
             {
                 "date": str(row.day),

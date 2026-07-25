@@ -78,7 +78,7 @@ jobs:
           data.decode('utf-8')  # raises if not valid UTF-8
           print('requirements.txt OK')
           "
-      - run: pip install ruff black
+      - run: pip install ruff==0.8.0 black==26.5.1
       - run: cd server && ruff check src/ tests/
       - run: cd server && black --check src/ tests/
 

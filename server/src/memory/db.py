@@ -137,8 +137,7 @@ async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
     objections_json = json.dumps(facts_dict.get("objections_raised", []))
     tools_json = json.dumps(facts_dict.get("tools_mentioned", []))
 
-    upsert_sql = text(
-        """
+    upsert_sql = text("""
         INSERT INTO customer_sessions
             (session_id, company_name, persona_label,
              objections_json, tools_json, budget_signal,
@@ -154,8 +153,7 @@ async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
             tools_json      = EXCLUDED.tools_json,
             budget_signal   = EXCLUDED.budget_signal,
             updated_at      = EXCLUDED.updated_at
-    """
-    )
+    """)
 
     params = {
         "session_id": session_id,
@@ -183,14 +181,12 @@ async def load_session(session_id: str) -> dict[str, Any] | None:
     """
     _get_engine()
 
-    select_sql = text(
-        """
+    select_sql = text("""
         SELECT company_name, persona_label, objections_json, tools_json, budget_signal
         FROM   customer_sessions
         WHERE  session_id = :session_id
         LIMIT  1
-    """
-    )
+    """)
 
     async with _session_factory() as session:  # type: ignore[misc]
         result = await session.execute(select_sql, {"session_id": session_id})

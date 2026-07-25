@@ -155,10 +155,17 @@ async def seed_admin() -> None:
 
     engine = _get_engine()
     async with engine.begin() as conn:
-        result = await conn.execute(text("SELECT COUNT(*) FROM users"))
+        result = await conn.execute(
+            text("SELECT COUNT(*) FROM users WHERE email = :email"),
+            {"email": _ADMIN_EMAIL},
+        )
         count = result.scalar()
         if count and count > 0:
-            logger.info("seed_admin: %d user(s) already exist — skipping seed.", count)
+            # Note: seed_* functions are create-only, never update-only.
+            logger.info(
+                "seed_admin: admin (%s) already exists — skipping seed.",
+                _ADMIN_EMAIL,
+            )
             return
 
         hashed = hash_password(_ADMIN_PASSWORD)

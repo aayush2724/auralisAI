@@ -1,0 +1,43 @@
+# Core LLM + RAG
+langchain
+langchain-community
+langchain-google-genai~=4.2.6
+langchain-openai
+langgraph
+openai
+
+# Vector store + embeddings
+faiss-cpu
+
+# Document loaders
+pymupdf
+pandas
+
+# API
+fastapi
+uvicorn[standard]
+python-multipart          # required for OAuth2PasswordRequestForm (form body parsing)
+python-jose[cryptography] # JWT signing / verification
+passlib[bcrypt]           # bcrypt password hashing
+bcrypt==4.0.1             # passlib is incompatible with bcrypt >= 4.1.0
+# Database
+sqlalchemy
+asyncpg
+redis
+
+# Frontend / Visualization
+streamlit
+plotly
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+
+# Utilities
+python-dotenv
+tiktoken
+httpx
+structlog
+prometheus-client
+prometheus-fastapi-instrumentator

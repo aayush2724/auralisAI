@@ -73,7 +73,7 @@ Use these seeded credentials to explore the live demo (or locally after `docker 
 | Field | Value |
 |---|---|
 | **Email** | `demo@auralis.ai` |
-| **Password** | `<set after Render env vars are configured>` |
+| **Password** | `2BGGm1Fhl1WWUtSF` |
 
 > This account has `sales_rep` access — enough to try the full chat pipeline. Admin-level features (knowledge base management, session lookup, analytics dashboard) require elevated access not exposed publicly.
 
@@ -286,7 +286,9 @@ cp .env.example .env
 | `LLM_MODEL` | ✅ | `gemini-pro` or `gpt-4o` |
 | `LLM_TEMPERATURE` | ⬜ | Default `0.2` — lower = more deterministic |
 | `ADMIN_EMAIL` | ⬜ | Seeded admin account email |
-| `ADMIN_PASSWORD` | ⬜ | Seeded admin account password |
+| `ADMIN_PASSWORD` | ⬜ | `E_CgEpAeHL4DUN7d5y1TrLpnpPI` |
+| `DEMO_EMAIL` | ⬜ | Seeded demo account email |
+| `DEMO_PASSWORD` | ⬜ | `2BGGm1Fhl1WWUtSF` |
 | `VITE_API_URL` | ✅ | Frontend API base URL (`/api` in dev) |
 
 ---

@@ -24,19 +24,33 @@ import pytest
 from src.classifier.objection import ObjectionResult, classify
 from unittest.mock import patch
 
+
 @pytest.fixture(autouse=True)
 def mock_pipeline():
     with patch("src.classifier.objection.get_zeroshot_pipeline") as mock:
+
         def fake_call(text, candidate_labels, **kwargs):
-            if "HubSpot" in text: label = "competitor"
-            elif "expensive" in text or "budget" in text or "price" in text or "high" in text: label = "price"
-            elif "time" in text or "quarter" in text: label = "timing"
-            elif "never heard" in text or "prove" in text: label = "trust"
-            elif "complex" in text: label = "fit"
-            elif "demo" in text or "contract" in text: label = "buying_signal"
-            else: label = "neutral"
+            if "HubSpot" in text:
+                label = "competitor"
+            elif (
+                "expensive" in text
+                or "budget" in text
+                or "price" in text
+                or "high" in text
+            ):
+                label = "price"
+            elif "time" in text or "quarter" in text:
+                label = "timing"
+            elif "never heard" in text or "prove" in text:
+                label = "trust"
+            elif "complex" in text:
+                label = "fit"
+            elif "demo" in text or "contract" in text:
+                label = "buying_signal"
+            else:
+                label = "neutral"
             return {"labels": [label], "scores": [0.95]}
-        
+
         mock.return_value.side_effect = fake_call
         yield mock
 
@@ -44,30 +58,38 @@ def mock_pipeline():
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 REQUIRED_KEYS = {"label", "confidence", "all_scores", "triggers"}
-VALID_LABELS = {"price", "trust", "timing", "competitor", "fit", "buying_signal", "neutral"}
+VALID_LABELS = {
+    "price",
+    "trust",
+    "timing",
+    "competitor",
+    "fit",
+    "buying_signal",
+    "neutral",
+}
 
 
 def _assert_schema(result: ObjectionResult, text: str) -> None:
     """Shared schema assertions applied to every result."""
     # All required keys present
-    assert REQUIRED_KEYS.issubset(result.keys()), (
-        f"Missing keys: {REQUIRED_KEYS - result.keys()}"
-    )
+    assert REQUIRED_KEYS.issubset(
+        result.keys()
+    ), f"Missing keys: {REQUIRED_KEYS - result.keys()}"
     # label is one of the known classes
     assert result["label"] in VALID_LABELS, f"Unknown label: {result['label']}"
     # confidence is a float in [0, 1]
     assert isinstance(result["confidence"], float), "confidence must be a float"
-    assert 0.0 <= result["confidence"] <= 1.0, (
-        f"confidence out of range: {result['confidence']}"
-    )
+    assert (
+        0.0 <= result["confidence"] <= 1.0
+    ), f"confidence out of range: {result['confidence']}"
     # all_scores contains every class and winning score equals confidence
-    assert set(result["all_scores"].keys()) == VALID_LABELS, (
-        f"all_scores keys mismatch: {set(result['all_scores'].keys())}"
-    )
+    assert (
+        set(result["all_scores"].keys()) == VALID_LABELS
+    ), f"all_scores keys mismatch: {set(result['all_scores'].keys())}"
     # winning label's score matches confidence
-    assert result["all_scores"][result["label"]] == result["confidence"], (
-        "all_scores winning label score should match confidence"
-    )
+    assert (
+        result["all_scores"][result["label"]] == result["confidence"]
+    ), "all_scores winning label score should match confidence"
     # triggers is a list of strings
     assert isinstance(result["triggers"], list), "triggers must be a list"
     for t in result["triggers"]:
@@ -79,6 +101,7 @@ def _assert_schema(result: ObjectionResult, text: str) -> None:
 
 
 # ─── Label correctness ────────────────────────────────────────────────────────
+
 
 class TestLabelCorrectness:
     """
@@ -103,7 +126,9 @@ class TestLabelCorrectness:
         assert result["label"] == "timing"
 
     def test_trust_objection(self):
-        result = classify("We've never heard of your company. Do you have case studies?")
+        result = classify(
+            "We've never heard of your company. Do you have case studies?"
+        )
         assert result["label"] == "trust"
 
     def test_fit_objection(self):
@@ -111,11 +136,14 @@ class TestLabelCorrectness:
         assert result["label"] == "fit"
 
     def test_buying_signal(self):
-        result = classify("This looks great — can you send me the pricing and set up a demo?")
+        result = classify(
+            "This looks great — can you send me the pricing and set up a demo?"
+        )
         assert result["label"] == "buying_signal"
 
 
 # ─── Schema validation ────────────────────────────────────────────────────────
+
 
 class TestResultSchema:
     SAMPLES = [
@@ -133,6 +161,7 @@ class TestResultSchema:
 
 
 # ─── Confidence (Feature 8) ────────────────────────────────────────────────────
+
 
 class TestConfidenceScoring:
     def test_confidence_is_float(self):
@@ -160,6 +189,7 @@ class TestConfidenceScoring:
 
 # ─── Triggers / Explainability (Feature 9) ────────────────────────────────────
 
+
 class TestTriggers:
     def test_triggers_non_empty_for_price(self):
         """Feature 9: triggers should fire for a clear price objection."""
@@ -177,9 +207,9 @@ class TestTriggers:
         text = "The pricing is too high for our current budget cycle."
         result = classify(text)
         for trigger in result["triggers"]:
-            assert any(word.lower() in text.lower() for word in trigger.split()), (
-                f"Trigger '{trigger}' not traceable to input"
-            )
+            assert any(
+                word.lower() in text.lower() for word in trigger.split()
+            ), f"Trigger '{trigger}' not traceable to input"
 
     def test_neutral_triggers_empty(self):
         """Neutral class has no trigger patterns — triggers should be empty."""
@@ -190,6 +220,7 @@ class TestTriggers:
 
 
 # ─── Edge cases ───────────────────────────────────────────────────────────────
+
 
 class TestEdgeCases:
     def test_empty_string_raises(self):
@@ -202,7 +233,9 @@ class TestEdgeCases:
 
     def test_very_long_input(self):
         """Should not crash on long input."""
-        long_text = ("Our budget is really tight and the price is too high. " * 20).strip()
+        long_text = (
+            "Our budget is really tight and the price is too high. " * 20
+        ).strip()
         result = classify(long_text)
         assert result["label"] in VALID_LABELS
 

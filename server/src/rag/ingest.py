@@ -201,8 +201,13 @@ def ingest_directory(
         if file_path.suffix.lower() in loaders:
             try:
                 raw_docs.extend(loaders[file_path.suffix.lower()](file_path))
-            except Exception as exc:
-                logger.error("Failed to load %s: %s", file_path, exc)
+            except (
+                OSError,
+                RuntimeError,
+                pd.errors.ParserError,
+                pd.errors.EmptyDataError,
+            ):
+                logger.exception("Failed to load %s", file_path)
 
     if not raw_docs:
         logger.warning("No supported files found in %s", data_dir)
@@ -242,8 +247,9 @@ def main(argv: list[str] | None = None) -> None:
     try:
         n = ingest_directory(args.dir, args.vectorstore)
         logger.info("Ingestion complete. %d chunk(s) stored.", n)
-    except Exception as exc:
-        logger.critical("Ingestion failed: %s", exc, exc_info=True)
+    except Exception:
+        # Broad exception caught because ingest_directory wraps multiple third-party loaders and operations
+        logger.exception("Ingestion failed")
         sys.exit(1)
 
 

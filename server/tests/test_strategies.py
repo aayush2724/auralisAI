@@ -33,41 +33,53 @@ from src.strategies import (
 )
 from src.strategies.router import get_strategy_prompt, list_strategies
 
-
 # ─── Shared fixtures ──────────────────────────────────────────────────────────
 
-def _make_state(obj_label: str = "price", persona: str = "CEO", **overrides) -> GraphState:
+
+def _make_state(
+    obj_label: str = "price", persona: str = "CEO", **overrides
+) -> GraphState:
     """Build a minimal but complete GraphState for strategy testing."""
     state: GraphState = {
-        "user_input":     "This is too expensive for our team.",
+        "user_input": "This is too expensive for our team.",
         "memory_context": "Customer context: company=Acme Corp | tools=Salesforce | budget=~$50k.",
-        "citations":      "[1] Case Study (cases.pdf, chunk 0)\n[2] FAQ (faq.md, chunk 1)",
-        "strategy":       obj_label + "_strategy",
-        "confidence":     0.88,
+        "citations": "[1] Case Study (cases.pdf, chunk 0)\n[2] FAQ (faq.md, chunk 1)",
+        "strategy": obj_label + "_strategy",
+        "confidence": 0.88,
         "should_handoff": False,
         "retrieved_docs": [
-            {"text": "Acme Corp achieved 3x ROI within 6 months.", "source_file": "cases.pdf", "chunk_index": 0, "score": 0.12},
-            {"text": "Our pricing starts at $499/month.",           "source_file": "pricing.md", "chunk_index": 0, "score": 0.18},
+            {
+                "text": "Acme Corp achieved 3x ROI within 6 months.",
+                "source_file": "cases.pdf",
+                "chunk_index": 0,
+                "score": 0.12,
+            },
+            {
+                "text": "Our pricing starts at $499/month.",
+                "source_file": "pricing.md",
+                "chunk_index": 0,
+                "score": 0.18,
+            },
         ],
         "objection": {
-            "label":      obj_label,
+            "label": obj_label,
             "confidence": 0.88,
             "all_scores": {obj_label: 0.88},
-            "triggers":   ["too expensive", "for our team"],
+            "triggers": ["too expensive", "for our team"],
         },
         "sentiment": {
-            "label":            "neutral",
-            "score":            0.55,
+            "label": "neutral",
+            "score": 0.55,
             "tone_instruction": "Stay professional and informative.",
         },
         "persona": {
-            "label":       persona,
-            "confidence":  0.82,
+            "label": persona,
+            "confidence": 0.82,
             "pitch_angle": "Lead with ROI and operational cost savings.",
         },
         "metadata": {
-            "pitch_angle":        "Lead with ROI and operational cost savings.",
-            "tone_instruction":   "Stay professional and informative.",
+            "pitch_angle": "Lead with ROI and operational cost savings.",
+            "tone_instruction": "Stay professional and informative.",
             "objection_triggers": ["too expensive"],
             "competitor_mentioned": "HubSpot",
         },
@@ -77,10 +89,10 @@ def _make_state(obj_label: str = "price", persona: str = "CEO", **overrides) -> 
 
 
 REQUIRED_INJECTIONS = [
-    "Customer context:",          # memory_context
-    "Lead with ROI",              # pitch_angle
-    "Stay professional",          # tone_instruction
-    "[1] Case Study",             # citations
+    "Customer context:",  # memory_context
+    "Lead with ROI",  # pitch_angle
+    "Stay professional",  # tone_instruction
+    "[1] Case Study",  # citations
 ]
 
 
@@ -91,6 +103,7 @@ def _assert_required_injections(prompt: str) -> None:
 
 
 # ─── Individual strategy tests ────────────────────────────────────────────────
+
 
 class TestPriceStrategy:
     def test_returns_non_empty_string(self):
@@ -108,7 +121,9 @@ class TestPriceStrategy:
 
     def test_contains_payment_flexibility(self):
         prompt = price_strategy.build_prompt(_make_state("price"))
-        assert any(w in prompt.lower() for w in ["pilot", "monthly", "flexible", "payment"])
+        assert any(
+            w in prompt.lower() for w in ["pilot", "monthly", "flexible", "payment"]
+        )
 
     def test_confidence_rendered(self):
         prompt = price_strategy.build_prompt(_make_state("price", confidence=0.88))
@@ -124,7 +139,16 @@ class TestTrustStrategy:
 
     def test_contains_social_proof_language(self):
         prompt = trust_strategy.build_prompt(_make_state("trust"))
-        assert any(w in prompt.lower() for w in ["social proof", "case stud", "credib", "guarantee", "risk reversal"])
+        assert any(
+            w in prompt.lower()
+            for w in [
+                "social proof",
+                "case stud",
+                "credib",
+                "guarantee",
+                "risk reversal",
+            ]
+        )
 
 
 class TestTimingStrategy:
@@ -136,7 +160,10 @@ class TestTimingStrategy:
 
     def test_contains_urgency_language(self):
         prompt = timing_strategy.build_prompt(_make_state("timing"))
-        assert any(w in prompt.lower() for w in ["urgency", "delay", "cost of", "pilot slot", "re-engagement"])
+        assert any(
+            w in prompt.lower()
+            for w in ["urgency", "delay", "cost of", "pilot slot", "re-engagement"]
+        )
 
 
 class TestCompetitorStrategy:
@@ -144,8 +171,10 @@ class TestCompetitorStrategy:
         return _make_state(
             "competitor",
             objection={
-                "label": "competitor", "confidence": 0.91,
-                "all_scores": {}, "triggers": ["HubSpot"],
+                "label": "competitor",
+                "confidence": 0.91,
+                "all_scores": {},
+                "triggers": ["HubSpot"],
             },
         )
 
@@ -153,7 +182,9 @@ class TestCompetitorStrategy:
         assert len(competitor_strategy.build_prompt(self._comp_state())) > 100
 
     def test_required_injections(self):
-        _assert_required_injections(competitor_strategy.build_prompt(self._comp_state()))
+        _assert_required_injections(
+            competitor_strategy.build_prompt(self._comp_state())
+        )
 
     def test_competitor_name_injected(self):
         prompt = competitor_strategy.build_prompt(self._comp_state())
@@ -161,7 +192,10 @@ class TestCompetitorStrategy:
 
     def test_contains_switching_ease_language(self):
         prompt = competitor_strategy.build_prompt(self._comp_state())
-        assert any(w in prompt.lower() for w in ["switch", "migrat", "parallel", "bake-off", "evaluation"])
+        assert any(
+            w in prompt.lower()
+            for w in ["switch", "migrat", "parallel", "bake-off", "evaluation"]
+        )
 
     def test_fallback_competitor_name(self):
         """If no competitor_mentioned in metadata, falls back gracefully."""
@@ -181,46 +215,63 @@ class TestFitStrategy:
 
     def test_contains_discovery_language(self):
         prompt = fit_strategy.build_prompt(_make_state("fit"))
-        assert any(w in prompt.lower() for w in ["discovery", "question", "gap", "workflow", "mapping"])
+        assert any(
+            w in prompt.lower()
+            for w in ["discovery", "question", "gap", "workflow", "mapping"]
+        )
 
 
 class TestBuyingSignalStrategy:
     def test_returns_non_empty_string(self):
-        assert len(buying_signal_strategy.build_prompt(_make_state("buying_signal"))) > 100
+        assert (
+            len(buying_signal_strategy.build_prompt(_make_state("buying_signal"))) > 100
+        )
 
     def test_required_injections(self):
-        _assert_required_injections(buying_signal_strategy.build_prompt(_make_state("buying_signal")))
+        _assert_required_injections(
+            buying_signal_strategy.build_prompt(_make_state("buying_signal"))
+        )
 
     def test_contains_closing_language(self):
         prompt = buying_signal_strategy.build_prompt(_make_state("buying_signal"))
-        assert any(w in prompt.lower() for w in ["close", "next step", "demo", "trial", "onboard", "frict"])
+        assert any(
+            w in prompt.lower()
+            for w in ["close", "next step", "demo", "trial", "onboard", "frict"]
+        )
 
 
 # ─── Empty / missing state handling ───────────────────────────────────────────
 
+
 class TestEdgeCases:
-    @pytest.mark.parametrize("strategy_fn", [
-        price_strategy.build_prompt,
-        trust_strategy.build_prompt,
-        timing_strategy.build_prompt,
-        competitor_strategy.build_prompt,
-        fit_strategy.build_prompt,
-        buying_signal_strategy.build_prompt,
-    ])
+    @pytest.mark.parametrize(
+        "strategy_fn",
+        [
+            price_strategy.build_prompt,
+            trust_strategy.build_prompt,
+            timing_strategy.build_prompt,
+            competitor_strategy.build_prompt,
+            fit_strategy.build_prompt,
+            buying_signal_strategy.build_prompt,
+        ],
+    )
     def test_empty_state_does_not_crash(self, strategy_fn):
         """All strategies must handle a nearly-empty state without raising."""
         minimal_state: GraphState = {"user_input": "Hello", "should_handoff": False}
         result = strategy_fn(minimal_state)
         assert isinstance(result, str) and len(result) > 0
 
-    @pytest.mark.parametrize("strategy_fn", [
-        price_strategy.build_prompt,
-        trust_strategy.build_prompt,
-        timing_strategy.build_prompt,
-        competitor_strategy.build_prompt,
-        fit_strategy.build_prompt,
-        buying_signal_strategy.build_prompt,
-    ])
+    @pytest.mark.parametrize(
+        "strategy_fn",
+        [
+            price_strategy.build_prompt,
+            trust_strategy.build_prompt,
+            timing_strategy.build_prompt,
+            competitor_strategy.build_prompt,
+            fit_strategy.build_prompt,
+            buying_signal_strategy.build_prompt,
+        ],
+    )
     def test_empty_docs_handled(self, strategy_fn):
         state = _make_state("price", retrieved_docs=[], citations="")
         result = strategy_fn(state)
@@ -229,16 +280,20 @@ class TestEdgeCases:
 
 # ─── Router tests ─────────────────────────────────────────────────────────────
 
+
 class TestRouter:
-    @pytest.mark.parametrize("label,expected_module", [
-        ("price",         "price_strategy"),
-        ("trust",         "trust_strategy"),
-        ("timing",        "timing_strategy"),
-        ("competitor",    "competitor_strategy"),
-        ("fit",           "fit_strategy"),
-        ("buying_signal", "buying_signal_strategy"),
-        ("neutral",       "fit_strategy"),      # fallback
-    ])
+    @pytest.mark.parametrize(
+        "label,expected_module",
+        [
+            ("price", "price_strategy"),
+            ("trust", "trust_strategy"),
+            ("timing", "timing_strategy"),
+            ("competitor", "competitor_strategy"),
+            ("fit", "fit_strategy"),
+            ("buying_signal", "buying_signal_strategy"),
+            ("neutral", "fit_strategy"),  # fallback
+        ],
+    )
     def test_correct_dispatch(self, label, expected_module):
         state = _make_state(label)
         prompt = get_strategy_prompt(state)
@@ -253,10 +308,18 @@ class TestRouter:
 
     def test_list_strategies_complete(self):
         strategies = list_strategies()
-        required = {"price", "trust", "timing", "competitor", "fit", "buying_signal", "neutral"}
-        assert required.issubset(set(strategies)), (
-            f"Missing strategies: {required - set(strategies)}"
-        )
+        required = {
+            "price",
+            "trust",
+            "timing",
+            "competitor",
+            "fit",
+            "buying_signal",
+            "neutral",
+        }
+        assert required.issubset(
+            set(strategies)
+        ), f"Missing strategies: {required - set(strategies)}"
 
     def test_router_output_contains_required_fields(self):
         """Router output (for any label) must contain the four required injections."""

@@ -12,20 +12,23 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-import src.api.main
-
 # Mock the database init so we don't connect to a real PostgreSQL on import/lifespan startup
-with patch("src.api.main.init_db", new_callable=AsyncMock) as mock_startup_init, \
-     patch("src.api.main.init_users_db", new_callable=AsyncMock), \
-     patch("src.api.main.seed_admin", new_callable=AsyncMock), \
-     patch("src.api.main.init_analytics_db", new_callable=AsyncMock):
+with patch("src.api.main.init_db", new_callable=AsyncMock) as mock_startup_init, patch(
+    "src.api.main.init_users_db", new_callable=AsyncMock
+), patch("src.api.main.seed_admin", new_callable=AsyncMock), patch(
+    "src.api.main.init_analytics_db", new_callable=AsyncMock
+):
     from src.api.main import app
 
 # ─── Auth helpers ──────────────────────────────────────────────────────────────
 from src.api.auth import User, create_access_token, get_current_user
 
-_FAKE_ADMIN = User(id="00000000-0000-0000-0000-000000000001", email="admin@test.ai", role="admin")
-_FAKE_SALES_REP = User(id="00000000-0000-0000-0000-000000000002", email="rep@test.ai", role="sales_rep")
+_FAKE_ADMIN = User(
+    id="00000000-0000-0000-0000-000000000001", email="admin@test.ai", role="admin"
+)
+_FAKE_SALES_REP = User(
+    id="00000000-0000-0000-0000-000000000002", email="rep@test.ai", role="sales_rep"
+)
 
 # Override auth for the default client so existing tests pass without real JWT/DB
 app.dependency_overrides[get_current_user] = lambda: _FAKE_ADMIN
@@ -37,14 +40,15 @@ _no_auth_app = app  # same app instance, but we'll override per-test
 
 # ─── Fixtures ──────────────────────────────────────────────────────────────────
 
+
 @pytest.fixture(scope="module")
 def get_auth_token() -> str:
     """Get an access token for the seeded admin user."""
     return create_access_token(
         data={
-            "sub":   _FAKE_ADMIN.id,
+            "sub": _FAKE_ADMIN.id,
             "email": _FAKE_ADMIN.email,
-            "role":  _FAKE_ADMIN.role,
+            "role": _FAKE_ADMIN.role,
         }
     )
 
@@ -54,14 +58,15 @@ def get_sales_rep_token() -> str:
     """Get an access token for a sales_rep user."""
     return create_access_token(
         data={
-            "sub":   _FAKE_SALES_REP.id,
+            "sub": _FAKE_SALES_REP.id,
             "email": _FAKE_SALES_REP.email,
-            "role":  _FAKE_SALES_REP.role,
+            "role": _FAKE_SALES_REP.role,
         }
     )
 
 
 # ─── Mock Data Generators ─────────────────────────────────────────────────────
+
 
 def _mock_graph_state() -> dict[str, Any]:
     return {
@@ -128,6 +133,7 @@ def _mock_handoff_explanation() -> dict[str, Any]:
 
 # ─── Health check tests ────────────────────────────────────────────────────────
 
+
 def test_health_check():
     response = client.get("/health")
     assert response.status_code == 200
@@ -136,13 +142,15 @@ def test_health_check():
 
 # ─── POST /chat requires auth ──────────────────────────────────────────────────
 
+
 def test_chat_requires_auth():
     """POST /chat should return 401 when no Authorization header is provided."""
     # Use a fresh app without auth override
-    with patch("src.api.main.init_db", new_callable=AsyncMock), \
-         patch("src.api.main.init_users_db", new_callable=AsyncMock), \
-         patch("src.api.main.seed_admin", new_callable=AsyncMock), \
-         patch("src.api.main.init_analytics_db", new_callable=AsyncMock):
+    with patch("src.api.main.init_db", new_callable=AsyncMock), patch(
+        "src.api.main.init_users_db", new_callable=AsyncMock
+    ), patch("src.api.main.seed_admin", new_callable=AsyncMock), patch(
+        "src.api.main.init_analytics_db", new_callable=AsyncMock
+    ):
         from fastapi import FastAPI
         from src.api.routes.chat import router as chat_router
 
@@ -159,15 +167,24 @@ def test_chat_requires_auth():
 
 # ─── POST /chat returns valid response shape ──────────────────────────────────
 
+
 class TestPostChatEndpoint:
-    @patch("src.api.routes.chat.ConversationMemory.from_session", new_callable=AsyncMock)
+    @patch(
+        "src.api.routes.chat.ConversationMemory.from_session", new_callable=AsyncMock
+    )
     @patch("src.api.routes.chat.run_graph")
     @patch("src.api.routes.chat.explain")
     @patch("src.api.routes.chat.save_session", new_callable=AsyncMock)
     @patch("src.api.routes.chat.log_event", new_callable=AsyncMock)
     @patch("src.api.routes.chat.assign_variant", new_callable=AsyncMock)
     def test_chat_returns_valid_shape(
-        self, mock_variant, mock_log_event, mock_save, mock_explain, mock_run_graph, mock_from_session,
+        self,
+        mock_variant,
+        mock_log_event,
+        mock_save,
+        mock_explain,
+        mock_run_graph,
+        mock_from_session,
         get_auth_token: str,
     ):
         """POST /chat returns a ChatResponse with all expected fields."""
@@ -202,14 +219,22 @@ class TestPostChatEndpoint:
         assert "should_handoff" in body
         assert "explanation" in body
 
-    @patch("src.api.routes.chat.ConversationMemory.from_session", new_callable=AsyncMock)
+    @patch(
+        "src.api.routes.chat.ConversationMemory.from_session", new_callable=AsyncMock
+    )
     @patch("src.api.routes.chat.run_graph")
     @patch("src.api.routes.chat.explain")
     @patch("src.api.routes.chat.save_session", new_callable=AsyncMock)
     @patch("src.api.routes.chat.log_event", new_callable=AsyncMock)
     @patch("src.api.routes.chat.assign_variant", new_callable=AsyncMock)
     def test_handoff_in_response(
-        self, mock_variant, mock_log_event, mock_save, mock_explain, mock_run_graph, mock_from_session,
+        self,
+        mock_variant,
+        mock_log_event,
+        mock_save,
+        mock_explain,
+        mock_run_graph,
+        mock_from_session,
         get_auth_token: str,
     ):
         """When should_handoff=True, response text equals handoff_message."""
@@ -232,7 +257,10 @@ class TestPostChatEndpoint:
         headers = {"Authorization": f"Bearer {get_auth_token}"}
         response = client.post(
             "/chat",
-            json={"session_id": "test-handoff", "message": "I want to talk to a real person"},
+            json={
+                "session_id": "test-handoff",
+                "message": "I want to talk to a real person",
+            },
             headers=headers,
         )
 
@@ -249,14 +277,19 @@ class TestPostChatEndpoint:
         assert response.status_code == 422
 
     def test_validation_empty_fields(self):
-        response = client.post("/chat", json={"session_id": "session_123", "message": ""})
+        response = client.post(
+            "/chat", json={"session_id": "session_123", "message": ""}
+        )
         assert response.status_code == 422
 
         response = client.post("/chat", json={"session_id": "   ", "message": "Hello"})
         assert response.status_code == 400
         assert "must be a non-empty string" in response.json()["detail"]
 
-    @patch("src.api.routes.chat.ConversationMemory.from_session", side_effect=Exception("DB Down"))
+    @patch(
+        "src.api.routes.chat.ConversationMemory.from_session",
+        side_effect=Exception("DB Down"),
+    )
     def test_internal_server_error_propagation(self, mock_from_session):
         payload = {"session_id": "session_123", "message": "Hello"}
         response = client.post("/chat", json=payload)
@@ -265,6 +298,7 @@ class TestPostChatEndpoint:
 
 
 # ─── GET /session/{session_id} tests ───────────────────────────────────────────
+
 
 class TestGetSessionEndpoint:
     @patch("src.api.routes.chat.load_session", new_callable=AsyncMock)
@@ -306,13 +340,15 @@ class TestGetSessionEndpoint:
 
 # ─── Analytics endpoint role guard ─────────────────────────────────────────────
 
+
 def test_analytics_endpoint_requires_admin(get_sales_rep_token: str):
     """GET /analytics/dashboard should return 403 for non-admin users."""
     # Create a client that uses the sales_rep token
-    with patch("src.api.main.init_db", new_callable=AsyncMock), \
-         patch("src.api.main.init_users_db", new_callable=AsyncMock), \
-         patch("src.api.main.seed_admin", new_callable=AsyncMock), \
-         patch("src.api.main.init_analytics_db", new_callable=AsyncMock):
+    with patch("src.api.main.init_db", new_callable=AsyncMock), patch(
+        "src.api.main.init_users_db", new_callable=AsyncMock
+    ), patch("src.api.main.seed_admin", new_callable=AsyncMock), patch(
+        "src.api.main.init_analytics_db", new_callable=AsyncMock
+    ):
         from fastapi import FastAPI
         from src.api.routes.analytics import router as analytics_router
 

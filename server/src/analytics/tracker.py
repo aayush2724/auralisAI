@@ -49,6 +49,7 @@ from datetime import datetime, timezone
 from typing import Any, TypedDict
 
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 # Share the existing engine — no second connection pool
 from src.memory.db import _get_engine  # noqa: WPS436
@@ -94,7 +95,7 @@ async def init_analytics_db() -> None:
                     "ALTER TABLE conversation_events ADD COLUMN IF NOT EXISTS variant VARCHAR(16) NOT NULL DEFAULT 'ADAPTIVE'"
                 )
             )
-        except Exception as exc:
+        except SQLAlchemyError as exc:
             logger.warning(
                 "Could not add variant column to conversation_events: %s", exc
             )
@@ -203,7 +204,7 @@ async def log_event(
                 {"sid": session_id},
             )
             turn_number = (result.scalar() or 0) + 1
-    except Exception as exc:
+    except SQLAlchemyError as exc:
         logger.warning(
             "log_event: could not fetch turn count for %s: %s", session_id, exc
         )
@@ -211,7 +212,7 @@ async def log_event(
 
     try:
         await _insert_event(session_id, state, did_convert, turn_number)
-    except Exception as exc:
+    except SQLAlchemyError as exc:
         # Never propagate — analytics failures must not affect the chat response.
         logger.warning("log_event: insert failed for session %s: %s", session_id, exc)
 

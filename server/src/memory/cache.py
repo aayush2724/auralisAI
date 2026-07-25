@@ -23,6 +23,7 @@ import logging
 import os
 
 import redis.asyncio as aioredis
+from redis.exceptions import RedisError
 
 logger = logging.getLogger("auralis.memory.cache")
 
@@ -66,7 +67,7 @@ async def get_cached(key: str) -> str | None:
         value: str | None = await client.get(key)
         logger.debug("cache GET %s → %s", key, "HIT" if value else "MISS")
         return value
-    except Exception as exc:
+    except RedisError as exc:
         logger.warning("Redis GET failed for key '%s': %s", key, exc)
         return None
 
@@ -88,7 +89,7 @@ async def set_cached(key: str, value: str, ttl: int = 300) -> None:
         else:
             await client.set(key, value, ex=ttl)
         logger.debug("cache SET %s (ttl=%ds)", key, ttl)
-    except Exception as exc:
+    except RedisError as exc:
         logger.warning("Redis SET failed for key '%s': %s", key, exc)
 
 
@@ -98,7 +99,7 @@ async def delete_cached(key: str) -> None:
         client = _get_client()
         await client.delete(key)
         logger.debug("cache DEL %s", key)
-    except Exception as exc:
+    except RedisError as exc:
         logger.warning("Redis DEL failed for key '%s': %s", key, exc)
 
 
@@ -119,6 +120,6 @@ async def flush_prefix(prefix: str) -> int:
             await client.delete(key)
             deleted += 1
         logger.info("Flushed %d key(s) with prefix '%s'", deleted, prefix)
-    except Exception as exc:
+    except RedisError as exc:
         logger.warning("Redis flush_prefix failed for '%s': %s", prefix, exc)
     return deleted

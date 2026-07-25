@@ -24,17 +24,18 @@ from src.classifier.sentiment import SentimentResult, _TONE_INSTRUCTIONS, analyz
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-REQUIRED_KEYS    = {"label", "score", "tone_instruction"}
-VALID_LABELS     = {"positive", "neutral", "negative"}
-VALID_TONE_KEYS  = set(_TONE_INSTRUCTIONS.keys())
+REQUIRED_KEYS = {"label", "score", "tone_instruction"}
+VALID_LABELS = {"positive", "neutral", "negative"}
+VALID_TONE_KEYS = set(_TONE_INSTRUCTIONS.keys())
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
+
 def _assert_schema(result: SentimentResult) -> None:
-    assert REQUIRED_KEYS.issubset(result.keys()), (
-        f"Missing keys: {REQUIRED_KEYS - result.keys()}"
-    )
+    assert REQUIRED_KEYS.issubset(
+        result.keys()
+    ), f"Missing keys: {REQUIRED_KEYS - result.keys()}"
     assert result["label"] in VALID_LABELS, f"Unknown label: {result['label']}"
     assert isinstance(result["score"], float), "score must be a float"
     assert 0.0 <= result["score"] <= 1.0, f"score out of range: {result['score']}"
@@ -43,6 +44,7 @@ def _assert_schema(result: SentimentResult) -> None:
 
 
 # ─── Schema tests ─────────────────────────────────────────────────────────────
+
 
 class TestSchema:
     SAMPLES = [
@@ -61,18 +63,19 @@ class TestSchema:
 
 # ─── Label mapping ────────────────────────────────────────────────────────────
 
+
 class TestLabelMapping:
     def test_clearly_positive(self):
         result = analyze("This is exactly what we needed — absolutely love it!")
-        assert result["label"] == "positive", (
-            f"Expected 'positive', got '{result['label']}' (score={result['score']:.2f})"
-        )
+        assert (
+            result["label"] == "positive"
+        ), f"Expected 'positive', got '{result['label']}' (score={result['score']:.2f})"
 
     def test_clearly_negative(self):
         result = analyze("This product is terrible and a complete waste of money.")
-        assert result["label"] == "negative", (
-            f"Expected 'negative', got '{result['label']}' (score={result['score']:.2f})"
-        )
+        assert (
+            result["label"] == "negative"
+        ), f"Expected 'negative', got '{result['label']}' (score={result['score']:.2f})"
 
     def test_label_is_lowercase(self):
         """Labels must be lowercase (not 'POSITIVE'/'NEGATIVE')."""
@@ -81,6 +84,7 @@ class TestLabelMapping:
 
 
 # ─── Tone instructions ────────────────────────────────────────────────────────
+
 
 class TestToneInstructions:
     def test_positive_tone_instruction(self):
@@ -108,6 +112,7 @@ class TestToneInstructions:
 
 # ─── Edge cases ───────────────────────────────────────────────────────────────
 
+
 class TestEdgeCases:
     def test_empty_string_raises(self):
         with pytest.raises(ValueError, match="non-empty"):
@@ -119,7 +124,9 @@ class TestEdgeCases:
 
     def test_very_long_input(self):
         """Should not crash on long inputs (model truncates to 512 tokens)."""
-        long_text = ("The product is great and we love using it every day! " * 30).strip()
+        long_text = (
+            "The product is great and we love using it every day! " * 30
+        ).strip()
         result = analyze(long_text)
         _assert_schema(result)
 

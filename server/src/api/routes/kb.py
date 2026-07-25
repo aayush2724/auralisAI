@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 import os
+import pickle
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -87,8 +88,8 @@ async def kb_ingest(
             dest.write_bytes(content)
             files_saved += 1
             logger.info("Saved: %s (%d bytes)", dest.name, len(content))
-        except Exception as exc:
-            logger.error("Failed to save %s: %s", upload_file.filename, exc)
+        except OSError:
+            logger.exception("Failed to save %s", upload_file.filename)
 
     if files_saved == 0:
         raise HTTPException(
@@ -112,6 +113,7 @@ async def kb_ingest(
             index_updated=True,
         )
     except Exception as exc:
+        # Broad exception caught because ingest_directory wraps multiple third-party loaders and operations
         logger.exception("Ingestion failed")
         raise HTTPException(
             status_code=500,
@@ -156,8 +158,6 @@ async def kb_stats(
         # Read FAISS metadata to count documents and chunks
         docstore_path = VECTORSTORE_PATH / "index.pkl"
         if docstore_path.exists():
-            import pickle  # noqa: PLC0415
-
             with open(docstore_path, "rb") as f:
                 docstore = pickle.load(f)  # noqa: S301
 
@@ -191,7 +191,7 @@ async def kb_stats(
             index_path=str(VECTORSTORE_PATH / "index.faiss"),
             last_updated=last_updated,
         )
-    except Exception as exc:
+    except (OSError, pickle.UnpicklingError) as exc:
         logger.warning("Could not read KB stats: %s", exc)
         return KBStatsResponse(
             total_documents=0,

@@ -18,7 +18,7 @@ from unittest.mock import patch
 from langchain_community.embeddings import FakeEmbeddings
 
 from src.rag.ingest import ingest_directory
-from src.rag.retriever import _get_vectorstore, _reset_cache, format_citations, retrieve
+from src.rag.retriever import _reset_cache, format_citations, retrieve
 
 
 @pytest.fixture(autouse=True)
@@ -107,9 +107,9 @@ class TestRetrieve:
         )
         required_keys = {"text", "source_file", "chunk_index", "score"}
         for res in results:
-            assert required_keys.issubset(res.keys()), (
-                f"Result missing keys. Got: {set(res.keys())}"
-            )
+            assert required_keys.issubset(
+                res.keys()
+            ), f"Result missing keys. Got: {set(res.keys())}"
 
     def test_source_file_matches(self, built_vectorstore):
         """Returned source_file should reference the ingested markdown file."""
@@ -120,14 +120,16 @@ class TestRetrieve:
             vectorstore_path=built_vectorstore,
         )
         sources = {r["source_file"] for r in results}
-        assert "sales_cases.md" in sources, (
-            f"Expected 'sales_cases.md' in sources, got: {sources}"
-        )
+        assert (
+            "sales_cases.md" in sources
+        ), f"Expected 'sales_cases.md' in sources, got: {sources}"
 
     def test_score_is_numeric(self, built_vectorstore):
         """Score field must be a float."""
         _reset_cache()
-        results = retrieve("ROI calculation", top_k=2, vectorstore_path=built_vectorstore)
+        results = retrieve(
+            "ROI calculation", top_k=2, vectorstore_path=built_vectorstore
+        )
         for res in results:
             assert isinstance(res["score"], float), "Score must be a float"
 

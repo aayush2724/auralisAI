@@ -24,52 +24,57 @@ EXPECTED_PERSONAS = {"CEO", "CTO", "Developer", "Product_Manager", "Founder", "U
 # ─── Content markers expected in each template ────────────────────────────────
 
 _CONTENT_MARKERS: dict[str, list[str]] = {
-    "CEO":             ["revenue", "cost", "board", "dollar", "risk"],
-    "CTO":             ["architecture", "scalab", "security", "sla", "api"],
-    "Developer":       ["rest api", "sdk", "webhook", "self-serve", "documentation"],
+    "CEO": ["revenue", "cost", "board", "dollar", "risk"],
+    "CTO": ["architecture", "scalab", "security", "sla", "api"],
+    "Developer": ["rest api", "sdk", "webhook", "self-serve", "documentation"],
     "Product_Manager": ["feature velocity", "user", "roadmap", "outcome"],
-    "Founder":         ["speed-to-market", "competitive", "unit economics", "gtm"],
-    "Unknown":         ["professional", "discovery", "balanced"],
+    "Founder": ["speed-to-market", "competitive", "unit economics", "gtm"],
+    "Unknown": ["professional", "discovery", "balanced"],
 }
 
 
 # ─── Registry completeness ────────────────────────────────────────────────────
 
+
 class TestTemplateRegistry:
     def test_all_personas_registered(self):
-        assert EXPECTED_PERSONAS.issubset(PERSONA_TEMPLATES.keys()), (
-            f"Missing personas: {EXPECTED_PERSONAS - PERSONA_TEMPLATES.keys()}"
-        )
+        assert EXPECTED_PERSONAS.issubset(
+            PERSONA_TEMPLATES.keys()
+        ), f"Missing personas: {EXPECTED_PERSONAS - PERSONA_TEMPLATES.keys()}"
 
     def test_all_templates_non_empty(self):
         for persona, template in PERSONA_TEMPLATES.items():
-            assert isinstance(template, str) and len(template) > 50, (
-                f"Template for '{persona}' is too short or not a string"
-            )
+            assert (
+                isinstance(template, str) and len(template) > 50
+            ), f"Template for '{persona}' is too short or not a string"
 
     def test_all_templates_contain_auralis(self):
         """Every template should identify the assistant as Auralis."""
         for persona, template in PERSONA_TEMPLATES.items():
-            assert "auralis" in template.lower(), (
-                f"Template for '{persona}' does not mention 'Auralis'"
-            )
+            assert (
+                "auralis" in template.lower()
+            ), f"Template for '{persona}' does not mention 'Auralis'"
 
 
 # ─── Content marker tests ─────────────────────────────────────────────────────
+
 
 class TestTemplateContent:
     @pytest.mark.parametrize("persona,markers", _CONTENT_MARKERS.items())
     def test_template_contains_relevant_markers(self, persona, markers):
         template = PERSONA_TEMPLATES.get(persona, "")
         for marker in markers:
-            assert marker.lower() in template.lower(), (
-                f"Template for '{persona}' missing marker: '{marker}'"
-            )
+            assert (
+                marker.lower() in template.lower()
+            ), f"Template for '{persona}' missing marker: '{marker}'"
 
     def test_ceo_template_mentions_numbers(self):
         """CEO template must emphasise metrics and numbers."""
         template = PERSONA_TEMPLATES["CEO"]
-        assert any(w in template.lower() for w in ["dollar", "percentage", "figures", "numbers"])
+        assert any(
+            w in template.lower()
+            for w in ["dollar", "percentage", "figures", "numbers"]
+        )
 
     def test_cto_template_mentions_compliance(self):
         """CTO template must mention at least one compliance standard."""
@@ -88,6 +93,7 @@ class TestTemplateContent:
 
 # ─── _get_system_prompt() ─────────────────────────────────────────────────────
 
+
 class TestGetSystemPrompt:
     @pytest.mark.parametrize("persona", list(EXPECTED_PERSONAS))
     def test_returns_non_empty_string(self, persona):
@@ -98,9 +104,9 @@ class TestGetSystemPrompt:
         """Every persona prompt must include the shared guidelines section."""
         for persona in EXPECTED_PERSONAS:
             prompt = _get_system_prompt(persona)
-            assert "Shared guidelines" in prompt, (
-                f"Shared guidelines missing for persona '{persona}'"
-            )
+            assert (
+                "Shared guidelines" in prompt
+            ), f"Shared guidelines missing for persona '{persona}'"
 
     def test_unknown_fallback(self):
         """Unrecognised persona falls back to 'Unknown' template."""
@@ -114,21 +120,24 @@ class TestGetSystemPrompt:
         so the template text should appear at the start.
         """
         for persona in EXPECTED_PERSONAS:
-            template  = PERSONA_TEMPLATES[persona]
+            template = PERSONA_TEMPLATES[persona]
             full_prompt = _get_system_prompt(persona)
-            assert full_prompt.startswith(template), (
-                f"Persona template for '{persona}' is not a prefix of _get_system_prompt output"
-            )
+            assert full_prompt.startswith(
+                template
+            ), f"Persona template for '{persona}' is not a prefix of _get_system_prompt output"
 
-    @pytest.mark.parametrize("persona_a,persona_b", [
-        ("CEO",   "CTO"),
-        ("CTO",   "Developer"),
-        ("Founder", "Product_Manager"),
-    ])
+    @pytest.mark.parametrize(
+        "persona_a,persona_b",
+        [
+            ("CEO", "CTO"),
+            ("CTO", "Developer"),
+            ("Founder", "Product_Manager"),
+        ],
+    )
     def test_different_personas_produce_different_prompts(self, persona_a, persona_b):
         """Each persona must produce a meaningfully different system prompt."""
         prompt_a = _get_system_prompt(persona_a)
         prompt_b = _get_system_prompt(persona_b)
-        assert prompt_a != prompt_b, (
-            f"Prompts for '{persona_a}' and '{persona_b}' are identical"
-        )
+        assert (
+            prompt_a != prompt_b
+        ), f"Prompts for '{persona_a}' and '{persona_b}' are identical"

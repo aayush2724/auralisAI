@@ -79,21 +79,24 @@ async def lifespan(app: FastAPI):
     try:
         await init_db()
         logger.info("customer_sessions table ready.")
-    except Exception as exc:
-        logger.error("customer_sessions init failed: %s", exc, exc_info=True)
+    except Exception:
+        # Broad exception caught because DB initialization can fail in many ways
+        logger.exception("customer_sessions init failed")
 
     try:
         await init_users_db()
         logger.info("users table ready.")
         await seed_admin()
-    except Exception as exc:
-        logger.error("users init / seed failed: %s", exc, exc_info=True)
+    except Exception:
+        # Broad exception caught because DB initialization and seeding can fail in many ways
+        logger.exception("users init / seed failed")
 
     try:
         await init_analytics_db()
         logger.info("conversation_events table ready.")
-    except Exception as exc:
-        logger.error("analytics init failed: %s", exc, exc_info=True)
+    except Exception:
+        # Broad exception caught because analytics DB initialization can fail in many ways
+        logger.exception("analytics init failed")
 
     yield
     logger.info("Auralis API shutting down.")

@@ -41,6 +41,8 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from sqlalchemy.exc import SQLAlchemyError
+
 # ─── Logging ──────────────────────────────────────────────────────────────────
 
 logger = logging.getLogger("auralis.memory")
@@ -370,7 +372,7 @@ class ConversationMemory:
                     facts["persona_label"] = last_user.metadata["persona"].get("label")
             await save_session(self._session_id, facts)
             logger.debug("Session persisted: %s", self._session_id)
-        except Exception as exc:
+        except SQLAlchemyError as exc:
             logger.warning(
                 "DB persist failed for session %s: %s", self._session_id, exc
             )
@@ -409,7 +411,7 @@ class ConversationMemory:
                     stored.get("company_name"),
                     stored.get("tools_mentioned"),
                 )
-        except Exception as exc:
+        except SQLAlchemyError as exc:
             logger.warning(
                 "DB load failed for session %s: %s — starting fresh.", session_id, exc
             )

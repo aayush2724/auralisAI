@@ -29,62 +29,75 @@ from src.graph.graph import (
 )
 from src.memory.memory import ConversationMemory
 
-
 # ─── Shared mock factories ────────────────────────────────────────────────────
 
-def _mock_combined(obj_label="price", obj_conf=0.88, per_label="CTO", per_conf=0.82) -> dict:
+
+def _mock_combined(
+    obj_label="price", obj_conf=0.88, per_label="CTO", per_conf=0.82
+) -> dict:
     return {
         "objection": {"label": obj_label, "confidence": obj_conf},
-        "persona": {"label": per_label, "confidence": per_conf}
+        "persona": {"label": per_label, "confidence": per_conf},
     }
+
 
 def _mock_objection(label="price", confidence=0.88) -> dict:
     return {
-        "label":      label,
+        "label": label,
         "confidence": confidence,
         "all_scores": {label: confidence, "neutral": 1 - confidence},
-        "triggers":   ["too expensive"],
+        "triggers": ["too expensive"],
     }
 
 
 def _mock_sentiment(label="neutral", score=0.55) -> dict:
     return {
-        "label":            label,
-        "score":            score,
+        "label": label,
+        "score": score,
         "tone_instruction": "Stay professional and informative.",
     }
 
 
 def _mock_persona(label="CTO", confidence=0.82) -> dict:
     return {
-        "label":       label,
-        "confidence":  confidence,
+        "label": label,
+        "confidence": confidence,
         "pitch_angle": "Lead with architecture, scalability, and API quality.",
     }
 
 
 def _mock_docs() -> list[dict]:
     return [
-        {"text": "Case study: Acme reduced costs by 30%.", "source_file": "cases.pdf", "chunk_index": 0, "score": 0.12},
-        {"text": "ROI calculator shows 3x return.",        "source_file": "faq.md",    "chunk_index": 1, "score": 0.18},
+        {
+            "text": "Case study: Acme reduced costs by 30%.",
+            "source_file": "cases.pdf",
+            "chunk_index": 0,
+            "score": 0.12,
+        },
+        {
+            "text": "ROI calculator shows 3x return.",
+            "source_file": "faq.md",
+            "chunk_index": 1,
+            "score": 0.18,
+        },
     ]
 
 
 def _base_state(**overrides) -> GraphState:
     state: GraphState = {
-        "user_input":     "This is too expensive for our budget.",
-        "objection":      _mock_objection(),
-        "sentiment":      _mock_sentiment(),
-        "persona":        _mock_persona(),
+        "user_input": "This is too expensive for our budget.",
+        "objection": _mock_objection(),
+        "sentiment": _mock_sentiment(),
+        "persona": _mock_persona(),
         "retrieved_docs": _mock_docs(),
-        "citations":      "[1] Cases (cases.pdf, chunk 0)\n[2] FAQ (faq.md, chunk 1)",
+        "citations": "[1] Cases (cases.pdf, chunk 0)\n[2] FAQ (faq.md, chunk 1)",
         "memory_context": "Customer context: tools=Salesforce.",
-        "strategy":       "value_reframe",
-        "response":       "",
-        "confidence":     0.88,
+        "strategy": "value_reframe",
+        "response": "",
+        "confidence": 0.88,
         "should_handoff": False,
         "metadata": {
-            "pitch_angle":      "Lead with architecture.",
+            "pitch_angle": "Lead with architecture.",
             "tone_instruction": "Stay professional.",
             "objection_triggers": ["too expensive"],
         },
@@ -95,53 +108,59 @@ def _base_state(**overrides) -> GraphState:
 
 # ─── classify_node ────────────────────────────────────────────────────────────
 
+
 class TestClassifyNode:
     @patch("src.graph.graph.get_zeroshot_pipeline")
-    @patch("src.graph.graph.analyze",  return_value=_mock_sentiment())
+    @patch("src.graph.graph.analyze", return_value=_mock_sentiment())
     def test_returns_all_classifier_results(self, mock_analyze, mock_pipeline):
         mock_pipeline.return_value.classify_combined.return_value = _mock_combined()
         state = {"user_input": "This is too expensive."}
         result = classify_node(state)
 
-        assert "objection"  in result
-        assert "sentiment"  in result
-        assert "persona"    in result
+        assert "objection" in result
+        assert "sentiment" in result
+        assert "persona" in result
         assert "confidence" in result
-        assert "metadata"   in result
+        assert "metadata" in result
 
     @patch("src.graph.graph.get_zeroshot_pipeline")
-    @patch("src.graph.graph.analyze",  return_value=_mock_sentiment())
+    @patch("src.graph.graph.analyze", return_value=_mock_sentiment())
     def test_confidence_mirrors_objection(self, mock_analyze, mock_pipeline):
-        mock_pipeline.return_value.classify_combined.return_value = _mock_combined("competitor", 0.91)
+        mock_pipeline.return_value.classify_combined.return_value = _mock_combined(
+            "competitor", 0.91
+        )
         result = classify_node({"user_input": "We use HubSpot."})
         assert result["confidence"] == pytest.approx(0.91)
 
     @patch("src.graph.graph.get_zeroshot_pipeline")
-    @patch("src.graph.graph.analyze",  return_value=_mock_sentiment())
+    @patch("src.graph.graph.analyze", return_value=_mock_sentiment())
     def test_metadata_contains_pitch_angle(self, mock_analyze, mock_pipeline):
         mock_pipeline.return_value.classify_combined.return_value = _mock_combined()
         result = classify_node({"user_input": "Explain your APIs."})
         assert "pitch_angle" in result["metadata"]
 
     @patch("src.graph.graph.get_zeroshot_pipeline")
-    @patch("src.graph.graph.analyze",  return_value=_mock_sentiment())
+    @patch("src.graph.graph.analyze", return_value=_mock_sentiment())
     def test_classifier_failure_propagates(self, mock_analyze, mock_pipeline):
-        mock_pipeline.return_value.classify_combined.side_effect = RuntimeError("Model down")
+        mock_pipeline.return_value.classify_combined.side_effect = RuntimeError(
+            "Model down"
+        )
         with pytest.raises(RuntimeError, match="Model down"):
             classify_node({"user_input": "Hello"})
 
 
 # ─── retrieve_node ────────────────────────────────────────────────────────────
 
+
 class TestRetrieveNode:
-    @patch("src.graph.graph.retrieve",         return_value=_mock_docs())
+    @patch("src.graph.graph.retrieve", return_value=_mock_docs())
     @patch("src.graph.graph.format_citations", return_value="[1] Source A")
     def test_returns_docs_and_citations(self, mock_cit, mock_ret):
         state = _base_state()
         result = retrieve_node(state)
 
         assert "retrieved_docs" in result
-        assert "citations"      in result
+        assert "citations" in result
         assert len(result["retrieved_docs"]) == 2
         assert "[1]" in result["citations"]
 
@@ -153,30 +172,34 @@ class TestRetrieveNode:
         assert result["retrieved_docs"] == []
         assert result["citations"] == ""
 
-    @patch("src.graph.graph.retrieve",         return_value=_mock_docs())
+    @patch("src.graph.graph.retrieve", return_value=_mock_docs())
     @patch("src.graph.graph.format_citations", return_value="[1] Source A")
     def test_query_enriched_with_objection_label(self, _, mock_ret):
         state = _base_state()
         retrieve_node(state)
-        call_args = mock_ret.call_args[0][0]   # first positional arg = query string
+        call_args = mock_ret.call_args[0][0]  # first positional arg = query string
         assert "price" in call_args.lower()
 
 
 # ─── strategy_node ────────────────────────────────────────────────────────────
 
+
 class TestStrategyNode:
-    @pytest.mark.parametrize("obj_label,persona,expected_strategy", [
-        ("price",      "CEO",      "roi_business_case"),
-        ("price",      "CTO",      "value_reframe"),
-        ("price",      "Developer","value_reframe"),
-        ("trust",      "CTO",      "technical_proof"),
-        ("trust",      "CEO",      "social_proof"),
-        ("competitor", "Developer","technical_differentiation"),
-        ("competitor", "Founder",  "competitive_differentiation"),
-        ("timing",     "CEO",      "strategic_timing"),
-        ("buying_signal", "Unknown", "closing_accelerator"),
-        ("neutral",    "Unknown",  "discovery_questions"),
-    ])
+    @pytest.mark.parametrize(
+        "obj_label,persona,expected_strategy",
+        [
+            ("price", "CEO", "roi_business_case"),
+            ("price", "CTO", "value_reframe"),
+            ("price", "Developer", "value_reframe"),
+            ("trust", "CTO", "technical_proof"),
+            ("trust", "CEO", "social_proof"),
+            ("competitor", "Developer", "technical_differentiation"),
+            ("competitor", "Founder", "competitive_differentiation"),
+            ("timing", "CEO", "strategic_timing"),
+            ("buying_signal", "Unknown", "closing_accelerator"),
+            ("neutral", "Unknown", "discovery_questions"),
+        ],
+    )
     def test_strategy_selection(self, obj_label, persona, expected_strategy):
         state = _base_state(
             objection=_mock_objection(obj_label),
@@ -200,6 +223,7 @@ class TestStrategyNode:
 
 
 # ─── generate_node ────────────────────────────────────────────────────────────
+
 
 class TestGenerateNode:
     def _mock_llm_response(self, text="Here is the generated response."):
@@ -244,6 +268,7 @@ class TestGenerateNode:
 
 # ─── handoff_node ─────────────────────────────────────────────────────────────
 
+
 class TestHandoffNode:
     def test_sets_should_handoff_true(self):
         state = _base_state(confidence=0.25, objection=_mock_objection(confidence=0.25))
@@ -257,7 +282,9 @@ class TestHandoffNode:
         assert len(result["handoff_message"]) > 0
 
     def test_empty_response_handled(self):
-        state = _base_state(response="", confidence=0.25, objection=_mock_objection(confidence=0.25))
+        state = _base_state(
+            response="", confidence=0.25, objection=_mock_objection(confidence=0.25)
+        )
         result = handoff_node(state)
         assert result["should_handoff"] is True
         assert len(result["handoff_message"]) > 0
@@ -265,6 +292,7 @@ class TestHandoffNode:
 
 
 # ─── _should_handoff router ───────────────────────────────────────────────────
+
 
 class TestShouldHandoffRouter:
     def test_low_confidence_triggers_handoff(self):
@@ -306,13 +334,15 @@ class TestShouldHandoffRouter:
 
 # ─── run_graph (integration, all I/O mocked) ─────────────────────────────────
 
+
 class TestRunGraph:
     def _patch_all(self):
         """Context manager that patches all external I/O."""
         import unittest.mock as um
+
         patches = [
             um.patch("src.graph.graph.get_zeroshot_pipeline"),
-            um.patch("src.graph.graph.analyze",  return_value=_mock_sentiment()),
+            um.patch("src.graph.graph.analyze", return_value=_mock_sentiment()),
             um.patch("src.graph.graph.retrieve", return_value=_mock_docs()),
             um.patch("src.graph.graph.format_citations", return_value="[1] Source"),
             um.patch("src.graph.graph._get_llm"),
@@ -330,9 +360,9 @@ class TestRunGraph:
             mem = ConversationMemory()
             result = run_graph("This is too expensive.", mem)
             assert isinstance(result, dict)
-            assert "response"  in result
+            assert "response" in result
             assert "objection" in result
-            assert "strategy"  in result
+            assert "strategy" in result
         finally:
             for p in patches:
                 p.stop()
@@ -347,7 +377,7 @@ class TestRunGraph:
             mem = ConversationMemory()
             run_graph("We use HubSpot.", mem)
             messages = mem.get_messages()
-            assert len(messages) == 2           # user + assistant
+            assert len(messages) == 2  # user + assistant
             assert messages[0].role == "user"
             assert messages[1].role == "assistant"
         finally:

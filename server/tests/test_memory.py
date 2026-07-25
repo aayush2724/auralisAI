@@ -22,8 +22,8 @@ import pytest
 
 from src.memory.memory import ConversationMemory
 
-
 # ─── Fixtures ─────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mem() -> ConversationMemory:
@@ -32,6 +32,7 @@ def mem() -> ConversationMemory:
 
 
 # ─── add() / get_messages() ───────────────────────────────────────────────────
+
 
 class TestAddAndMessages:
     def test_add_user_message(self, mem):
@@ -74,6 +75,7 @@ class TestAddAndMessages:
 
 # ─── Tool extraction ──────────────────────────────────────────────────────────
 
+
 class TestToolExtraction:
     def test_single_tool(self, mem):
         mem.add("user", "We currently use HubSpot for our CRM.")
@@ -113,6 +115,7 @@ class TestToolExtraction:
 
 # ─── Company extraction ───────────────────────────────────────────────────────
 
+
 class TestCompanyExtraction:
     def test_at_company_name(self, mem):
         mem.add("user", "Hi, I'm calling from Acme Corp.")
@@ -131,6 +134,7 @@ class TestCompanyExtraction:
 
 
 # ─── Budget extraction ────────────────────────────────────────────────────────
+
 
 class TestBudgetExtraction:
     def test_dollar_amount(self, mem):
@@ -155,15 +159,23 @@ class TestBudgetExtraction:
 
 # ─── Objection metadata ────────────────────────────────────────────────────────
 
+
 class TestObjectionMetadata:
     def _price_objection(self) -> dict:
         return {"label": "price", "confidence": 0.91, "all_scores": {}, "triggers": []}
 
     def _neutral_objection(self) -> dict:
-        return {"label": "neutral", "confidence": 0.60, "all_scores": {}, "triggers": []}
+        return {
+            "label": "neutral",
+            "confidence": 0.60,
+            "all_scores": {},
+            "triggers": [],
+        }
 
     def test_objection_recorded(self, mem):
-        mem.add("user", "Too expensive.", metadata={"objection": self._price_objection()})
+        mem.add(
+            "user", "Too expensive.", metadata={"objection": self._price_objection()}
+        )
         objs = mem.get_facts()["objections_raised"]
         assert len(objs) == 1
         assert objs[0]["label"] == "price"
@@ -176,8 +188,21 @@ class TestObjectionMetadata:
         assert mem.get_facts()["objections_raised"] == []
 
     def test_multiple_objections(self, mem):
-        mem.add("user", "Too expensive.", metadata={"objection": self._price_objection()})
-        mem.add("user", "Never heard of you.", metadata={"objection": {"label": "trust", "confidence": 0.78, "all_scores": {}, "triggers": []}})
+        mem.add(
+            "user", "Too expensive.", metadata={"objection": self._price_objection()}
+        )
+        mem.add(
+            "user",
+            "Never heard of you.",
+            metadata={
+                "objection": {
+                    "label": "trust",
+                    "confidence": 0.78,
+                    "all_scores": {},
+                    "triggers": [],
+                }
+            },
+        )
         objs = mem.get_facts()["objections_raised"]
         assert len(objs) == 2
         assert objs[0]["label"] == "price"
@@ -190,6 +215,7 @@ class TestObjectionMetadata:
 
 
 # ─── get_context_string() ────────────────────────────────────────────────────
+
 
 class TestContextString:
     def test_empty_when_no_facts(self, mem):
@@ -211,7 +237,14 @@ class TestContextString:
         mem.add(
             "user",
             "Too expensive.",
-            metadata={"objection": {"label": "price", "confidence": 0.91, "all_scores": {}, "triggers": []}},
+            metadata={
+                "objection": {
+                    "label": "price",
+                    "confidence": 0.91,
+                    "all_scores": {},
+                    "triggers": [],
+                }
+            },
         )
         ctx = mem.get_context_string()
         assert "price objection" in ctx
@@ -222,7 +255,14 @@ class TestContextString:
         mem.add(
             "user",
             "Hi, we use Salesforce at Acme Corp. Our budget is $50k.",
-            metadata={"objection": {"label": "price", "confidence": 0.88, "all_scores": {}, "triggers": []}},
+            metadata={
+                "objection": {
+                    "label": "price",
+                    "confidence": 0.88,
+                    "all_scores": {},
+                    "triggers": [],
+                }
+            },
         )
         ctx = mem.get_context_string()
         assert "Salesforce" in ctx
@@ -237,6 +277,7 @@ class TestContextString:
 
 # ─── get_facts() mutation safety ──────────────────────────────────────────────
 
+
 class TestGetFactsMutationSafety:
     def test_tools_list_is_copy(self, mem):
         mem.add("user", "We use Salesforce.")
@@ -245,13 +286,25 @@ class TestGetFactsMutationSafety:
         assert "FAKE_TOOL" not in mem.get_facts()["tools_mentioned"]
 
     def test_objections_list_is_copy(self, mem):
-        mem.add("user", "Too expensive.", metadata={"objection": {"label": "price", "confidence": 0.9, "all_scores": {}, "triggers": []}})
+        mem.add(
+            "user",
+            "Too expensive.",
+            metadata={
+                "objection": {
+                    "label": "price",
+                    "confidence": 0.9,
+                    "all_scores": {},
+                    "triggers": [],
+                }
+            },
+        )
         facts = mem.get_facts()
         facts["objections_raised"].clear()
         assert len(mem.get_facts()["objections_raised"]) == 1
 
 
 # ─── clear() ─────────────────────────────────────────────────────────────────
+
 
 class TestClear:
     def test_clear_removes_messages(self, mem):
@@ -278,6 +331,7 @@ class TestClear:
 
 
 # ─── repr / len ───────────────────────────────────────────────────────────────
+
 
 class TestDunders:
     def test_len(self, mem):

@@ -23,47 +23,58 @@ import pytest
 from src.classifier.persona import PersonaResult, _PITCH_ANGLES, PERSONAS, detect
 from unittest.mock import patch
 
+
 @pytest.fixture(autouse=True)
 def mock_pipeline():
     with patch("src.classifier.persona.get_zeroshot_pipeline") as mock:
+
         def fake_call(text, candidate_labels, **kwargs):
-            if "developer" in text or "REST APIs" in text: label = "Developer"
-            elif "CTO" in text or "architecture" in text or "API" in text: label = "CTO"
-            elif "CEO" in text or "revenue" in text: label = "CEO"
-            elif "startup" in text or "moat" in text: label = "Founder"
-            elif "roadmap" in text: label = "Product_Manager"
-            else: label = "Unknown"
-            
+            if "developer" in text or "REST APIs" in text:
+                label = "Developer"
+            elif "CTO" in text or "architecture" in text or "API" in text:
+                label = "CTO"
+            elif "CEO" in text or "revenue" in text:
+                label = "CEO"
+            elif "startup" in text or "moat" in text:
+                label = "Founder"
+            elif "roadmap" in text:
+                label = "Product_Manager"
+            else:
+                label = "Unknown"
+
             if "Hmm, interesting." in text:
                 return {"labels": ["Unknown"], "scores": [0.2]}
-            
+
             return {"labels": [label], "scores": [0.9]}
-            
+
         mock.return_value.side_effect = fake_call
         yield mock
 
+
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-REQUIRED_KEYS  = {"label", "confidence", "pitch_angle"}
-VALID_LABELS   = set(PERSONAS)
+REQUIRED_KEYS = {"label", "confidence", "pitch_angle"}
+VALID_LABELS = set(PERSONAS)
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
+
 def _assert_schema(result: PersonaResult) -> None:
-    assert REQUIRED_KEYS.issubset(result.keys()), (
-        f"Missing keys: {REQUIRED_KEYS - result.keys()}"
-    )
+    assert REQUIRED_KEYS.issubset(
+        result.keys()
+    ), f"Missing keys: {REQUIRED_KEYS - result.keys()}"
     assert result["label"] in VALID_LABELS, f"Unknown label: {result['label']}"
     assert isinstance(result["confidence"], float), "confidence must be float"
-    assert 0.0 <= result["confidence"] <= 1.0, (
-        f"confidence out of range: {result['confidence']}"
-    )
+    assert (
+        0.0 <= result["confidence"] <= 1.0
+    ), f"confidence out of range: {result['confidence']}"
     assert isinstance(result["pitch_angle"], str), "pitch_angle must be str"
     assert result["pitch_angle"], "pitch_angle must not be empty"
 
 
 # ─── Spec-mandated test ───────────────────────────────────────────────────────
+
 
 class TestSpecMandated:
     def test_cto_integration_complexity(self):
@@ -77,25 +88,35 @@ class TestSpecMandated:
 
 # ─── Label correctness ────────────────────────────────────────────────────────
 
+
 class TestLabelCorrectness:
     def test_ceo_roi_language(self):
-        result = detect("As CEO, my main concern is the return on investment and cost savings.")
+        result = detect(
+            "As CEO, my main concern is the return on investment and cost savings."
+        )
         assert result["label"] == "CEO"
 
     def test_developer_api_language(self):
-        result = detect("I'm a developer. I need good REST APIs and solid SDK documentation.")
+        result = detect(
+            "I'm a developer. I need good REST APIs and solid SDK documentation."
+        )
         assert result["label"] == "Developer"
 
     def test_founder_competitive_moat(self):
-        result = detect("We're a startup and need to move fast and build a competitive moat.")
+        result = detect(
+            "We're a startup and need to move fast and build a competitive moat."
+        )
         assert result["label"] == "Founder"
 
     def test_product_manager_roadmap(self):
-        result = detect("I manage the product roadmap and care about user stories and prioritisation.")
+        result = detect(
+            "I manage the product roadmap and care about user stories and prioritisation."
+        )
         assert result["label"] == "Product_Manager"
 
 
 # ─── Schema validation ────────────────────────────────────────────────────────
+
 
 class TestSchema:
     SAMPLES = [
@@ -114,6 +135,7 @@ class TestSchema:
 
 # ─── Pitch angle ──────────────────────────────────────────────────────────────
 
+
 class TestPitchAngle:
     def test_pitch_angle_matches_label(self):
         """pitch_angle must correspond to the detected label."""
@@ -129,17 +151,20 @@ class TestPitchAngle:
     def test_cto_pitch_mentions_architecture(self):
         result = detect("Our CTO is worried about integration complexity")
         if result["label"] == "CTO":
-            assert "architecture" in result["pitch_angle"].lower() or \
-                   "api" in result["pitch_angle"].lower() or \
-                   "scalab" in result["pitch_angle"].lower()
+            assert (
+                "architecture" in result["pitch_angle"].lower()
+                or "api" in result["pitch_angle"].lower()
+                or "scalab" in result["pitch_angle"].lower()
+            )
 
 
 # ─── Unknown threshold ────────────────────────────────────────────────────────
 
+
 class TestUnknownFallback:
     def test_unknown_has_pitch_angle(self):
         """Even Unknown must have a pitch_angle."""
-        result = detect("Hmm, interesting.")   # intentionally ambiguous
+        result = detect("Hmm, interesting.")  # intentionally ambiguous
         # We cannot guarantee Unknown, but if it fires the schema must hold
         _assert_schema(result)
         assert result["pitch_angle"]
@@ -150,6 +175,7 @@ class TestUnknownFallback:
 
 
 # ─── Edge cases ───────────────────────────────────────────────────────────────
+
 
 class TestEdgeCases:
     def test_empty_string_raises(self):

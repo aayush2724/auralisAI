@@ -16,6 +16,7 @@ from __future__ import annotations
 import logging
 import os
 import pickle
+import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -75,21 +76,29 @@ async def kb_ingest(
 
     files_saved = 0
     for upload_file in files:
-        ext = Path(upload_file.filename or "").suffix.lower()
+        original_name = upload_file.filename or "unknown"
+        ext = Path(original_name).suffix.lower()
         if ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(
                 status_code=400,
                 detail=f"Unsupported file type: {ext}",
             )
 
-        dest = upload_dir / upload_file.filename
+        # Generate a safe filename using UUID
+        safe_filename = f"{uuid.uuid4().hex}{ext}"
+        dest = (upload_dir / safe_filename).resolve()
+
+        # Defense in depth: Verify it's within the intended directory
+        if upload_dir.resolve() not in dest.parents:
+            raise HTTPException(status_code=400, detail="Invalid file path")
+
         try:
             content = await upload_file.read()
             dest.write_bytes(content)
             files_saved += 1
             logger.info("Saved: %s (%d bytes)", dest.name, len(content))
         except OSError:
-            logger.exception("Failed to save %s", upload_file.filename)
+            logger.exception("Failed to save %s", original_name)
 
     if files_saved == 0:
         raise HTTPException(

@@ -25,8 +25,8 @@ services:
         generateValue: true
       - key: ENVIRONMENT
         value: production
-      - key: CORS_ORIGINS
-        value: "*" # Update this to your Vercel URL once deployed
+      - key: ALLOWED_ORIGINS
+        value: "https://auralis-ai-demo.vercel.app" # Comma-separated list of allowed origins
       - key: MALLOC_ARENA_MAX
         value: 2
       - key: OMP_NUM_THREADS

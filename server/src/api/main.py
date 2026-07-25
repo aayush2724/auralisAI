@@ -29,6 +29,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
 # pyrefly: ignore [missing-import]
 from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -42,6 +45,7 @@ from src.api.routes.kb import router as kb_router
 from src.api.schemas import HealthResponse
 from src.memory.db import init_db
 from src.utils.logger import get_logger
+from src.utils.limiter import limiter
 
 # ─── Logging Setup ────────────────────────────────────────────────────────────
 
@@ -139,6 +143,8 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────

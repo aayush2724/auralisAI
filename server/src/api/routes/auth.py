@@ -20,7 +20,7 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.api.auth import (
@@ -29,6 +29,7 @@ from src.api.auth import (
     create_access_token,
 )
 from src.api.schemas import TokenResponse
+from src.utils.limiter import limiter
 
 logger = logging.getLogger("auralis.api.auth")
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -49,7 +50,9 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
         401: {"description": "Incorrect email or password."},
     },
 )
+@limiter.limit("5/minute")
 async def login_for_access_token(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> TokenResponse:
     """

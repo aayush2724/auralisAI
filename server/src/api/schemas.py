@@ -21,6 +21,7 @@ class ChatRequest(BaseModel):
 
     session_id: str = Field(
         ...,
+        max_length=64,
         description="Unique identifier for this user/conversation session. "
         "Reuse across turns to maintain conversation memory.",
         examples=["user_abc123", "conv_2024_001"],
@@ -28,7 +29,7 @@ class ChatRequest(BaseModel):
     message: str = Field(
         ...,
         min_length=1,
-        max_length=4096,
+        max_length=2000,
         description="The prospect's latest utterance.",
         examples=["This is way too expensive for our budget."],
     )

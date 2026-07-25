@@ -45,6 +45,7 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
     status,
+    Request,
 )
 from pydantic import ValidationError
 
@@ -64,6 +65,7 @@ from src.memory.db import load_session, save_session
 from src.memory.memory import ConversationMemory
 from src.utils.explainability import explain
 from src.utils.logger import log_request
+from src.utils.limiter import limiter
 
 logger = logging.getLogger("auralis.api.chat")
 router = APIRouter()
@@ -208,8 +210,7 @@ def _extract_ws_token(websocket: WebSocket) -> str | None:
         if token:
             return token
 
-    query_token = websocket.query_params.get("token", "").strip()
-    return query_token or None
+    return None
 
 
 # ─── POST /chat ───────────────────────────────────────────────────────────────
@@ -235,12 +236,14 @@ def _extract_ws_token(websocket: WebSocket) -> str | None:
         500: {"description": "Internal server error during graph execution."},
     },
 )
+@limiter.limit("20/minute")
 async def chat(
-    request: ChatRequest,
+    request: Request,
+    payload: ChatRequest,
     current_user: User = require_roles("sales_rep", "admin"),
 ) -> ChatResponse:
-    session_id = request.session_id.strip()
-    message = request.message.strip()
+    session_id = payload.session_id.strip()
+    message = payload.message.strip()
 
     if not session_id:
         raise HTTPException(

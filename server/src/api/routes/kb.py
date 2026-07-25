@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import logging
 import os
-import pickle
 import uuid
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -164,32 +164,12 @@ async def kb_stats(
         )
 
     try:
-        # Read FAISS metadata to count documents and chunks
-        docstore_path = VECTORSTORE_PATH / "index.pkl"
-        if docstore_path.exists():
-            import asyncio
-
-            def _load_docstore(path):
-                with open(path, "rb") as f:
-                    return pickle.load(f)
-
-            docstore = await asyncio.to_thread(_load_docstore, docstore_path)
-
-            # docstore is a dict-like mapping; count unique source files
-            source_files: set[str] = set()
-            total_chunks = 0
-            for total_chunks, doc in enumerate(docstore.values(), start=1):
-                meta = getattr(doc, "metadata", None) or (
-                    doc if isinstance(doc, dict) else {}
-                )
-                source = (
-                    meta.get("source_file", "unknown")
-                    if isinstance(meta, dict)
-                    else "unknown"
-                )
-                source_files.add(source)
-
-            total_documents = len(source_files)
+        metadata_file = VECTORSTORE_PATH / "metadata.json"
+        if metadata_file.exists():
+            with open(metadata_file, "r") as f:
+                meta = json.load(f)
+                total_documents = meta.get("total_documents", 0)
+                total_chunks = meta.get("total_chunks", 0)
         else:
             total_documents = 0
             total_chunks = 0
@@ -204,7 +184,7 @@ async def kb_stats(
             index_path=str(VECTORSTORE_PATH / "index.faiss"),
             last_updated=last_updated,
         )
-    except (OSError, pickle.UnpicklingError) as exc:
+    except (OSError, json.JSONDecodeError) as exc:
         logger.warning("Could not read KB stats: %s", exc)
         return KBStatsResponse(
             total_documents=0,

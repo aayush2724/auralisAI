@@ -60,6 +60,7 @@ _DEMO_PASSWORD: str | None = os.getenv("DEMO_PASSWORD")
 
 if not JWT_SECRET_KEY:
     logger.critical("SECURITY ERROR: JWT_SECRET_KEY environment variable is missing.")
+    raise RuntimeError("JWT_SECRET_KEY environment variable is missing.")
 
 if not _ADMIN_EMAIL or not _ADMIN_PASSWORD:
     logger.warning(

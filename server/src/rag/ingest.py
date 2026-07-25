@@ -21,6 +21,7 @@ import argparse
 import logging
 import os
 import sys
+import json
 from pathlib import Path
 from typing import Any
 
@@ -161,6 +162,33 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
 
     vectorstore_path.mkdir(parents=True, exist_ok=True)
     vectorstore.save_local(str(vectorstore_path))
+
+    # Write metadata.json for safe stats reading
+    unique_sources = set()
+    for c in chunks:
+        if "source_file" in c["metadata"]:
+            unique_sources.add(c["metadata"]["source_file"])
+    
+    metadata_file = vectorstore_path / "metadata.json"
+    if metadata_file.exists():
+        try:
+            with open(metadata_file, "r") as f:
+                existing_meta = json.load(f)
+                existing_sources = set(existing_meta.get("sources", []))
+                unique_sources.update(existing_sources)
+                total_chunks = existing_meta.get("total_chunks", 0) + len(chunks)
+        except Exception:
+            total_chunks = len(chunks)
+    else:
+        total_chunks = len(chunks)
+
+    with open(metadata_file, "w") as f:
+        json.dump({
+            "total_documents": len(unique_sources),
+            "total_chunks": total_chunks,
+            "sources": list(unique_sources)
+        }, f)
+
     logger.info("FAISS index saved → %s", vectorstore_path / "index.faiss")
 
 

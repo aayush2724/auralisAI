@@ -145,73 +145,44 @@ async def init_users_db() -> None:
 
 async def seed_admin() -> None:
     """
-    Insert a default admin user when the users table is empty.
-
-    Credentials are read from ADMIN_EMAIL / ADMIN_PASSWORD env vars.
-    This runs once on startup and is a no-op if any user already exists.
+    Insert or update default admin user credentials from ADMIN_EMAIL / ADMIN_PASSWORD env vars.
     """
     if not _ADMIN_EMAIL or not _ADMIN_PASSWORD:
         return
 
     engine = _get_engine()
+    hashed = hash_password(_ADMIN_PASSWORD)
+    sql = text("""
+        INSERT INTO users (email, hashed_password, role)
+        VALUES (:email, :hashed, 'admin')
+        ON CONFLICT (email) DO UPDATE SET
+            hashed_password = EXCLUDED.hashed_password,
+            role = 'admin'
+    """)
     async with engine.begin() as conn:
-        result = await conn.execute(
-            text("SELECT COUNT(*) FROM users WHERE email = :email"),
-            {"email": _ADMIN_EMAIL},
-        )
-        count = result.scalar()
-        if count and count > 0:
-            # Note: seed_* functions are create-only, never update-only.
-            logger.info(
-                "seed_admin: admin (%s) already exists — skipping seed.",
-                _ADMIN_EMAIL,
-            )
-            return
-
-        hashed = hash_password(_ADMIN_PASSWORD)
-        await conn.execute(
-            text(
-                "INSERT INTO users (email, hashed_password, role) "
-                "VALUES (:email, :hashed, 'admin')"
-            ),
-            {"email": _ADMIN_EMAIL, "hashed": hashed},
-        )
-        logger.info("seed_admin: default admin seeded (%s).", _ADMIN_EMAIL)
+        await conn.execute(sql, {"email": _ADMIN_EMAIL, "hashed": hashed})
+        logger.info("seed_admin: default admin seeded/synced (%s).", _ADMIN_EMAIL)
 
 
 async def seed_demo_user() -> None:
     """
-    Insert a default demo user with 'sales_rep' role.
-
-    Credentials are read from DEMO_EMAIL / DEMO_PASSWORD env vars.
-    This runs once on startup and only seeds if the email does not already exist.
+    Insert or update default demo user credentials from DEMO_EMAIL / DEMO_PASSWORD env vars.
     """
     if not _DEMO_EMAIL or not _DEMO_PASSWORD:
         return
 
     engine = _get_engine()
-
-    # Check if the demo email already exists
-    sql = text("SELECT COUNT(*) FROM users WHERE email = :email")
+    hashed = hash_password(_DEMO_PASSWORD)
+    sql = text("""
+        INSERT INTO users (email, hashed_password, role)
+        VALUES (:email, :hashed, 'sales_rep')
+        ON CONFLICT (email) DO UPDATE SET
+            hashed_password = EXCLUDED.hashed_password,
+            role = 'sales_rep'
+    """)
     async with engine.begin() as conn:
-        result = await conn.execute(sql, {"email": _DEMO_EMAIL})
-        count = result.scalar()
-        if count and count > 0:
-            logger.info(
-                "seed_demo_user: Demo user (%s) already exists — skipping seed.",
-                _DEMO_EMAIL,
-            )
-            return
-
-        hashed = hash_password(_DEMO_PASSWORD)
-        await conn.execute(
-            text(
-                "INSERT INTO users (email, hashed_password, role) "
-                "VALUES (:email, :hashed, 'sales_rep')"
-            ),
-            {"email": _DEMO_EMAIL, "hashed": hashed},
-        )
-        logger.info("seed_demo_user: Demo sales_rep seeded (%s).", _DEMO_EMAIL)
+        await conn.execute(sql, {"email": _DEMO_EMAIL, "hashed": hashed})
+        logger.info("seed_demo_user: Demo sales_rep seeded/synced (%s).", _DEMO_EMAIL)
 
 
 # ─── DB helpers ───────────────────────────────────────────────────────────────

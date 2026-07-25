@@ -19,6 +19,7 @@ Run with:
 from __future__ import annotations
 
 import pytest
+from typing import ClassVar
 
 from src.classifier.persona import PersonaResult, _PITCH_ANGLES, PERSONAS, detect
 from unittest.mock import patch
@@ -119,7 +120,7 @@ class TestLabelCorrectness:
 
 
 class TestSchema:
-    SAMPLES = [
+    SAMPLES: ClassVar[list] = [
         "Our CTO is worried about integration complexity",
         "As CEO I care most about revenue impact.",
         "I'm a developer and I want REST APIs.",

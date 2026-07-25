@@ -158,13 +158,16 @@ async def kb_stats(
         # Read FAISS metadata to count documents and chunks
         docstore_path = VECTORSTORE_PATH / "index.pkl"
         if docstore_path.exists():
-            with open(docstore_path, "rb") as f:
-                docstore = pickle.load(f)  # noqa: S301
+            import asyncio
+            def _load_docstore(path):
+                with open(path, "rb") as f:
+                    return pickle.load(f)  # noqa: S301
+            docstore = await asyncio.to_thread(_load_docstore, docstore_path)
 
             # docstore is a dict-like mapping; count unique source files
             source_files: set[str] = set()
             total_chunks = 0
-            for doc_id, doc in docstore.items():
+            for total_chunks, doc in enumerate(docstore.values(), start=1):
                 meta = getattr(doc, "metadata", None) or (
                     doc if isinstance(doc, dict) else {}
                 )
@@ -174,7 +177,6 @@ async def kb_stats(
                     else "unknown"
                 )
                 source_files.add(source)
-                total_chunks += 1
 
             total_documents = len(source_files)
         else:

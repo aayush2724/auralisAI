@@ -19,6 +19,7 @@ Run with:
 from __future__ import annotations
 
 import pytest
+from typing import ClassVar
 
 from src.classifier.sentiment import SentimentResult, _TONE_INSTRUCTIONS, analyze
 
@@ -47,7 +48,7 @@ def _assert_schema(result: SentimentResult) -> None:
 
 
 class TestSchema:
-    SAMPLES = [
+    SAMPLES: ClassVar[list] = [
         "This is amazing, I love it!",
         "I'm not sure about this.",
         "This is terrible and I'm very frustrated.",

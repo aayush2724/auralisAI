@@ -166,9 +166,8 @@ async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
         "now": now,
     }
 
-    async with _session_factory() as session:  # type: ignore[misc]
-        async with session.begin():
-            await session.execute(upsert_sql, params)
+    async with _session_factory() as session, session.begin():  # type: ignore[misc]
+        await session.execute(upsert_sql, params)
 
     logger.debug("Session saved: %s", session_id)
 
@@ -213,7 +212,6 @@ async def delete_session(session_id: str) -> None:
     """Hard-delete a session row (useful in tests and GDPR deletion flows)."""
     _get_engine()
     delete_sql = text("DELETE FROM customer_sessions WHERE session_id = :sid")
-    async with _session_factory() as session:  # type: ignore[misc]
-        async with session.begin():
-            await session.execute(delete_sql, {"sid": session_id})
+    async with _session_factory() as session, session.begin():  # type: ignore[misc]
+        await session.execute(delete_sql, {"sid": session_id})
     logger.debug("Session deleted: %s", session_id)

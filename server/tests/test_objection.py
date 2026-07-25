@@ -20,6 +20,7 @@ Run with:
 from __future__ import annotations
 
 import pytest
+from typing import ClassVar
 
 from src.classifier.objection import ObjectionResult, classify
 from unittest.mock import patch
@@ -146,7 +147,7 @@ class TestLabelCorrectness:
 
 
 class TestResultSchema:
-    SAMPLES = [
+    SAMPLES: ClassVar[list] = [
         "Too expensive for our budget",
         "We already use HubSpot",
         "Not the right time for us",

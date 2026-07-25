@@ -411,7 +411,7 @@ Run `make format` before committing, or install pre-commit hooks with `pre-commi
  [⬜] Voice input / STT integration
  [⬜] Slack / CRM webhook integrations
  [⬜] Multi-tenant workspace support
- [⬜] Fine-tuned classification model
+ [✅] Fine-tuned classification model
 ```
 
 ---

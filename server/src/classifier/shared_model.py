@@ -263,15 +263,116 @@ class LLMZeroShotClassifier:
         }
 
 
+class LocalTransformersClassifier:
+    def __init__(self):
+        try:
+            from transformers import pipeline
+        except ImportError:
+            raise RuntimeError("transformers library is required for local backend. Install with pip install transformers torch")
+        
+        logger.info("Initializing LocalTransformersClassifier: Loading DistilBERT SST-2 (Sentiment)...")
+        self.sentiment_pipe = pipeline("text-classification", model="distilbert-base-uncased-finetuned-sst-2-english", device="cpu")
+        
+        logger.info("Initializing LocalTransformersClassifier: Loading BART-large-MNLI (Zero-shot)...")
+        self.zero_shot_pipe = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", device="cpu")
+
+        self._cache = OrderedDict()
+        self._cache_max_size = 200
+        self._cache_lock = threading.Lock()
+
+    def _get_cache(self, cache_key: str):
+        with self._cache_lock:
+            if cache_key in self._cache:
+                self._cache.move_to_end(cache_key)
+                return self._cache[cache_key]
+        return None
+
+    def _set_cache(self, cache_key: str, value: Any):
+        with self._cache_lock:
+            self._cache[cache_key] = value
+            self._cache.move_to_end(cache_key)
+            if len(self._cache) > self._cache_max_size:
+                self._cache.popitem(last=False)
+
+    def __call__(
+        self,
+        text: str,
+        candidate_labels: list[str],
+        descriptions: list[str] | None = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        if set(candidate_labels) == {"positive", "neutral", "negative"}:
+            cache_key = hashlib.md5(f"hf_sentiment|{text}".encode()).hexdigest()
+            cached_val = self._get_cache(cache_key)
+            if cached_val:
+                return cached_val
+
+            res = self.sentiment_pipe(text[:512])[0]
+            label = res["label"].lower()
+            score = res["score"]
+            if 0.40 <= score <= 0.60:
+                final_label = "neutral"
+            else:
+                final_label = label
+            
+            out = {"labels": [final_label], "scores": [score]}
+            self._set_cache(cache_key, out)
+            return out
+        
+        cache_key = hashlib.md5(f"hf_single|{text}|{candidate_labels}".encode()).hexdigest()
+        cached_val = self._get_cache(cache_key)
+        if cached_val:
+            return cached_val
+        
+        res = self.zero_shot_pipe(text, candidate_labels)
+        out = {"labels": [res["labels"][0]], "scores": [res["scores"][0]]}
+        self._set_cache(cache_key, out)
+        return out
+
+    def classify_combined(
+        self,
+        text: str,
+        objection_labels: list[str],
+        objection_descriptions: list[str],
+        persona_labels: list[str],
+        persona_descriptions: list[str],
+    ) -> dict[str, Any]:
+        cache_key = hashlib.md5(f"hf_combined|{text}|{objection_labels}|{persona_labels}".encode()).hexdigest()
+        cached_val = self._get_cache(cache_key)
+        if cached_val:
+            return cached_val
+        
+        obj_res = self.zero_shot_pipe(text, objection_labels)
+        per_res = self.zero_shot_pipe(text, persona_labels)
+        
+        out = {
+            "objection": {
+                "label": obj_res["labels"][0],
+                "confidence": obj_res["scores"][0],
+            },
+            "persona": {
+                "label": per_res["labels"][0],
+                "confidence": per_res["scores"][0],
+            },
+        }
+        self._set_cache(cache_key, out)
+        return out
+
+
 def get_zeroshot_pipeline():
     """
-    Load the Gemini LLM classifier in a thread-safe manner.
+    Load the chosen classifier in a thread-safe manner.
     Retains the get_zeroshot_pipeline name for backwards compatibility.
     """
     global _classifier
     if _classifier is None:
         with _lock:
             if _classifier is None:
-                logger.info("Loading shared LLM classifier (Gemini)")
-                _classifier = LLMZeroShotClassifier()
+                backend = os.environ.get("CLASSIFIER_BACKEND", "gemini").lower()
+                if backend == "local":
+                    logger.info("Loading shared LLM classifier (Hugging Face Transformers)")
+                    _classifier = LocalTransformersClassifier()
+                else:
+                    logger.info("Loading shared LLM classifier (Gemini)")
+                    _classifier = LLMZeroShotClassifier()
     return _classifier

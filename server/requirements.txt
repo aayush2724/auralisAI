@@ -4,6 +4,8 @@ langchain-community
 langchain-google-genai~=4.2.6
 langchain-openai
 langgraph
+torch
+transformers
 openai
 # Vector store + embeddings
 faiss-cpu

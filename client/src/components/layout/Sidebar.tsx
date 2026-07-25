@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu } from 'lucide-react';
+import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu, Building2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
 
@@ -66,9 +66,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
         aria-label="Dashboard navigation"
       >
         <div>
-          <div className="p-6 flex items-center space-x-2">
-            <span className="text-xl font-logo font-semibold text-[#0a0a0a] tracking-tight">Auralis</span>
-            <div className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-blink" aria-hidden="true"></div>
+          <div className="p-6 flex flex-col space-y-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-xl font-logo font-semibold text-[#0a0a0a] tracking-tight">Auralis</span>
+              <div className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-blink" aria-hidden="true"></div>
+            </div>
+            <div className="flex items-center space-x-1.5 px-2 py-1 rounded bg-[#f9fafb] border border-[#F1F3F1] w-fit">
+              <Building2 className="w-3 h-3 text-[#6b7280]" />
+              <span className="text-[11px] font-mono text-[#6b7280] font-medium">default_tenant</span>
+            </div>
           </div>
           
           <nav className="px-3 space-y-1 mt-4 relative" aria-label="Dashboard tabs">

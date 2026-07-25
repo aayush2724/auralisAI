@@ -380,6 +380,18 @@ The test suite covers the classification pipeline, RAG retrieval, API endpoints,
 
 ---
 
+## 🤝 Contributing
+
+Before committing your code, please run the local linter and formatter to ensure your changes pass CI:
+
+```bash
+make lint
+```
+
+This runs `ruff check --fix` and `black` to automatically resolve formatting and style issues.
+
+---
+
 ## 🗺️ Roadmap
 
 ```

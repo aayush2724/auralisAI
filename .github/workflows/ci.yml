@@ -61,8 +61,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install ruff black
-      - run: cd server && ruff check src/
-      - run: cd server && black --check src/
+      - run: cd server && ruff check src/ tests/
+      - run: cd server && black --check src/ tests/
 
   docker-build:
     runs-on: ubuntu-latest

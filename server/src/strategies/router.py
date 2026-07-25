@@ -22,7 +22,7 @@ Adding a new strategy requires only:
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from collections.abc import Callable
 
 from src.graph.graph import GraphState
 from src.strategies import (

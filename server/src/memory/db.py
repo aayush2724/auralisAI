@@ -29,7 +29,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
@@ -133,7 +133,7 @@ async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
     """
     _get_engine()  # ensure engine is initialised
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     objections_json = json.dumps(facts_dict.get("objections_raised", []))
     tools_json = json.dumps(facts_dict.get("tools_mentioned", []))
 

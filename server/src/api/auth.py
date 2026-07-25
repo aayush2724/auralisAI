@@ -30,7 +30,7 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from fastapi import Depends, HTTPException, status
@@ -223,7 +223,7 @@ def create_access_token(
     Encoded JWT string.
     """
     to_encode = data.copy()
-    expire = datetime.now(tz=timezone.utc) + (
+    expire = datetime.now(tz=UTC) + (
         expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     to_encode["exp"] = expire

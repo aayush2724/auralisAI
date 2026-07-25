@@ -16,7 +16,7 @@ from __future__ import annotations
 import logging
 import os
 import pickle
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
@@ -69,7 +69,7 @@ async def kb_ingest(
         raise HTTPException(status_code=400, detail="No files provided.")
 
     # Create timestamped upload directory
-    ts = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(tz=UTC).strftime("%Y%m%dT%H%M%SZ")
     upload_dir = UPLOAD_BASE / ts
     upload_dir.mkdir(parents=True, exist_ok=True)
 
@@ -187,7 +187,7 @@ async def kb_stats(
 
         # Last updated = mtime of the index file
         mtime = os.path.getmtime(index_file)
-        last_updated = datetime.fromtimestamp(mtime, tz=timezone.utc).isoformat()
+        last_updated = datetime.fromtimestamp(mtime, tz=UTC).isoformat()
 
         return KBStatsResponse(
             total_documents=total_documents,

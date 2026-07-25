@@ -45,7 +45,7 @@ DashboardData TypedDict
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, TypedDict
 
 from sqlalchemy import text
@@ -163,7 +163,7 @@ async def _insert_event(
         "confidence": float(objection.get("confidence", 0.0)),
         "did_convert": did_convert,
         "variant": state.get("variant", "ADAPTIVE"),
-        "now": datetime.now(tz=timezone.utc),
+        "now": datetime.now(tz=UTC),
     }
     async with engine.begin() as conn:
         await conn.execute(sql, params)

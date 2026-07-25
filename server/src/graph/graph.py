@@ -27,26 +27,26 @@ from __future__ import annotations
 import logging
 import os
 from typing import Any, TypedDict
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END, START, StateGraph
 
 from src.classifier.objection import (
-    ObjectionResult,
-    CLASSES,
     _HYPOTHESIS_TEMPLATES,
+    CLASSES,
+    ObjectionResult,
     _extract_triggers,
 )
 from src.classifier.persona import (
-    PersonaResult,
-    PERSONAS,
     _HYPOTHESES,
     _PITCH_ANGLES,
     _UNKNOWN_THRESHOLD,
+    PERSONAS,
+    PersonaResult,
 )
 from src.classifier.sentiment import SentimentResult, analyze
 from src.classifier.shared_model import get_zeroshot_pipeline
 from src.handoff.handoff import evaluate_handoff
-
 from src.memory.memory import ConversationMemory
 from src.rag.retriever import format_citations, retrieve
 from src.utils.logger import auralis_objections_total
@@ -395,7 +395,7 @@ def generate_node(state: GraphState) -> dict[str, Any]:
     3. Invoke LLM with [SystemMessage(persona), HumanMessage(strategy_prompt)].
     4. Append citations if not already embedded.
     """
-    from src.strategies.router import get_strategy_prompt  # noqa: PLC0415
+    from src.strategies.router import get_strategy_prompt
 
     citations = state.get("citations") or ""
     persona_label = (state.get("persona") or {}).get("label", "Unknown")
@@ -412,7 +412,7 @@ def generate_node(state: GraphState) -> dict[str, Any]:
 
     llm = _get_llm()
     # pyrefly: ignore [missing-import]
-    from langchain_core.messages import HumanMessage, SystemMessage  # noqa: PLC0415
+    from langchain_core.messages import HumanMessage, SystemMessage
 
     system_prompt = _get_system_prompt(persona_label)
     messages = [

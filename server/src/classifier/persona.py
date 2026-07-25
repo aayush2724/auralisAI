@@ -27,6 +27,7 @@ import logging
 import os
 import sys
 from typing import TypedDict
+
 from src.classifier.shared_model import get_zeroshot_pipeline
 
 # ─── Logging ──────────────────────────────────────────────────────────────────

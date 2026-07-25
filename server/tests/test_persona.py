@@ -18,11 +18,12 @@ Run with:
 
 from __future__ import annotations
 
-import pytest
 from typing import ClassVar
-
-from src.classifier.persona import PersonaResult, _PITCH_ANGLES, PERSONAS, detect
 from unittest.mock import patch
+
+import pytest
+
+from src.classifier.persona import _PITCH_ANGLES, PERSONAS, PersonaResult, detect
 
 
 @pytest.fixture(autouse=True)

@@ -1,13 +1,14 @@
+import hashlib
 import logging
 import os
-from typing import Any
-from pydantic import BaseModel, Field
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import PromptTemplate
 import threading
-from collections import OrderedDict
-import hashlib
 import time
+from collections import OrderedDict
+from typing import Any
+
+from langchain_core.prompts import PromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger("auralis.classifier.shared")
 
@@ -17,8 +18,6 @@ _lock = threading.Lock()
 
 class GeminiRateLimitError(Exception):
     """Raised when the Gemini API rate limit is exceeded after retries."""
-
-    pass
 
 
 class ClassificationOutput(BaseModel):

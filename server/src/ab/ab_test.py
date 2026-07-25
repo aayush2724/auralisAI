@@ -15,7 +15,6 @@ The assignment is persisted in Redis for fast lookup.
 
 from __future__ import annotations
 
-
 import logging
 from enum import Enum
 

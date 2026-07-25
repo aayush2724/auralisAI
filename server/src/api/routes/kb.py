@@ -99,7 +99,7 @@ async def kb_ingest(
 
     # Run ingestion pipeline
     try:
-        from src.rag.ingest import ingest_directory  # noqa: PLC0415
+        from src.rag.ingest import ingest_directory
 
         chunks_added = ingest_directory(str(upload_dir), str(VECTORSTORE_PATH))
         logger.info(
@@ -162,7 +162,7 @@ async def kb_stats(
 
             def _load_docstore(path):
                 with open(path, "rb") as f:
-                    return pickle.load(f)  # noqa: S301
+                    return pickle.load(f)
 
             docstore = await asyncio.to_thread(_load_docstore, docstore_path)
 

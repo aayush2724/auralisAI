@@ -12,10 +12,9 @@ Run with:
 
 from __future__ import annotations
 
-
 from src.classifier.objection import classify
-from src.classifier.sentiment import analyze
 from src.classifier.persona import detect
+from src.classifier.sentiment import analyze
 
 # ─── Objection classifier ────────────────────────────────────────────────────
 

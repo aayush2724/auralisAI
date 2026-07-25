@@ -19,11 +19,12 @@ Run with:
 
 from __future__ import annotations
 
-import pytest
 from typing import ClassVar
+from unittest.mock import patch
+
+import pytest
 
 from src.classifier.objection import ObjectionResult, classify
-from unittest.mock import patch
 
 
 @pytest.fixture(autouse=True)

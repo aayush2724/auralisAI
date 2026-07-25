@@ -32,6 +32,7 @@ import logging
 import re
 import sys
 from typing import TypedDict
+
 from src.classifier.shared_model import get_zeroshot_pipeline
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
@@ -68,54 +69,59 @@ _HYPOTHESIS_TEMPLATES: dict[str, str] = {
 
 _TRIGGER_PATTERNS: dict[str, list[re.Pattern[str]]] = {
     "price": [
-        re.compile(r"too expensive", re.I),
-        re.compile(r"(cost|price|pricing|fee|rate)s?\b", re.I),
-        re.compile(r"(over|out of|tight)\s*(our\s*)?budget", re.I),
-        re.compile(r"can['']?t afford", re.I),
-        re.compile(r"(cheaper|lower.{0,10}price|discount|ROI)", re.I),
-        re.compile(r"for our budget", re.I),
+        re.compile(r"too expensive", re.IGNORECASE),
+        re.compile(r"(cost|price|pricing|fee|rate)s?\b", re.IGNORECASE),
+        re.compile(r"(over|out of|tight)\s*(our\s*)?budget", re.IGNORECASE),
+        re.compile(r"can['']?t afford", re.IGNORECASE),
+        re.compile(r"(cheaper|lower.{0,10}price|discount|ROI)", re.IGNORECASE),
+        re.compile(r"for our budget", re.IGNORECASE),
     ],
     "trust": [
-        re.compile(r"(not sure|uncertain|unsure|doubt)", re.I),
-        re.compile(r"(security|compliance|gdpr|hipaa|soc2?)", re.I),
-        re.compile(r"(proof|case stud|reference|testimon|review)", re.I),
-        re.compile(r"(trust|credib|reliab|track record)", re.I),
-        re.compile(r"(never heard of|who are you|your company)", re.I),
+        re.compile(r"(not sure|uncertain|unsure|doubt)", re.IGNORECASE),
+        re.compile(r"(security|compliance|gdpr|hipaa|soc2?)", re.IGNORECASE),
+        re.compile(r"(proof|case stud|reference|testimon|review)", re.IGNORECASE),
+        re.compile(r"(trust|credib|reliab|track record)", re.IGNORECASE),
+        re.compile(r"(never heard of|who are you|your company)", re.IGNORECASE),
     ],
     "timing": [
-        re.compile(r"(not (the )?right time|bad timing)", re.I),
-        re.compile(r"(not now|later|next (quarter|year|month|cycle))", re.I),
-        re.compile(r"(need (more )?time|give us time)", re.I),
-        re.compile(r"(too (busy|early|late)|come back)", re.I),
-        re.compile(r"(planning|roadmap|budget cycle|Q[1-4])", re.I),
+        re.compile(r"(not (the )?right time|bad timing)", re.IGNORECASE),
+        re.compile(r"(not now|later|next (quarter|year|month|cycle))", re.IGNORECASE),
+        re.compile(r"(need (more )?time|give us time)", re.IGNORECASE),
+        re.compile(r"(too (busy|early|late)|come back)", re.IGNORECASE),
+        re.compile(r"(planning|roadmap|budget cycle|Q[1-4])", re.IGNORECASE),
     ],
     "competitor": [
         re.compile(
             r"(already use|currently use|using|we have)\b.{0,40}\b(hubspot|salesforce|pipedrive|zoho|monday|notion|slack|microsoft|google|intercom)",
-            re.I,
+            re.IGNORECASE,
         ),
         re.compile(
             r"(competitor|alternative|rival|another (tool|solution|vendor|platform))",
-            re.I,
+            re.IGNORECASE,
         ),
-        re.compile(r"(we('re| are) (happy|satisfied|good) with)", re.I),
+        re.compile(r"(we('re| are) (happy|satisfied|good) with)", re.IGNORECASE),
         re.compile(
-            r"(hubspot|salesforce|pipedrive|zoho|outreach|gong|chorus|drift)", re.I
+            r"(hubspot|salesforce|pipedrive|zoho|outreach|gong|chorus|drift)",
+            re.IGNORECASE,
         ),
     ],
     "fit": [
-        re.compile(r"(doesn'?t? (fit|work|match)|not (a )?fit)", re.I),
-        re.compile(r"(our (team|workflow|process|use.?case))", re.I),
-        re.compile(r"(too (complex|simple|big|small|advanced|basic))", re.I),
-        re.compile(r"(not what we (need|want|are looking for))", re.I),
-        re.compile(r"(feature|functionality|capability).{0,30}(miss|lack|need)", re.I),
+        re.compile(r"(doesn'?t? (fit|work|match)|not (a )?fit)", re.IGNORECASE),
+        re.compile(r"(our (team|workflow|process|use.?case))", re.IGNORECASE),
+        re.compile(r"(too (complex|simple|big|small|advanced|basic))", re.IGNORECASE),
+        re.compile(r"(not what we (need|want|are looking for))", re.IGNORECASE),
+        re.compile(
+            r"(feature|functionality|capability).{0,30}(miss|lack|need)", re.IGNORECASE
+        ),
     ],
     "buying_signal": [
-        re.compile(r"(interested|keen|excited|love (to|the))", re.I),
-        re.compile(r"(send (me|us)|can (I|we) (get|have|see))", re.I),
-        re.compile(r"(let'?s? (move|proceed|go ahead|set up|schedule))", re.I),
-        re.compile(r"(sign (me|us) up|ready to (start|begin|buy|purchase))", re.I),
-        re.compile(r"(demo|trial|pilot|proof.of.concept|POC)", re.I),
+        re.compile(r"(interested|keen|excited|love (to|the))", re.IGNORECASE),
+        re.compile(r"(send (me|us)|can (I|we) (get|have|see))", re.IGNORECASE),
+        re.compile(r"(let'?s? (move|proceed|go ahead|set up|schedule))", re.IGNORECASE),
+        re.compile(
+            r"(sign (me|us) up|ready to (start|begin|buy|purchase))", re.IGNORECASE
+        ),
+        re.compile(r"(demo|trial|pilot|proof.of.concept|POC)", re.IGNORECASE),
     ],
     "neutral": [],  # no triggers — neutral is the fallback
 }

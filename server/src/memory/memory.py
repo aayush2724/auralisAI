@@ -378,7 +378,7 @@ class ConversationMemory:
             )
 
     @classmethod
-    async def from_session(cls, session_id: str) -> "ConversationMemory":
+    async def from_session(cls, session_id: str) -> ConversationMemory:
         """
         Create a ConversationMemory pre-loaded with facts from PostgreSQL.
 

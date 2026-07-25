@@ -31,13 +31,13 @@ import fitz  # PyMuPDF
 import pandas as pd
 
 # pyrefly: ignore [missing-import]
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-# pyrefly: ignore [missing-import]
 from langchain_community.vectorstores import FAISS
 
 # pyrefly: ignore [missing-import]
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
+# pyrefly: ignore [missing-import]
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
 

@@ -28,6 +28,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
+# pyrefly: ignore [missing-import]
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from src.analytics.tracker import init_analytics_db
 from src.api.auth import init_users_db, seed_admin
 from src.api.routes.ab import router as ab_router
@@ -38,9 +41,6 @@ from src.api.routes.kb import router as kb_router
 from src.api.schemas import HealthResponse
 from src.memory.db import init_db
 from src.utils.logger import get_logger
-
-# pyrefly: ignore [missing-import]
-from prometheus_fastapi_instrumentator import Instrumentator
 
 # ─── Logging Setup ────────────────────────────────────────────────────────────
 

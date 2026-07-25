@@ -58,12 +58,12 @@ from src.api.schemas import (
     RetrievedDoc,
     SessionFactsResponse,
 )
+from src.classifier.shared_model import GeminiRateLimitError
 from src.graph.graph import run_graph
 from src.memory.db import load_session, save_session
 from src.memory.memory import ConversationMemory
 from src.utils.explainability import explain
 from src.utils.logger import log_request
-from src.classifier.shared_model import GeminiRateLimitError
 
 logger = logging.getLogger("auralis.api.chat")
 router = APIRouter()

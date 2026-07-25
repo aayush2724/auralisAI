@@ -51,9 +51,10 @@ from typing import Any, TypedDict
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-# Share the existing engine — no second connection pool
-from src.memory.db import _get_engine  # noqa: WPS436
 from src.graph.graph import GraphState
+
+# Share the existing engine — no second connection pool
+from src.memory.db import _get_engine
 
 logger = logging.getLogger("auralis.analytics")
 

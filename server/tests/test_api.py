@@ -152,6 +152,7 @@ def test_chat_requires_auth():
         "src.api.main.init_analytics_db", new_callable=AsyncMock
     ):
         from fastapi import FastAPI
+
         from src.api.routes.chat import router as chat_router
 
         fresh_app = FastAPI()
@@ -350,6 +351,7 @@ def test_analytics_endpoint_requires_admin(get_sales_rep_token: str):
         "src.api.main.init_analytics_db", new_callable=AsyncMock
     ):
         from fastapi import FastAPI
+
         from src.api.routes.analytics import router as analytics_router
 
         analytics_app = FastAPI()

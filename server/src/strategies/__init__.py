@@ -13,10 +13,10 @@ from src.strategies import (
 )
 
 __all__ = [
-    "price_strategy",
-    "trust_strategy",
-    "timing_strategy",
+    "buying_signal_strategy",
     "competitor_strategy",
     "fit_strategy",
-    "buying_signal_strategy",
+    "price_strategy",
+    "timing_strategy",
+    "trust_strategy",
 ]

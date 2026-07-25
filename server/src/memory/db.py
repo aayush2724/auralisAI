@@ -31,7 +31,6 @@ import logging
 import os
 from datetime import datetime, timezone
 from typing import Any
-
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from sqlalchemy import text

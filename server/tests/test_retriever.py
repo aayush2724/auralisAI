@@ -12,9 +12,9 @@ from __future__ import annotations
 import shutil
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
-from unittest.mock import patch
 from langchain_community.embeddings import FakeEmbeddings
 
 from src.rag.ingest import ingest_directory

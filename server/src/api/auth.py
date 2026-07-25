@@ -40,7 +40,7 @@ from passlib.context import CryptContext
 from sqlalchemy import text
 
 # Re-use the shared async engine from memory.db to avoid creating a second pool.
-from src.memory.db import _get_engine  # noqa: WPS436 (intentional shared engine)
+from src.memory.db import _get_engine
 
 logger = logging.getLogger("auralis.auth")
 

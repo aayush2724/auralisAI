@@ -18,10 +18,11 @@ Run with:
 
 from __future__ import annotations
 
-import pytest
 from typing import ClassVar
 
-from src.classifier.sentiment import SentimentResult, _TONE_INSTRUCTIONS, analyze
+import pytest
+
+from src.classifier.sentiment import _TONE_INSTRUCTIONS, SentimentResult, analyze
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 

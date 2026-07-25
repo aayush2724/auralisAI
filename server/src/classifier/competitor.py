@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 import re
+
 from src.classifier.shared_model import get_zeroshot_pipeline
 
 logger = logging.getLogger("auralis.classifier.competitor")

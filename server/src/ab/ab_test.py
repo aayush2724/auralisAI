@@ -16,7 +16,7 @@ The assignment is persisted in Redis for fast lookup.
 from __future__ import annotations
 
 import logging
-from enum import Enum
+from enum import StrEnum
 
 from src.memory.cache import get_cached, set_cached
 
@@ -26,7 +26,7 @@ logger = logging.getLogger("auralis.ab")
 _VARIANT_KEY_PREFIX = "auralis:ab:variant:"
 
 
-class ABVariant(str, Enum):
+class ABVariant(StrEnum):
     """A/B test variant."""
 
     STATIC = "STATIC"

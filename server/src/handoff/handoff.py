@@ -18,13 +18,13 @@ Public API
 from __future__ import annotations
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any, TypedDict
 
 logger = logging.getLogger("auralis.handoff")
 
 
-class HandoffTrigger(str, Enum):
+class HandoffTrigger(StrEnum):
     """Reason for escalating to a human agent."""
 
     LOW_CONFIDENCE = "LOW_CONFIDENCE"

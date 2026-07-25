@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS customer_sessions (
 );
 
 ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS user_id VARCHAR(320);
+ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS workspace_id VARCHAR(64) DEFAULT 'default_tenant';
 
 CREATE INDEX IF NOT EXISTS idx_customer_sessions_session_id
     ON customer_sessions (session_id);
@@ -126,7 +127,7 @@ async def init_db() -> None:
 
 
 async def save_session(
-    session_id: str, facts_dict: dict[str, Any], owner_id: str | None = None
+    session_id: str, facts_dict: dict[str, Any], owner_id: str | None = None, workspace_id: str = "default_tenant"
 ) -> None:
     """
     Upsert session facts into customer_sessions.
@@ -145,15 +146,16 @@ async def save_session(
 
     upsert_sql = text("""
         INSERT INTO customer_sessions
-            (session_id, user_id, company_name, persona_label,
+            (session_id, user_id, workspace_id, company_name, persona_label,
              objections_json, tools_json, budget_signal,
              created_at, updated_at)
         VALUES
-            (:session_id, :user_id, :company_name, :persona_label,
+            (:session_id, :user_id, :workspace_id, :company_name, :persona_label,
              CAST(:objections_json AS jsonb), CAST(:tools_json AS jsonb),
              :budget_signal, :now, :now)
         ON CONFLICT (session_id) DO UPDATE SET
             user_id         = COALESCE(customer_sessions.user_id, EXCLUDED.user_id),
+            workspace_id    = EXCLUDED.workspace_id,
             company_name    = EXCLUDED.company_name,
             persona_label   = EXCLUDED.persona_label,
             objections_json = EXCLUDED.objections_json,
@@ -165,6 +167,7 @@ async def save_session(
     params = {
         "session_id": session_id,
         "user_id": owner_id,
+        "workspace_id": workspace_id,
         "company_name": facts_dict.get("company_name"),
         "persona_label": facts_dict.get("persona_label"),
         "objections_json": objections_json,
@@ -180,7 +183,7 @@ async def save_session(
 
 
 async def load_session(
-    session_id: str, owner_id: str | None = None
+    session_id: str, owner_id: str | None = None, workspace_id: str | None = None
 ) -> dict[str, Any] | None:
     """
     Load persisted session facts for a given session_id.
@@ -193,7 +196,7 @@ async def load_session(
     _get_engine()
 
     select_sql = text("""
-        SELECT user_id, company_name, persona_label, objections_json, tools_json, budget_signal
+        SELECT user_id, workspace_id, company_name, persona_label, objections_json, tools_json, budget_signal
         FROM   customer_sessions
         WHERE  session_id = :session_id
         LIMIT  1
@@ -206,6 +209,9 @@ async def load_session(
     if row is None:
         logger.debug("No session found for: %s", session_id)
         return None
+
+    if workspace_id and row.workspace_id and row.workspace_id != workspace_id:
+        raise PermissionError("Access denied: session belongs to a different workspace.")
 
     if owner_id and row.user_id and row.user_id != owner_id:
         raise PermissionError("This session belongs to a different user.")

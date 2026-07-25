@@ -114,6 +114,7 @@ class User:
     id: str
     email: str
     role: str
+    workspace_id: str = "default_tenant"
 
 
 # ─── DDL ──────────────────────────────────────────────────────────────────────
@@ -246,7 +247,7 @@ async def authenticate_user(email: str, password: str) -> User | None:
         return None
     if not verify_password(password, row["hashed_password"]):
         return None
-    return User(id=row["id"], email=row["email"], role=row["role"])
+    return User(id=row["id"], email=row["email"], role=row["role"], workspace_id=row.get("workspace_id", "default_tenant"))
 
 
 # ─── JWT helpers ──────────────────────────────────────────────────────────────
@@ -315,6 +316,7 @@ async def get_current_user_from_token(token: str) -> User:
         user_id: str | None = payload.get("sub")
         email: str | None = payload.get("email")
         role: str | None = payload.get("role")
+        workspace_id: str = payload.get("workspace_id", "default_tenant")
         if not user_id or not email or not role:
             raise _credentials_exception
     except JWTError:
@@ -325,7 +327,7 @@ async def get_current_user_from_token(token: str) -> User:
     if row is None:
         raise _credentials_exception
 
-    return User(id=user_id, email=email, role=role)
+    return User(id=user_id, email=email, role=role, workspace_id=workspace_id)
 
 
 # ─── Role-guard factory ───────────────────────────────────────────────────────

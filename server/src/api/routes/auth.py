@@ -79,6 +79,7 @@ async def login_for_access_token(
             "sub": user.id,
             "email": user.email,
             "role": user.role,
+            "workspace_id": user.workspace_id,
         },
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )

@@ -222,7 +222,9 @@ class ConversationMemory:
     Not thread-safe by default. Instantiate one per session/request.
     """
 
-    def __init__(self, session_id: str | None = None, owner_id: str | None = None) -> None:
+    def __init__(
+        self, session_id: str | None = None, owner_id: str | None = None
+    ) -> None:
         self._session_id: str | None = session_id
         self._owner_id: str | None = owner_id
         self._messages: list[Message] = []
@@ -379,7 +381,9 @@ class ConversationMemory:
             )
 
     @classmethod
-    async def from_session(cls, session_id: str, owner_id: str | None = None) -> ConversationMemory:
+    async def from_session(
+        cls, session_id: str, owner_id: str | None = None
+    ) -> ConversationMemory:
         """
         Create a ConversationMemory pre-loaded with facts from PostgreSQL.
 

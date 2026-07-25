@@ -181,14 +181,17 @@ async def seed_demo_user() -> None:
         return
 
     engine = _get_engine()
-    
+
     # Check if the demo email already exists
     sql = text("SELECT COUNT(*) FROM users WHERE email = :email")
     async with engine.begin() as conn:
         result = await conn.execute(sql, {"email": _DEMO_EMAIL})
         count = result.scalar()
         if count and count > 0:
-            logger.info("seed_demo_user: Demo user (%s) already exists — skipping seed.", _DEMO_EMAIL)
+            logger.info(
+                "seed_demo_user: Demo user (%s) already exists — skipping seed.",
+                _DEMO_EMAIL,
+            )
             return
 
         hashed = hash_password(_DEMO_PASSWORD)

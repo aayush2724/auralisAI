@@ -125,7 +125,9 @@ async def init_db() -> None:
 # ─── Public API ───────────────────────────────────────────────────────────────
 
 
-async def save_session(session_id: str, facts_dict: dict[str, Any], owner_id: str | None = None) -> None:
+async def save_session(
+    session_id: str, facts_dict: dict[str, Any], owner_id: str | None = None
+) -> None:
     """
     Upsert session facts into customer_sessions.
 
@@ -177,7 +179,9 @@ async def save_session(session_id: str, facts_dict: dict[str, Any], owner_id: st
     logger.debug("Session saved: %s", session_id)
 
 
-async def load_session(session_id: str, owner_id: str | None = None) -> dict[str, Any] | None:
+async def load_session(
+    session_id: str, owner_id: str | None = None
+) -> dict[str, Any] | None:
     """
     Load persisted session facts for a given session_id.
 

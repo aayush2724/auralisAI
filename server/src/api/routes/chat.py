@@ -69,7 +69,9 @@ logger = logging.getLogger("auralis.api.chat")
 router = APIRouter()
 
 
-async def _run_chat_turn(session_id: str, message: str, owner_id: str | None = None) -> tuple[ChatResponse, dict]:
+async def _run_chat_turn(
+    session_id: str, message: str, owner_id: str | None = None
+) -> tuple[ChatResponse, dict]:
     # ── Step 0: Determine A/B variant ──────────────────────────────────────────
     variant = await assign_variant(session_id)
 
@@ -373,7 +375,7 @@ async def chat_websocket(websocket: WebSocket) -> None:
                     }
                 )
                 continue
-            
+
             latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
             log_request(

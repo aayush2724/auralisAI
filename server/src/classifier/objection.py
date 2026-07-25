@@ -142,7 +142,9 @@ class ObjectionResult(TypedDict):
 
     label: str  # winning class
     confidence: float  # confidence score of winning class (0.0–1.0)
-    all_scores: dict[str, float]  # winning class has its confidence score; all other classes are hardcoded to 0.0 (not real per-class scores)
+    all_scores: dict[
+        str, float
+    ]  # winning class has its confidence score; all other classes are hardcoded to 0.0 (not real per-class scores)
     triggers: list[str]  # exact phrases from input that fired the class
 
 

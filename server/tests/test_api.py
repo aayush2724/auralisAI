@@ -294,8 +294,10 @@ class TestPostChatEndpoint:
         get_sales_rep_2_token: str,
     ):
         """When user 2 tries to access user 1's session, from_session raises PermissionError"""
-        mock_from_session.side_effect = PermissionError("This session belongs to a different user.")
-        
+        mock_from_session.side_effect = PermissionError(
+            "This session belongs to a different user."
+        )
+
         headers = {"Authorization": f"Bearer {get_sales_rep_2_token}"}
         response = client.post(
             "/chat",

@@ -73,7 +73,7 @@ Use these seeded credentials to explore the live demo (or locally after `docker 
 | Field | Value |
 |---|---|
 | **Email** | `demo@auralis.ai` |
-| **Password** | `NzRseJlRH0sCKUb-gblzMEP6oVk` |
+| **Password** | `<set_in_render_environment>` |
 
 > This account has `sales_rep` access — enough to try the full chat pipeline. Admin-level features (knowledge base management, session lookup, analytics dashboard) require elevated access not exposed publicly.
 

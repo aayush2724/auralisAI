@@ -385,10 +385,11 @@ The test suite covers the classification pipeline, RAG retrieval, API endpoints,
 Before committing your code, please run the local linter and formatter to ensure your changes pass CI:
 
 ```bash
-make lint
+make format
 ```
 
 This runs `ruff check --fix` and `black` to automatically resolve formatting and style issues.
+Run `make format` before committing, or install pre-commit hooks with `pre-commit install` — do not hand-edit requirements.txt with shell redirects.
 
 ---
 

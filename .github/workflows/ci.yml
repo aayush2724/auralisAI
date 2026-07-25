@@ -45,6 +45,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Validate requirements.txt encoding
+        run: |
+          cd server
+          python3 -c "
+          data = open('requirements.txt', 'rb').read()
+          assert b'\x00' not in data, 'requirements.txt contains null bytes — likely UTF-16 corruption'
+          data.decode('utf-8')  # raises if not valid UTF-8
+          print('requirements.txt OK')
+          "
       - name: Install dependencies
         run: pip install -r server/requirements.txt
       - run: cd server && pytest tests/ --cov=src --cov-report=xml -v
@@ -60,6 +69,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Validate requirements.txt encoding
+        run: |
+          cd server
+          python3 -c "
+          data = open('requirements.txt', 'rb').read()
+          assert b'\x00' not in data, 'requirements.txt contains null bytes — likely UTF-16 corruption'
+          data.decode('utf-8')  # raises if not valid UTF-8
+          print('requirements.txt OK')
+          "
       - run: pip install ruff black
       - run: cd server && ruff check src/ tests/
       - run: cd server && black --check src/ tests/

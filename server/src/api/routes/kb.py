@@ -159,9 +159,11 @@ async def kb_stats(
         docstore_path = VECTORSTORE_PATH / "index.pkl"
         if docstore_path.exists():
             import asyncio
+
             def _load_docstore(path):
                 with open(path, "rb") as f:
                     return pickle.load(f)  # noqa: S301
+
             docstore = await asyncio.to_thread(_load_docstore, docstore_path)
 
             # docstore is a dict-like mapping; count unique source files

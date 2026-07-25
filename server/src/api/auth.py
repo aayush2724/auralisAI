@@ -54,6 +54,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 
 _ADMIN_EMAIL: str | None = os.getenv("ADMIN_EMAIL")
 _ADMIN_PASSWORD: str | None = os.getenv("ADMIN_PASSWORD")
 
+# Public demo user with sales_rep role
+_DEMO_EMAIL: str | None = os.getenv("DEMO_EMAIL")
+_DEMO_PASSWORD: str | None = os.getenv("DEMO_PASSWORD")
+
 if not JWT_SECRET_KEY:
     logger.critical("SECURITY ERROR: JWT_SECRET_KEY environment variable is missing.")
 
@@ -61,6 +65,12 @@ if not _ADMIN_EMAIL or not _ADMIN_PASSWORD:
     logger.warning(
         "ADMIN_EMAIL or ADMIN_PASSWORD is not set in the environment. "
         "The default admin user cannot be seeded."
+    )
+
+if not _DEMO_EMAIL or not _DEMO_PASSWORD:
+    logger.info(
+        "DEMO_EMAIL or DEMO_PASSWORD is not set in the environment. "
+        "The public demo user will not be seeded."
     )
 
 # ─── Roles ────────────────────────────────────────────────────────────────────
@@ -158,6 +168,38 @@ async def seed_admin() -> None:
             {"email": _ADMIN_EMAIL, "hashed": hashed},
         )
         logger.info("seed_admin: default admin seeded (%s).", _ADMIN_EMAIL)
+
+
+async def seed_demo_user() -> None:
+    """
+    Insert a default demo user with 'sales_rep' role.
+
+    Credentials are read from DEMO_EMAIL / DEMO_PASSWORD env vars.
+    This runs once on startup and only seeds if the email does not already exist.
+    """
+    if not _DEMO_EMAIL or not _DEMO_PASSWORD:
+        return
+
+    engine = _get_engine()
+    
+    # Check if the demo email already exists
+    sql = text("SELECT COUNT(*) FROM users WHERE email = :email")
+    async with engine.begin() as conn:
+        result = await conn.execute(sql, {"email": _DEMO_EMAIL})
+        count = result.scalar()
+        if count and count > 0:
+            logger.info("seed_demo_user: Demo user (%s) already exists — skipping seed.", _DEMO_EMAIL)
+            return
+
+        hashed = hash_password(_DEMO_PASSWORD)
+        await conn.execute(
+            text(
+                "INSERT INTO users (email, hashed_password, role) "
+                "VALUES (:email, :hashed, 'sales_rep')"
+            ),
+            {"email": _DEMO_EMAIL, "hashed": hashed},
+        )
+        logger.info("seed_demo_user: Demo sales_rep seeded (%s).", _DEMO_EMAIL)
 
 
 # ─── DB helpers ───────────────────────────────────────────────────────────────

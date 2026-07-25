@@ -66,16 +66,16 @@ The application is fully deployed and ready to test. No sign-up friction — jus
 | 🗄️ **Database** | PostgreSQL on Neon |
 | ⚡ **Cache** | Redis on Upstash |
 
-### 🔐 Demo Admin Login
+### 🔐 Try the Live Demo
 
-Use these seeded credentials to explore the admin dashboard on the live demo (or locally after `docker compose up`):
+Use these seeded credentials to explore the live demo (or locally after `docker compose up`):
 
 | Field | Value |
 |---|---|
-| **Email** | `aayush@auralis.ai` |
-| **Password** | `AuralisAdmin!2026` |
+| **Email** | `demo@auralis.ai` |
+| **Password** | `<set after Render env vars are configured>` |
 
-> The default admin is seeded on first startup from the `ADMIN_EMAIL` / `ADMIN_PASSWORD` environment variables (see `.env`). Change these before deploying to production.
+> This account has `sales_rep` access — enough to try the full chat pipeline. Admin-level features (knowledge base management, session lookup, analytics dashboard) require elevated access not exposed publicly.
 
 ---
 

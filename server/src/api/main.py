@@ -32,7 +32,7 @@ from fastapi.openapi.utils import get_openapi
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.analytics.tracker import init_analytics_db
-from src.api.auth import init_users_db, seed_admin
+from src.api.auth import init_users_db, seed_admin, seed_demo_user
 from src.api.routes.ab import router as ab_router
 from src.api.routes.analytics import router as analytics_router
 from src.api.routes.auth import router as auth_router
@@ -60,6 +60,7 @@ async def lifespan(app: FastAPI):
     1. customer_sessions table  — created by init_db() (Feature 10).
     2. users table              — created by init_users_db().
     3. Default admin user       — seeded by seed_admin() if the table is empty.
+    4. Demo sales_rep user      — seeded by seed_demo_user() if it does not exist.
 
     On shutdown
     -----------
@@ -87,6 +88,7 @@ async def lifespan(app: FastAPI):
         await init_users_db()
         logger.info("users table ready.")
         await seed_admin()
+        await seed_demo_user()
     except Exception:
         # Broad exception caught because DB initialization and seeding can fail in many ways
         logger.exception("users init / seed failed")

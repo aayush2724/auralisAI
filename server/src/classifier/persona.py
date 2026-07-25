@@ -98,7 +98,7 @@ class PersonaResult(TypedDict):
     """Return type of detect()."""
 
     label: str  # one of PERSONAS
-    confidence: float  # softmax score of winning persona (0.0–1.0)
+    confidence: float  # confidence score of winning persona (0.0–1.0)
     pitch_angle: str  # one-sentence pitch instruction for this persona
 
 

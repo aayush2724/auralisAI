@@ -4,7 +4,7 @@ auralis/src/classifier/objection.py
 Zero-shot objection classifier powered by Gemini LLM via shared_model.
 
 Implements:
-  - Feature 8  — Confidence Scoring (softmax score on every class)
+  - Feature 8  — Confidence Scoring (confidence score for the winning class)
   - Feature 9  — Explainability (trigger phrases extracted from input)
 
 Classes
@@ -141,8 +141,8 @@ class ObjectionResult(TypedDict):
     """Return type of classify()."""
 
     label: str  # winning class
-    confidence: float  # softmax score of winning class (0.0–1.0)
-    all_scores: dict[str, float]  # label -> score for every class
+    confidence: float  # confidence score of winning class (0.0–1.0)
+    all_scores: dict[str, float]  # winning class has its confidence score; all other classes are hardcoded to 0.0 (not real per-class scores)
     triggers: list[str]  # exact phrases from input that fired the class
 
 

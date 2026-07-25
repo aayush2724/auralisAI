@@ -33,7 +33,7 @@
 
 <br/>
 
-> **Auralis** is an adaptive sales intelligence platform that classifies objections with **94% confidence**, detects customer personas and sentiment in real-time, and generates role-specific responses in **under 2 seconds**. Built for high-performance sales teams using **LangGraph** multi-agent pipelines and **Retrieval-Augmented Generation (RAG)**.
+> **Auralis** is an adaptive sales intelligence platform that classifies the primary objection and assigns a confidence score, detects customer personas and sentiment in real-time, and generates role-specific responses in **under 2 seconds**. Built for high-performance sales teams using **LangGraph** multi-agent pipelines and **Retrieval-Augmented Generation (RAG)**.
 
 ---
 
@@ -251,7 +251,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Start FastAPI dev server
-uvicorn src.main:app --reload --port 8001
+uvicorn src.api.main:app --reload --port 8001
 ```
 
 **Frontend**

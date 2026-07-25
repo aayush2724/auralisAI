@@ -202,6 +202,12 @@ Instrumentator().instrument(app).expose(app)
 # ─── Health Check ─────────────────────────────────────────────────────────────
 
 
+@app.get("/", tags=["Observability"])
+@app.head("/", tags=["Observability"])
+async def root_probe() -> dict[str, str]:
+    return {"status": "ok", "service": "Auralis API"}
+
+
 @app.get(
     "/health",
     response_model=HealthResponse,

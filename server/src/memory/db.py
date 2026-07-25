@@ -95,6 +95,7 @@ _CREATE_TABLE_SQL = """
 CREATE TABLE IF NOT EXISTS customer_sessions (
     id              UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     session_id      VARCHAR(255) NOT NULL UNIQUE,
+    user_id         VARCHAR(320),
     company_name    VARCHAR(255),
     persona_label   VARCHAR(64),
     objections_json JSONB        NOT NULL DEFAULT '[]',
@@ -103,6 +104,8 @@ CREATE TABLE IF NOT EXISTS customer_sessions (
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
+
+ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS user_id VARCHAR(320);
 
 CREATE INDEX IF NOT EXISTS idx_customer_sessions_session_id
     ON customer_sessions (session_id);
@@ -122,7 +125,7 @@ async def init_db() -> None:
 # ─── Public API ───────────────────────────────────────────────────────────────
 
 
-async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
+async def save_session(session_id: str, facts_dict: dict[str, Any], owner_id: str | None = None) -> None:
     """
     Upsert session facts into customer_sessions.
 
@@ -130,6 +133,7 @@ async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
     ----------
     session_id : Unique session identifier (e.g. user_id or conversation UUID).
     facts_dict : Output of ConversationMemory.get_facts().
+    owner_id   : The user ID that owns this session.
     """
     _get_engine()  # ensure engine is initialised
 
@@ -139,14 +143,15 @@ async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
 
     upsert_sql = text("""
         INSERT INTO customer_sessions
-            (session_id, company_name, persona_label,
+            (session_id, user_id, company_name, persona_label,
              objections_json, tools_json, budget_signal,
              created_at, updated_at)
         VALUES
-            (:session_id, :company_name, :persona_label,
+            (:session_id, :user_id, :company_name, :persona_label,
              CAST(:objections_json AS jsonb), CAST(:tools_json AS jsonb),
              :budget_signal, :now, :now)
         ON CONFLICT (session_id) DO UPDATE SET
+            user_id         = COALESCE(customer_sessions.user_id, EXCLUDED.user_id),
             company_name    = EXCLUDED.company_name,
             persona_label   = EXCLUDED.persona_label,
             objections_json = EXCLUDED.objections_json,
@@ -157,6 +162,7 @@ async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
 
     params = {
         "session_id": session_id,
+        "user_id": owner_id,
         "company_name": facts_dict.get("company_name"),
         "persona_label": facts_dict.get("persona_label"),
         "objections_json": objections_json,
@@ -171,18 +177,19 @@ async def save_session(session_id: str, facts_dict: dict[str, Any]) -> None:
     logger.debug("Session saved: %s", session_id)
 
 
-async def load_session(session_id: str) -> dict[str, Any] | None:
+async def load_session(session_id: str, owner_id: str | None = None) -> dict[str, Any] | None:
     """
     Load persisted session facts for a given session_id.
 
     Returns
     -------
     dict with same shape as ConversationMemory.get_facts(), or None if not found.
+    Raises PermissionError if the session belongs to a different owner.
     """
     _get_engine()
 
     select_sql = text("""
-        SELECT company_name, persona_label, objections_json, tools_json, budget_signal
+        SELECT user_id, company_name, persona_label, objections_json, tools_json, budget_signal
         FROM   customer_sessions
         WHERE  session_id = :session_id
         LIMIT  1
@@ -195,6 +202,9 @@ async def load_session(session_id: str) -> dict[str, Any] | None:
     if row is None:
         logger.debug("No session found for: %s", session_id)
         return None
+
+    if owner_id and row.user_id and row.user_id != owner_id:
+        raise PermissionError("This session belongs to a different user.")
 
     facts: dict[str, Any] = {
         "company_name": row.company_name,

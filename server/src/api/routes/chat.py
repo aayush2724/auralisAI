@@ -69,12 +69,12 @@ logger = logging.getLogger("auralis.api.chat")
 router = APIRouter()
 
 
-async def _run_chat_turn(session_id: str, message: str) -> tuple[ChatResponse, dict]:
+async def _run_chat_turn(session_id: str, message: str, owner_id: str | None = None) -> tuple[ChatResponse, dict]:
     # ── Step 0: Determine A/B variant ──────────────────────────────────────────
     variant = await assign_variant(session_id)
 
     # ── Step 1: Load or create ConversationMemory ─────────────────────────────
-    memory = await ConversationMemory.from_session(session_id)
+    memory = await ConversationMemory.from_session(session_id, owner_id)
 
     if variant == ABVariant.STATIC:
         # ── STATIC branch: return canned pitch, skip the graph ────────────────
@@ -102,7 +102,7 @@ async def _run_chat_turn(session_id: str, message: str) -> tuple[ChatResponse, d
         memory.add(role="assistant", content=response_text)
 
         facts = memory.get_facts()
-        await save_session(session_id, facts)
+        await save_session(session_id, facts, owner_id)
 
         explanation = ExplanationResponse(
             objection_reason="A/B test: STATIC variant — graph skipped.",
@@ -158,7 +158,7 @@ async def _run_chat_turn(session_id: str, message: str) -> tuple[ChatResponse, d
         if persona_label:
             facts["persona_label"] = persona_label
 
-        await save_session(session_id, facts)
+        await save_session(session_id, facts, owner_id)
 
         objection_dict = state.get("objection") or {}
         sentiment_dict = state.get("sentiment") or {}
@@ -258,7 +258,9 @@ async def chat(
     )
 
     try:
-        response, state = await _run_chat_turn(session_id=session_id, message=message)
+        response, state = await _run_chat_turn(
+            session_id=session_id, message=message, owner_id=current_user.id
+        )
 
         # ── Log handoff event if triggered ────────────────────────────────────
         if response.should_handoff:
@@ -294,6 +296,8 @@ async def chat(
             status_code=429,
             detail=str(e),
         )
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
     except HTTPException:
         raise  # Re-raise 400/401/403/429 unchanged
     except Exception as exc:
@@ -357,9 +361,19 @@ async def chat_websocket(websocket: WebSocket) -> None:
                 continue
 
             start_time = time.perf_counter()
-            response, state = await _run_chat_turn(
-                session_id=session_id, message=message
-            )
+            try:
+                response, state = await _run_chat_turn(
+                    session_id=session_id, message=message, owner_id=user.id
+                )
+            except PermissionError as e:
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "detail": str(e),
+                    }
+                )
+                continue
+            
             latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
             log_request(

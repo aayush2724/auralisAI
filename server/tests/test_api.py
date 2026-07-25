@@ -29,6 +29,9 @@ _FAKE_ADMIN = User(
 _FAKE_SALES_REP = User(
     id="00000000-0000-0000-0000-000000000002", email="rep@test.ai", role="sales_rep"
 )
+_FAKE_SALES_REP_2 = User(
+    id="00000000-0000-0000-0000-000000000003", email="rep2@test.ai", role="sales_rep"
+)
 
 # Override auth for the default client so existing tests pass without real JWT/DB
 app.dependency_overrides[get_current_user] = lambda: _FAKE_ADMIN
@@ -61,6 +64,18 @@ def get_sales_rep_token() -> str:
             "sub": _FAKE_SALES_REP.id,
             "email": _FAKE_SALES_REP.email,
             "role": _FAKE_SALES_REP.role,
+        }
+    )
+
+
+@pytest.fixture(scope="module")
+def get_sales_rep_2_token() -> str:
+    """Get an access token for a second sales_rep user."""
+    return create_access_token(
+        data={
+            "sub": _FAKE_SALES_REP_2.id,
+            "email": _FAKE_SALES_REP_2.email,
+            "role": _FAKE_SALES_REP_2.role,
         }
     )
 
@@ -269,6 +284,26 @@ class TestPostChatEndpoint:
         body = response.json()
         assert body["should_handoff"] is True
         assert body["response"] == state["handoff_message"]
+
+    @patch(
+        "src.api.routes.chat.ConversationMemory.from_session", new_callable=AsyncMock
+    )
+    def test_idor_blocked(
+        self,
+        mock_from_session,
+        get_sales_rep_2_token: str,
+    ):
+        """When user 2 tries to access user 1's session, from_session raises PermissionError"""
+        mock_from_session.side_effect = PermissionError("This session belongs to a different user.")
+        
+        headers = {"Authorization": f"Bearer {get_sales_rep_2_token}"}
+        response = client.post(
+            "/chat",
+            json={"session_id": "test-123", "message": "Tell me about pricing"},
+            headers=headers,
+        )
+        assert response.status_code == 403
+        assert "belongs to a different user" in response.json()["detail"]
 
     def test_validation_missing_fields(self):
         response = client.post("/chat", json={"session_id": "session_123"})

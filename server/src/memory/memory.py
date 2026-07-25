@@ -222,8 +222,9 @@ class ConversationMemory:
     Not thread-safe by default. Instantiate one per session/request.
     """
 
-    def __init__(self, session_id: str | None = None) -> None:
+    def __init__(self, session_id: str | None = None, owner_id: str | None = None) -> None:
         self._session_id: str | None = session_id
+        self._owner_id: str | None = owner_id
         self._messages: list[Message] = []
         self._facts: dict[str, Any] = {
             "company_name": None,
@@ -370,7 +371,7 @@ class ConversationMemory:
                 )
                 if last_user and last_user.metadata.get("persona"):
                     facts["persona_label"] = last_user.metadata["persona"].get("label")
-            await save_session(self._session_id, facts)
+            await save_session(self._session_id, facts, self._owner_id)
             logger.debug("Session persisted: %s", self._session_id)
         except SQLAlchemyError as exc:
             logger.warning(
@@ -378,7 +379,7 @@ class ConversationMemory:
             )
 
     @classmethod
-    async def from_session(cls, session_id: str) -> ConversationMemory:
+    async def from_session(cls, session_id: str, owner_id: str | None = None) -> ConversationMemory:
         """
         Create a ConversationMemory pre-loaded with facts from PostgreSQL.
 
@@ -388,16 +389,17 @@ class ConversationMemory:
         Parameters
         ----------
         session_id : The session/user identifier to look up.
+        owner_id   : The user ID that owns this session.
 
         Returns
         -------
         ConversationMemory with _facts populated from the DB (if found).
         """
-        instance = cls(session_id=session_id)
+        instance = cls(session_id=session_id, owner_id=owner_id)
         try:
             from src.memory.db import load_session  # late import
 
-            stored = await load_session(session_id)
+            stored = await load_session(session_id, owner_id)
             if stored:
                 instance._facts["company_name"] = stored.get("company_name")
                 instance._facts["tools_mentioned"] = stored.get("tools_mentioned") or []

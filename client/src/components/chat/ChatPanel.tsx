@@ -3,7 +3,6 @@ import { Send, Mic, ChevronDown, ChevronUp, FileText, Gauge, Lightbulb, ShieldAl
 import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChat } from '../../api/hooks/useChat';
-import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DiagnosticsPanel from './DiagnosticsPanel';
@@ -190,9 +189,6 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { isListening, transcript, supported, toggleListening } = useSpeechRecognition();
-  const [baseInput, setBaseInput] = useState('');
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -200,25 +196,6 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
-
-  useEffect(() => {
-    if (isListening) {
-      setBaseInput(input);
-    } else {
-      setBaseInput(input);
-    }
-  }, [isListening]);
-
-  useEffect(() => {
-    if (isListening && transcript) {
-      const newText = (baseInput ? baseInput + ' ' : '') + transcript;
-      setInput(newText);
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-        textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
-      }
-    }
-  }, [transcript, isListening, baseInput]);
 
   const handleNewSession = () => {
     setCurrentSessionId(crypto.randomUUID());
@@ -229,10 +206,6 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
     if (!input.trim() || isLoading) return;
     sendMessage(input.trim());
     setInput('');
-    setBaseInput('');
-    if (isListening) {
-      toggleListening();
-    }
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
@@ -247,9 +220,6 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
-    if (!isListening) {
-      setBaseInput(e.target.value);
-    }
     e.target.style.height = 'auto';
     e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
   };
@@ -363,25 +333,6 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
               placeholder="Type your message..."
               className="flex-1 rounded-2xl border border-[#f9fafb] px-4 py-3 resize-none outline-none focus:border-[#dd6668] bg-[#f9fafb] focus:bg-white transition-colors text-sm max-h-[120px] font-sans font-light"
             />
-            {supported && (
-              <Button
-                variant="outline"
-                onClick={toggleListening}
-                className={`flex-shrink-0 w-12 h-[46px] p-0 flex items-center justify-center transition-colors ${
-                  isListening ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100 hover:text-red-600' : 'text-[#6b7280] hover:text-[#0a0a0a]'
-                }`}
-                aria-label={isListening ? "Stop listening" : "Start listening"}
-              >
-                {isListening ? (
-                  <span className="relative flex h-5 w-5 items-center justify-center">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <Mic className="relative inline-flex rounded-full h-5 w-5 text-red-500" />
-                  </span>
-                ) : (
-                  <Mic className="w-5 h-5" />
-                )}
-              </Button>
-            )}
             <Button
               variant="primary"
               onClick={handleSubmit}

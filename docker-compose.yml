@@ -1,0 +1,79 @@
+services:
+  # ─── PostgreSQL ───────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: auralis_postgres
+    environment:
+      POSTGRES_DB: auralis
+      POSTGRES_USER: auralis
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - auralis_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auralis"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis ────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: auralis_redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - auralis_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ─── Auralis API ──────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auralis_api
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://auralis:${POSTGRES_PASSWORD}@postgres:5432/auralis
+      - REDIS_URL=redis://redis:6379/0
+      - POSTGRES_HOST=postgres
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/server/data
+      - ./vectorstore:/app/server/vectorstore
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ─── React Client ─────────────────────────────────────────────
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: http://localhost:8001
+    container_name: auralis_client
+    ports:
+      - "4000:3000"
+    depends_on:
+      - api
+    restart: on-failure
+
+volumes:
+  auralis_pg:
+  auralis_redis:

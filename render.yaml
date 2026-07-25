@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: auralis-api
+    env: python
+    region: ohio
+    buildCommand: "cd server && pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu"
+    startCommand: "cd server && uvicorn src.api.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: auralis-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: auralis-redis
+          property: connectionString
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: "*" # Update this to your Vercel URL once deployed
+      - key: MALLOC_ARENA_MAX
+        value: 2
+      - key: OMP_NUM_THREADS
+        value: 1
+
+  - type: redis
+    name: auralis-redis
+    region: ohio
+    plan: free
+    ipAllowList: []
+
+databases:
+  - name: auralis-db
+    region: ohio
+    plan: free
+    databaseName: auralis
+    user: auralis_user

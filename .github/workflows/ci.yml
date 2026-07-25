@@ -1,0 +1,97 @@
+name: CI
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: auralis
+          POSTGRES_USER: auralis
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - '5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U auralis"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - '6379:6379'
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+asyncpg://auralis:test_password@localhost:5432/auralis
+      REDIS_URL: redis://localhost:6379/0
+      JWT_SECRET_KEY: test_secret_key_for_ci_only_32chars
+      OPENAI_API_KEY: sk-fake-key-for-testing
+      GEMINI_API_KEY: ci-dummy-key
+      USE_MOCK_LLM: "true"
+      ENVIRONMENT: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r server/requirements.txt
+      - run: cd server && pytest tests/ --cov=src --cov-report=xml -v
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: server/coverage.xml
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install ruff black
+      - run: cd server && ruff check src/
+      - run: cd server && black --check src/
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - run: echo "GEMINI_API_KEY=ci-dummy-key" >> .env
+      - name: Build and run docker compose
+        run: |
+          docker compose build
+          docker compose up -d
+
+      - name: Wait for HTTP health endpoint
+        run: |
+          set -e
+          MAX_RETRIES=20
+          RETRY=0
+          until curl -fsS http://localhost:8001/health >/dev/null 2>&1; do
+            RETRY=$((RETRY+1))
+            echo "Health check attempt $RETRY/$MAX_RETRIES failed; waiting 3s..."
+            if [ "$RETRY" -ge "$MAX_RETRIES" ]; then
+              echo "Service did not become ready — collecting diagnostic logs"
+              docker compose ps --all
+              docker compose logs --no-color --tail=200 || true
+              exit 1
+            fi
+            sleep 3
+          done
+          echo "Service is healthy"
+
+      - name: Tear down
+        run: docker compose down --volumes --remove-orphans

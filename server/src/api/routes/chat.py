@@ -213,6 +213,10 @@ async def _run_chat_turn(
 
 
 def _extract_ws_token(websocket: WebSocket) -> str | None:
+    token = websocket.query_params.get("token")
+    if token:
+        return token
+
     auth_header = websocket.headers.get("authorization", "")
     if auth_header.lower().startswith("bearer "):
         token = auth_header[7:].strip()

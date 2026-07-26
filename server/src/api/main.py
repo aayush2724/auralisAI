@@ -29,11 +29,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
-from slowapi import _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
-
 # pyrefly: ignore [missing-import]
 from prometheus_fastapi_instrumentator import Instrumentator
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from src.analytics.tracker import init_analytics_db
 from src.api.auth import init_users_db, seed_admin, seed_demo_user
@@ -44,8 +43,8 @@ from src.api.routes.chat import router as chat_router
 from src.api.routes.kb import router as kb_router
 from src.api.schemas import HealthResponse
 from src.memory.db import init_db
-from src.utils.logger import get_logger
 from src.utils.limiter import limiter
+from src.utils.logger import get_logger
 
 # ─── Logging Setup ────────────────────────────────────────────────────────────
 

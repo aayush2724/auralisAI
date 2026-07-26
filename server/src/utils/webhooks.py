@@ -1,14 +1,14 @@
 import asyncio
 import logging
 import os
-from typing import Any, Dict
+from typing import Any
 
 import httpx
 
 logger = logging.getLogger("auralis.utils.webhooks")
 
 
-async def fire_webhooks(session_id: str, state: Dict[str, Any], user_email: str | None = None) -> None:
+async def fire_webhooks(session_id: str, state: dict[str, Any], user_email: str | None = None) -> None:
     """
     Asynchronously fire webhooks to Slack and/or CRM endpoints when a conversion
     or handoff event is triggered.

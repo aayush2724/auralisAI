@@ -18,10 +18,10 @@ Implements Feature 12 — PDF/CSV Knowledge Base Ingestion.
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import sys
-import json
 from pathlib import Path
 from typing import Any
 
@@ -172,7 +172,7 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
     metadata_file = vectorstore_path / "metadata.json"
     if metadata_file.exists():
         try:
-            with open(metadata_file, "r") as f:
+            with open(metadata_file) as f:
                 existing_meta = json.load(f)
                 existing_sources = set(existing_meta.get("sources", []))
                 unique_sources.update(existing_sources)

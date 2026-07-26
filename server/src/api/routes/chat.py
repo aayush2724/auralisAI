@@ -42,10 +42,10 @@ from fastapi import (
     APIRouter,
     HTTPException,
     Path,
+    Request,
     WebSocket,
     WebSocketDisconnect,
     status,
-    Request,
 )
 from pydantic import ValidationError
 
@@ -64,8 +64,8 @@ from src.graph.graph import run_graph
 from src.memory.db import load_session, save_session
 from src.memory.memory import ConversationMemory
 from src.utils.explainability import explain
-from src.utils.logger import log_request
 from src.utils.limiter import limiter
+from src.utils.logger import log_request
 from src.utils.webhooks import fire_webhooks
 
 logger = logging.getLogger("auralis.api.chat")

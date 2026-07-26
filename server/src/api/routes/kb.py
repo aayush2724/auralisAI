@@ -13,10 +13,10 @@ GET /kb/stats
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import uuid
-import json
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -166,7 +166,7 @@ async def kb_stats(
     try:
         metadata_file = VECTORSTORE_PATH / "metadata.json"
         if metadata_file.exists():
-            with open(metadata_file, "r") as f:
+            with open(metadata_file) as f:
                 meta = json.load(f)
                 total_documents = meta.get("total_documents", 0)
                 total_chunks = meta.get("total_chunks", 0)

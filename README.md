@@ -75,6 +75,7 @@ Use these seeded credentials to explore the live demo (or locally after `docker 
 | **Email** | `admin@auralis.ai` |
 | **Password** | `9ZQ-3KFmhX39yt68EMMcomtd2tg` |
 
+>⚠️ **Note:** The backend runs on a free-tier instance that spins down after inactivity — your first login attempt may fail or hang while it wakes up. If this happens, simply refresh the page and try logging in again once or twice; subsequent requests will be fast.
 > This account has `sales_rep` access — enough to try the full chat pipeline. Admin-level features (knowledge base management, session lookup, analytics dashboard) require elevated access not exposed publicly.
 
 ### 🧪 Panel Evaluation Prompts (Sample Hackathon Questions)

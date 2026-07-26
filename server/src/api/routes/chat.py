@@ -73,7 +73,11 @@ router = APIRouter()
 
 
 async def _run_chat_turn(
-    session_id: str, message: str, owner_id: str | None = None, user_email: str | None = None, workspace_id: str = "default_tenant"
+    session_id: str,
+    message: str,
+    owner_id: str | None = None,
+    user_email: str | None = None,
+    workspace_id: str = "default_tenant",
 ) -> tuple[ChatResponse, dict]:
     # ── Step 0: Determine A/B variant ──────────────────────────────────────────
     variant = await assign_variant(session_id)
@@ -277,7 +281,11 @@ async def chat(
 
     try:
         response, state = await _run_chat_turn(
-            session_id=session_id, message=message, owner_id=current_user.id, user_email=current_user.email, workspace_id=current_user.workspace_id
+            session_id=session_id,
+            message=message,
+            owner_id=current_user.id,
+            user_email=current_user.email,
+            workspace_id=current_user.workspace_id,
         )
 
         # ── Log handoff event if triggered ────────────────────────────────────
@@ -381,7 +389,11 @@ async def chat_websocket(websocket: WebSocket) -> None:
             start_time = time.perf_counter()
             try:
                 response, state = await _run_chat_turn(
-                    session_id=session_id, message=message, owner_id=user.id, user_email=user.email, workspace_id=user.workspace_id
+                    session_id=session_id,
+                    message=message,
+                    owner_id=user.id,
+                    user_email=user.email,
+                    workspace_id=user.workspace_id,
                 )
             except PermissionError as e:
                 await websocket.send_json(

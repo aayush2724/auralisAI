@@ -8,7 +8,9 @@ import httpx
 logger = logging.getLogger("auralis.utils.webhooks")
 
 
-async def fire_webhooks(session_id: str, state: dict[str, Any], user_email: str | None = None) -> None:
+async def fire_webhooks(
+    session_id: str, state: dict[str, Any], user_email: str | None = None
+) -> None:
     """
     Asynchronously fire webhooks to Slack and/or CRM endpoints when a conversion
     or handoff event is triggered.
@@ -17,7 +19,9 @@ async def fire_webhooks(session_id: str, state: dict[str, Any], user_email: str 
     crm_url = os.environ.get("CRM_WEBHOOK_URL")
 
     if not slack_url and not crm_url:
-        logger.debug("No webhook URLs configured (SLACK_WEBHOOK_URL / CRM_WEBHOOK_URL). Skipping.")
+        logger.debug(
+            "No webhook URLs configured (SLACK_WEBHOOK_URL / CRM_WEBHOOK_URL). Skipping."
+        )
         return
 
     objection = state.get("objection", {}).get("label", "neutral")
@@ -39,11 +43,11 @@ async def fire_webhooks(session_id: str, state: dict[str, Any], user_email: str 
 
     slack_payload = {
         "text": f"🚀 *Auralis Lead Handoff Triggered!*\n"
-                f"• *Session*: `{session_id}`\n"
-                f"• *User*: {user_email or 'Anonymous'}\n"
-                f"• *Persona*: {persona}\n"
-                f"• *Objection*: {objection}\n"
-                f"• *Trigger*: _{trigger}_"
+        f"• *Session*: `{session_id}`\n"
+        f"• *User*: {user_email or 'Anonymous'}\n"
+        f"• *Persona*: {persona}\n"
+        f"• *Objection*: {objection}\n"
+        f"• *Trigger*: _{trigger}_"
     }
 
     async with httpx.AsyncClient(timeout=5.0) as client:
@@ -54,10 +58,16 @@ async def fire_webhooks(session_id: str, state: dict[str, Any], user_email: str 
             tasks.append(client.post(crm_url, json=payload))
 
         if tasks:
-            logger.info("Firing %d webhook request(s) for session %s", len(tasks), session_id)
+            logger.info(
+                "Firing %d webhook request(s) for session %s", len(tasks), session_id
+            )
             results = await asyncio.gather(*tasks, return_exceptions=True)
             for res in results:
                 if isinstance(res, Exception):
                     logger.error("Error delivering webhook: %s", res)
                 elif res.status_code >= 400:
-                    logger.warning("Webhook endpoint returned status %d: %s", res.status_code, res.text)
+                    logger.warning(
+                        "Webhook endpoint returned status %d: %s",
+                        res.status_code,
+                        res.text,
+                    )

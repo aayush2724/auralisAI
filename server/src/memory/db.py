@@ -127,7 +127,10 @@ async def init_db() -> None:
 
 
 async def save_session(
-    session_id: str, facts_dict: dict[str, Any], owner_id: str | None = None, workspace_id: str = "default_tenant"
+    session_id: str,
+    facts_dict: dict[str, Any],
+    owner_id: str | None = None,
+    workspace_id: str = "default_tenant",
 ) -> None:
     """
     Upsert session facts into customer_sessions.
@@ -211,7 +214,9 @@ async def load_session(
         return None
 
     if workspace_id and row.workspace_id and row.workspace_id != workspace_id:
-        raise PermissionError("Access denied: session belongs to a different workspace.")
+        raise PermissionError(
+            "Access denied: session belongs to a different workspace."
+        )
 
     if owner_id and row.user_id and row.user_id != owner_id:
         raise PermissionError("This session belongs to a different user.")

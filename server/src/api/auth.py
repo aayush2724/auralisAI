@@ -225,7 +225,12 @@ async def authenticate_user(email: str, password: str) -> User | None:
         return None
     if not verify_password(password, row["hashed_password"]):
         return None
-    return User(id=row["id"], email=row["email"], role=row["role"], workspace_id=row.get("workspace_id", "default_tenant"))
+    return User(
+        id=row["id"],
+        email=row["email"],
+        role=row["role"],
+        workspace_id=row.get("workspace_id", "default_tenant"),
+    )
 
 
 # ─── JWT helpers ──────────────────────────────────────────────────────────────

@@ -168,7 +168,7 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
     for c in chunks:
         if "source_file" in c["metadata"]:
             unique_sources.add(c["metadata"]["source_file"])
-    
+
     metadata_file = vectorstore_path / "metadata.json"
     if metadata_file.exists():
         try:
@@ -183,11 +183,14 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
         total_chunks = len(chunks)
 
     with open(metadata_file, "w") as f:
-        json.dump({
-            "total_documents": len(unique_sources),
-            "total_chunks": total_chunks,
-            "sources": list(unique_sources)
-        }, f)
+        json.dump(
+            {
+                "total_documents": len(unique_sources),
+                "total_chunks": total_chunks,
+                "sources": list(unique_sources),
+            },
+            f,
+        )
 
     logger.info("FAISS index saved → %s", vectorstore_path / "index.faiss")
 

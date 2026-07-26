@@ -25,16 +25,16 @@ const badgeColors: Record<string, string> = {
 function Accordion({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
-    <div className="border border-[#f9fafb] rounded-xl overflow-hidden mb-4">
+    <div className="border border-[#E2E8F0] rounded-xl overflow-hidden mb-4 shadow-xs">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-white hover:bg-[#f9fafb] transition-colors text-left font-sans"
+        className="w-full flex items-center justify-between px-4 py-3 bg-white hover:bg-[#F8FAFC] transition-colors text-left font-sans"
       >
-        <span className="font-medium text-sm text-[#0a0a0a]">{title}</span>
-        {isOpen ? <ChevronUp className="w-4 h-4 text-[#6b7280]" /> : <ChevronDown className="w-4 h-4 text-[#6b7280]" />}
+        <span className="font-semibold text-xs text-[#0F172A] uppercase tracking-wider">{title}</span>
+        {isOpen ? <ChevronUp className="w-4 h-4 text-[#64748B]" /> : <ChevronDown className="w-4 h-4 text-[#64748B]" />}
       </button>
       {isOpen && (
-        <div className="px-4 py-3 bg-white border-t border-[#f9fafb] text-sm text-[#6b7280]">
+        <div className="px-4 py-3 bg-[#F8FAFC] border-t border-[#E2E8F0] text-xs text-[#334155]">
           {children}
         </div>
       )}
@@ -45,11 +45,11 @@ function Accordion({ title, children, defaultOpen = false }: { title: string, ch
 export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }) {
   if (!data) {
     return (
-      <div className="w-72 border-l border-[#f9fafb] bg-white h-full flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-full bg-[#f9fafb] flex items-center justify-center mb-4">
-          <Zap className="w-8 h-8 text-[#6b7280] opacity-50" />
+      <div className="w-72 border-l border-[#E2E8F0] bg-white h-full flex flex-col items-center justify-center p-6 text-center shadow-xs">
+        <div className="w-16 h-16 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center mb-4">
+          <Zap className="w-8 h-8 text-[#0D9488]" />
         </div>
-        <p className="text-[#6b7280] text-sm leading-relaxed font-sans font-light">Send a message to see live diagnostics</p>
+        <p className="text-[#64748B] text-sm leading-relaxed font-sans font-medium">Send a message to see live diagnostics</p>
       </div>
     );
   }
@@ -61,7 +61,7 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
     <motion.div 
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="w-72 border-l border-[#f9fafb] bg-white h-full flex flex-col overflow-y-auto"
+      className="w-72 border-l border-[#E2E8F0] bg-white h-full flex flex-col overflow-y-auto shadow-xs"
     >
       <div className="p-5 space-y-6">
         

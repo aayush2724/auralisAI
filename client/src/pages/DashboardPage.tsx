@@ -36,7 +36,7 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}

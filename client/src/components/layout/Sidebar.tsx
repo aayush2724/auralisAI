@@ -61,23 +61,23 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
       </AnimatePresence>
 
       <aside
-        className={`fixed left-0 top-0 h-screen w-[240px] border-r border-[#F1F3F1] bg-white flex flex-col justify-between z-40 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+        className={`fixed left-0 top-0 h-screen w-[240px] border-r border-[#E2E8F0] bg-white shadow-sm flex flex-col justify-between z-40 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
         role="navigation"
         aria-label="Dashboard navigation"
       >
         <div>
           <div className="p-6 flex flex-col space-y-2">
             <div className="flex items-center space-x-2">
-              <span className="text-xl font-logo font-semibold text-[#0a0a0a] tracking-tight">Auralis</span>
-              <div className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-blink" aria-hidden="true"></div>
+              <span className="text-xl font-logo font-bold text-[#0F172A] tracking-tight">Auralis</span>
+              <div className="w-2 h-2 rounded-full bg-[#0D9488] shadow-[0_0_8px_rgba(13,148,136,0.8)] animate-blink" aria-hidden="true"></div>
             </div>
-            <div className="flex items-center space-x-1.5 px-2 py-1 rounded bg-[#f9fafb] border border-[#F1F3F1] w-fit">
-              <Building2 className="w-3 h-3 text-[#6b7280]" />
-              <span className="text-[11px] font-mono text-[#6b7280] font-medium">default_tenant</span>
+            <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-[#F1F5F9] border border-[#E2E8F0] w-fit">
+              <Building2 className="w-3 h-3 text-[#0D9488]" />
+              <span className="text-[11px] font-mono text-[#334155] font-semibold">default_tenant</span>
             </div>
           </div>
           
-          <nav className="px-3 space-y-1 mt-4 relative" aria-label="Dashboard tabs">
+          <nav className="px-3 space-y-1.5 mt-4 relative" aria-label="Dashboard tabs">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -86,21 +86,21 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
                   key={item.id}
                   onClick={() => handleNavClick(item.id as Tab)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`relative w-full flex items-center px-3 py-2 rounded-lg transition-all font-sans text-sm ${
+                  className={`relative w-full flex items-center px-3.5 py-2.5 rounded-lg transition-all font-sans text-sm ${
                     isActive
-                      ? 'text-[#0a0a0a] font-medium'
-                      : 'text-auralis-text font-light hover:bg-[#f9fafb]'
+                      ? 'text-[#0F172A] font-semibold'
+                      : 'text-[#475569] font-medium hover:bg-[#F8FAFC] hover:text-[#0F172A]'
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="sidebar-pill"
-                      className="absolute inset-0 bg-[#f9fafb] rounded-lg z-0"
+                      className="absolute inset-0 bg-[#F1F5F9] border border-[#CBD5E1] rounded-lg z-0 shadow-xs"
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />
                   )}
                   <div className="relative z-10 flex items-center space-x-3">
-                    <Icon className="w-4 h-4" aria-hidden="true" />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#0D9488]' : 'text-[#64748B]'}`} aria-hidden="true" />
                     <span>{item.label}</span>
                   </div>
                 </button>
@@ -109,17 +109,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
           </nav>
         </div>
 
-        <div className="p-4 border-t border-[#F1F3F1]">
-          <div className="flex items-center justify-between mb-4 px-2">
-            <span className="text-xs font-sans font-medium text-auralis-text uppercase tracking-widest">Session</span>
-            <span className="text-xs font-mono text-[#6b7280] bg-[#f9fafb] px-2 py-1 rounded">
+        <div className="p-4 border-t border-[#E2E8F0] bg-[#F8FAFC]">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <span className="text-[11px] font-sans font-semibold text-[#64748B] uppercase tracking-wider">Session</span>
+            <span className="text-xs font-mono text-[#0F172A] bg-white border border-[#E2E8F0] px-2 py-0.5 rounded font-medium shadow-xs">
               {sessionId.slice(0, 8)}
             </span>
           </div>
           <Button
             variant="ghost"
             onClick={handleLogout}
-            className="w-full flex items-center justify-center space-x-2 py-2 px-3 text-[#6b7280] hover:text-[#dd6668] no-underline"
+            className="w-full flex items-center justify-center space-x-2 py-2 px-3 text-[#64748B] hover:text-[#0F172A] hover:bg-white border border-transparent hover:border-[#E2E8F0] no-underline transition-all"
           >
             <LogOut className="w-4 h-4" aria-hidden="true" />
             <span>Logout</span>

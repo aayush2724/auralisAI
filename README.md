@@ -77,6 +77,19 @@ Use these seeded credentials to explore the live demo (or locally after `docker 
 
 > This account has `sales_rep` access — enough to try the full chat pipeline. Admin-level features (knowledge base management, session lookup, analytics dashboard) require elevated access not exposed publicly.
 
+### 🧪 Panel Evaluation Prompts (Sample Hackathon Questions)
+
+Judges and panel evaluators can copy-paste these test scenarios into the live chat interface to verify real-time classification, persona adaptation, RAG source citations, and human handoff triggers:
+
+| Category | Test Prompt for Live Demo / Panel Evaluation | Expected System Behavior & Diagnostics Output |
+|---|---|---|
+| 💰 **Pricing Objection** | *"Your tier is $4,000/mo, which is 2.5x more expensive than CompetitorX. Why shouldn't we choose them?"* | Classifies as `pricing` objection. Triggers ROI calculation battlecard retrieval with source citations (`chunk 0`). |
+| ⏱️ **Timing & Priority** | *"We're in the middle of Q3 planning and don't have engineering bandwidth to integrate a complex system right now."* | Classifies as `timing` objection. Routes to Timing Strategy node with zero-friction integration proof. |
+| 🛡️ **Trust & Security** | *"How do I know our customer conversation data won't be stored or leaked to train public LLM models?"* | Classifies as `trust` objection. Retrieves SOC2 compliance & data privacy vector chunks with citations. |
+| 📊 **Analytical Persona** | *"Can you give me hard metrics and benchmarking data comparing your sub-2s response latency against static search?"* | Detects `Analytical` buyer persona. Returns structured quantitative metrics & benchmark data. |
+| 🚀 **Assertive Persona** | *"Bottom line: what is the single biggest feature that will increase our sales team's closing rate this month?"* | Detects `Assertive` buyer persona. Formulates a direct, high-impact executive reply. |
+| ⚠️ **Human Handoff Trigger** | *"I am extremely frustrated with your pricing model, legal rejected the terms, and I demand to talk to your VP immediately!"* | Computes negative sentiment (`-0.85`), flags `should_handoff = True`, and renders Human Escalation Warning banner. |
+
 ---
 
 ## 🏗️ Architecture

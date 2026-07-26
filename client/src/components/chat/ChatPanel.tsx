@@ -255,19 +255,19 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
   };
 
   return (
-    <div className="flex flex-row h-full w-full bg-white">
+    <div className="flex flex-row h-full w-full bg-[#F8FAFC]">
       <div className="flex flex-col flex-1 h-full min-w-0 relative">
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-[#f9fafb] bg-white/50 backdrop-blur-sm z-10 sticky top-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-[#E2E8F0] bg-white/80 backdrop-blur-md z-10 sticky top-0 shadow-xs">
           <div className="flex items-center space-x-2 truncate min-w-0">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" aria-hidden="true" />
-            <span className="font-mono text-xs text-[#6b7280] truncate">
+            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse shrink-0" aria-hidden="true" />
+            <span className="font-mono text-xs text-[#334155] font-medium truncate">
               {currentSessionId}
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0 ml-2">
             <button
               onClick={() => setDiagnosticsOpen(!diagnosticsOpen)}
-              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-[#f9fafb] text-[#0a0a0a] hover:bg-[#f9fafb] transition-colors"
+              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-[#CBD5E1] bg-white text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
               aria-label={diagnosticsOpen ? 'Hide diagnostics' : 'Show diagnostics'}
             >
               {diagnosticsOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
@@ -275,7 +275,7 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
             <Button 
               variant="outline"
               onClick={handleNewSession}
-              className="flex-shrink-0"
+              className="flex-shrink-0 bg-white border-[#CBD5E1] text-[#0F172A] hover:bg-[#F1F5F9]"
             >
               New Session
             </Button>
@@ -297,30 +297,30 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
                   >
                     {!isUser && (
                       <div className="flex-shrink-0 mt-1">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#dd6668] to-[#0a0a0a] flex items-center justify-center" aria-hidden="true">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0D9488] to-[#0F172A] flex items-center justify-center shadow-xs" aria-hidden="true">
                           <Mic className="w-4 h-4 text-white" />
                         </div>
                       </div>
                     )}
                     
                     <div className={`
-                      px-5 py-4 max-w-[80%] text-sm leading-relaxed shadow-sm font-sans font-light
+                      px-5 py-4 max-w-[80%] text-sm leading-relaxed shadow-xs font-sans
                       ${isUser 
-                        ? 'bg-[#0a0a0a] text-white rounded-2xl rounded-tr-sm' 
-                        : 'bg-[#f9fafb] text-[#0a0a0a] rounded-2xl rounded-tl-sm'}
+                        ? 'bg-[#0F172A] text-white rounded-2xl rounded-tr-sm border border-[#1E293B]' 
+                        : 'bg-white text-[#0F172A] border border-[#E2E8F0] rounded-2xl rounded-tl-sm shadow-xs'}
                     `}>
                       {isUser ? (
-                        <div className="whitespace-pre-wrap">{msg.content}</div>
+                        <div className="whitespace-pre-wrap font-normal">{msg.content}</div>
                       ) : (
                         <ReactMarkdown 
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            p: (props) => <p className="mb-3 last:mb-0" {...props} />,
-                            ul: (props) => <ul className="list-disc pl-5 mb-3 last:mb-0 space-y-1.5 marker:text-[#dd6668]" {...props} />,
-                            ol: (props) => <ol className="list-decimal pl-5 mb-3 last:mb-0 space-y-1.5 marker:text-[#dd6668]" {...props} />,
+                            p: (props) => <p className="mb-3 last:mb-0 text-[#0F172A]" {...props} />,
+                            ul: (props) => <ul className="list-disc pl-5 mb-3 last:mb-0 space-y-1.5 marker:text-[#0D9488]" {...props} />,
+                            ol: (props) => <ol className="list-decimal pl-5 mb-3 last:mb-0 space-y-1.5 marker:text-[#0D9488]" {...props} />,
                             li: (props) => <li className="pl-1" {...props} />,
-                            strong: (props) => <strong className="font-semibold text-current" {...props} />,
-                            a: (props) => <a className="underline hover:opacity-80 underline-offset-2" {...props} />
+                            strong: (props) => <strong className="font-semibold text-[#0F172A]" {...props} />,
+                            a: (props) => <a className="underline text-[#0D9488] hover:opacity-80 underline-offset-2" {...props} />
                           }}
                         >
                           {msg.content}
@@ -331,8 +331,8 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
 
                     {isUser && (
                       <div className="flex-shrink-0 mt-1">
-                        <div className="w-8 h-8 rounded-full bg-[#f9fafb] border border-[#f9fafb] flex items-center justify-center" aria-hidden="true">
-                          <span className="text-[#6b7280] text-xs font-bold">U</span>
+                        <div className="w-8 h-8 rounded-full bg-white border border-[#CBD5E1] flex items-center justify-center shadow-xs" aria-hidden="true">
+                          <span className="text-[#0F172A] text-xs font-bold">U</span>
                         </div>
                       </div>
                     )}
@@ -345,10 +345,10 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
           </div>
         </div>
 
-        <div className="absolute bottom-0 inset-x-0 bg-white border-t border-[#f9fafb] p-3 sm:p-4">
+        <div className="absolute bottom-0 inset-x-0 bg-white border-t border-[#E2E8F0] p-3 sm:p-4 shadow-lg">
           <div className="max-w-3xl mx-auto flex items-end space-x-3 bg-white">
             {wsError && (
-              <div className="absolute -top-9 left-1/2 w-[min(92vw,42rem)] -translate-x-1/2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-800">
+              <div className="absolute -top-9 left-1/2 w-[min(92vw,42rem)] -translate-x-1/2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-800 font-medium">
                 {wsError}
               </div>
             )}
@@ -361,14 +361,14 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
               onChange={handleInput}
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
-              className="flex-1 rounded-2xl border border-[#f9fafb] px-4 py-3 resize-none outline-none focus:border-[#dd6668] bg-[#f9fafb] focus:bg-white transition-colors text-sm max-h-[120px] font-sans font-light"
+              className="flex-1 rounded-xl border border-[#CBD5E1] px-4 py-3 resize-none outline-none focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20 bg-[#F8FAFC] focus:bg-white transition-all text-sm text-[#0F172A] placeholder-[#94A3B8] max-h-[120px] font-sans font-normal"
             />
             {supported && (
               <Button
                 variant="outline"
                 onClick={toggleListening}
-                className={`flex-shrink-0 w-12 h-[46px] p-0 flex items-center justify-center transition-colors ${
-                  isListening ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100 hover:text-red-600' : 'text-[#6b7280] hover:text-[#0a0a0a]'
+                className={`flex-shrink-0 w-12 h-[46px] p-0 flex items-center justify-center transition-colors rounded-xl border-[#CBD5E1] ${
+                  isListening ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100 hover:text-red-600' : 'text-[#64748B] hover:text-[#0F172A] bg-white'
                 }`}
                 aria-label={isListening ? "Stop listening" : "Start listening"}
               >
@@ -386,7 +386,7 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
               variant="primary"
               onClick={handleSubmit}
               disabled={!input.trim() || isLoading}
-              className="flex-shrink-0 w-12 h-[46px] p-0 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-shrink-0 w-12 h-[46px] p-0 flex items-center justify-center bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               aria-label="Send message"
             >
               <Send className="w-5 h-5" />

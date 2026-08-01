@@ -37,6 +37,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections import deque
 
 from fastapi import (
     APIRouter,
@@ -336,6 +337,7 @@ async def chat(
 
 # ─── WS /ws/chat ───────────────────────────────────────────────────────────────
 
+_ws_rate_limits = {}
 
 @router.websocket("/ws/chat")
 async def chat_websocket(websocket: WebSocket) -> None:
@@ -385,6 +387,26 @@ async def chat_websocket(websocket: WebSocket) -> None:
                     }
                 )
                 continue
+
+            # Manual Rate Limiting: 20 per minute
+            now = time.time()
+            if user.id not in _ws_rate_limits:
+                _ws_rate_limits[user.id] = deque()
+            
+            user_timestamps = _ws_rate_limits[user.id]
+            while user_timestamps and user_timestamps[0] < now - 60:
+                user_timestamps.popleft()
+                
+            if len(user_timestamps) >= 20:
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "detail": "Rate limit exceeded: 20 per 1 minute. Please wait before sending more messages.",
+                    }
+                )
+                continue
+                
+            user_timestamps.append(now)
 
             start_time = time.perf_counter()
             try:

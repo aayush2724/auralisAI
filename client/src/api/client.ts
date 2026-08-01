@@ -12,54 +12,38 @@ const client = axios.create({
   timeout: 30000,
 });
 
-client.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('auralis_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-client.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auralis_token');
-      window.location.href = '/';
-    }
-    return Promise.reject(error);
-  }
-);
+import { useAuthStore } from '../store/authStore';
 
 export const chatClient = axios.create({
   baseURL: API_BASE,
   timeout: 120000,
 });
 
-chatClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('auralis_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+function attachAuthInterceptors(instance: import('axios').AxiosInstance) {
+  instance.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('auralis_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
-chatClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auralis_token');
-      window.location.href = '/';
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        useAuthStore.getState().clearToken();
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
-);
+  );
+}
+
+attachAuthInterceptors(client);
+attachAuthInterceptors(chatClient);
 
 export async function chatRequest<T>(reqBody: unknown, retries = 2): Promise<T> {
   let lastError: unknown;

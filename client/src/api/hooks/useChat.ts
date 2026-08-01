@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import axios from 'axios';
 import { chatRequest } from '../client';
 import type { ChatResponse, ChatRequest, Message } from '../../types/api';
 
@@ -47,8 +48,13 @@ export const useChat = (sessionId: string) => {
       const req: ChatRequest = { session_id: sessionId, message };
       const data = await chatRequest<ChatResponse>(req);
       appendAssistantMessage(data, message);
-    } catch (error: any) {
-      const errMsg = error.response?.data?.detail || "The AI is currently busy, please try again in a moment.";
+    } catch (error: unknown) {
+      let errMsg = "The AI is currently busy, please try again in a moment.";
+      if (axios.isAxiosError(error)) {
+        errMsg = error.response?.data?.detail || errMsg;
+      } else if (error instanceof Error) {
+        errMsg = error.message;
+      }
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',

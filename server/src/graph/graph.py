@@ -223,16 +223,21 @@ def retrieve_node(state: GraphState) -> dict[str, Any]:
     obj_label = objection.get("label", "")
 
     # Enrich query with the objection class for better retrieval precision
-    query = f"{user_input} {obj_label} objection handling" if obj_label else user_input
+    _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT = {"price", "trust", "timing", "competitor"}
+    query = (
+        f"{user_input} {obj_label} objection handling"
+        if obj_label in _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT
+        else user_input
+    )
     logger.info("[retrieve_node] query='%s'", query[:100])
 
     try:
         docs = retrieve(query, top_k=5)
         citations = format_citations(docs)
-        logger.info("[DEBUG retrieve_node] query='%s'", query)
-        logger.info("[DEBUG retrieve_node] num_docs=%d", len(docs))
+        logger.debug("[DEBUG retrieve_node] query='%s'", query)
+        logger.debug("[DEBUG retrieve_node] num_docs=%d", len(docs))
         for i, d in enumerate(docs):
-            logger.info("[DEBUG retrieve_node] doc[%d] score=%.4f source=%s text_preview=%s",
+            logger.debug("[DEBUG retrieve_node] doc[%d] score=%.4f source=%s text_preview=%s",
                         i, d.get("score"), d.get("source_file"), d.get("text", "")[:120])
     except FileNotFoundError:
         logger.warning(
@@ -411,7 +416,7 @@ def generate_node(state: GraphState) -> dict[str, Any]:
         (state.get("objection") or {}).get("label", "?"),
         persona_label,
     )
-    logger.info("[DEBUG generate_node] obj_label='%s' | citations_present=%s",
+    logger.debug("[DEBUG generate_node] obj_label='%s' | citations_present=%s",
                 (state.get("objection") or {}).get("label"), bool(state.get("citations")))
 
     # Build the specialised user-turn prompt via the strategy router

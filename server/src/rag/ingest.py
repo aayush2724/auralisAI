@@ -5,7 +5,7 @@ Knowledge-base ingestion pipeline.
 
 Supports: .pdf (PyMuPDF), .csv (pandas), .md (pathlib)
 Chunking : RecursiveCharacterTextSplitter — 512 tokens / 64-token overlap
-Embedding: models/text-embedding-004 (Google GenAI)
+Embedding: models/gemini-embedding-001 (Google GenAI)
 Storage  : FAISS index persisted to vectorstore/
 
 CLI usage
@@ -51,7 +51,7 @@ logger = logging.getLogger("auralis.ingest")
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/text-embedding-004")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/gemini-embedding-001")
 VECTORSTORE_PATH = Path(os.getenv("VECTORSTORE_PATH", "vectorstore"))
 CHUNK_SIZE = 512  # tokens (approx. characters / 4)
 CHUNK_OVERLAP = 64
@@ -144,6 +144,7 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
     embeddings = GoogleGenerativeAIEmbeddings(
         model=EMBEDDING_MODEL,
         google_api_key=os.getenv("GEMINI_API_KEY"),
+        output_dimensionality=768,
     )
 
     index_file = vectorstore_path / "index.faiss"

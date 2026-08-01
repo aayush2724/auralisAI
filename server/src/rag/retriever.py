@@ -30,7 +30,7 @@ logger = logging.getLogger("auralis.retriever")
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/text-embedding-004")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/gemini-embedding-001")
 VECTORSTORE_PATH = Path(os.getenv("VECTORSTORE_PATH", "vectorstore"))
 
 # ─── Module-level singletons (lazy-loaded) ────────────────────────────────────
@@ -46,6 +46,7 @@ def _get_embeddings() -> GoogleGenerativeAIEmbeddings:
         _embeddings = GoogleGenerativeAIEmbeddings(
             model=EMBEDDING_MODEL,
             google_api_key=os.getenv("GEMINI_API_KEY"),
+            output_dimensionality=768,
         )
     return _embeddings
 

@@ -49,6 +49,8 @@ _PROMPT_TEMPLATE = """\
 {knowledge}
 
 ### Strategy Instructions
+When citing numbers, dates, durations, or figures from the retrieved context ({citations}), quote them exactly as stated. If the source distinguishes between a default/standard value and a conditional/upgraded value (e.g. "90 days by default, up to 12 months for Enterprise Plus customers"), preserve that distinction explicitly in your response rather than collapsing it into a single number. Do not average, round, or simplify multiple related figures from the source into one blanket statement.
+
 You are handling a FIT objection. Follow this exact structure:
 
 1. **Validate** — Acknowledge the concern genuinely in one sentence.

@@ -229,6 +229,11 @@ def retrieve_node(state: GraphState) -> dict[str, Any]:
     try:
         docs = retrieve(query, top_k=5)
         citations = format_citations(docs)
+        logger.info("[DEBUG retrieve_node] query='%s'", query)
+        logger.info("[DEBUG retrieve_node] num_docs=%d", len(docs))
+        for i, d in enumerate(docs):
+            logger.info("[DEBUG retrieve_node] doc[%d] score=%.4f source=%s text_preview=%s",
+                        i, d.get("score"), d.get("source_file"), d.get("text", "")[:120])
     except FileNotFoundError:
         logger.warning(
             "[retrieve_node] FAISS index not found — proceeding without retrieval."
@@ -406,6 +411,8 @@ def generate_node(state: GraphState) -> dict[str, Any]:
         (state.get("objection") or {}).get("label", "?"),
         persona_label,
     )
+    logger.info("[DEBUG generate_node] obj_label='%s' | citations_present=%s",
+                (state.get("objection") or {}).get("label"), bool(state.get("citations")))
 
     # Build the specialised user-turn prompt via the strategy router
     user_prompt = get_strategy_prompt(state)

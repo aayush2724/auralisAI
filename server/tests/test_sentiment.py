@@ -135,3 +135,13 @@ class TestEdgeCases:
     def test_single_word(self):
         result = analyze("Excellent!")
         _assert_schema(result)
+
+    def test_calm_factual_sensitive_topic(self):
+        """Bug A regression: A calm question about a sensitive topic (data privacy) should not trigger a high-confidence negative score."""
+        text = "How do I know our customer conversation data won't be stored or leaked to train public LLM models?"
+        result = analyze(text)
+        # It should either be neutral, or if it is negative, its score must be < 0.85 (handoff threshold)
+        if result["label"] == "negative":
+            assert result["score"] < 0.85, f"Calm factual question scored too high for negative sentiment: {result['score']}"
+        else:
+            assert result["label"] == "neutral", f"Expected neutral or low-score negative, got {result['label']}"

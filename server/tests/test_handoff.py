@@ -25,10 +25,11 @@ def make_state(
     confidence: float = 0.85,
     sentiment: str = "neutral",
     sentiment_score: float = 0.5,
+    objection_label: str = "",
 ) -> dict:
     """Return a minimal state dict matching the GraphState structure."""
     return {
-        "objection": {"confidence": confidence},
+        "objection": {"confidence": confidence, "label": objection_label},
         "sentiment": {"label": sentiment, "score": sentiment_score},
     }
 
@@ -70,3 +71,21 @@ def test_user_requested_overrides_low_confidence() -> None:
     state = make_state(confidence=0.20, sentiment="negative", sentiment_score=0.95)
     result = evaluate_handoff(state, "please connect me to a human")
     assert result["trigger"] == HandoffTrigger.USER_REQUESTED
+
+
+def test_explicit_authority_demand_overrides_angry_exemption() -> None:
+    # Bug B scenario: standard objection (price) + high negative sentiment + explicit VP demand
+    state = make_state(confidence=0.9, objection_label="price", sentiment="negative", sentiment_score=0.95)
+    result = evaluate_handoff(state, "I am extremely frustrated and demand to talk to your VP immediately!")
+    assert result["should_handoff"] is True
+    assert result["trigger"] == HandoffTrigger.USER_REQUESTED
+
+
+def test_standard_objection_with_negative_sentiment_no_handoff() -> None:
+    # Ensure standard objections with plain negative sentiment don't silently regress
+    for label in ("price", "competitor", "timing", "fit"):
+        state = make_state(confidence=0.9, objection_label=label, sentiment="negative", sentiment_score=0.95)
+        result = evaluate_handoff(state, "I hate this pricing model and this product.")
+        assert result["should_handoff"] is False
+        assert result["trigger"] is None
+

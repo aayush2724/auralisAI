@@ -74,11 +74,17 @@ def analyze(text: str) -> SentimentResult:
         raise ValueError("`text` must be a non-empty string.")
 
     clf = get_zeroshot_pipeline()
-    candidate_labels = ["positive", "neutral", "negative"]
+    candidate_labels = [
+        "positive — the customer's tone expresses enthusiasm, satisfaction, or agreement",
+        "neutral — the customer is calmly asking a factual, informational, or clarifying question, even if the topic itself is sensitive (e.g. security, data privacy, pricing) — judge the TONE of the message, not the topic",
+        "negative — the customer's tone expresses actual frustration, anger, annoyance, or explicit dissatisfaction",
+    ]
 
     res = clf(text, candidate_labels)
 
-    best_label = res["labels"][0]
+    # Extract just the "positive", "neutral", or "negative" part for dictionary lookup
+    best_label_full = res["labels"][0]
+    best_label = best_label_full.split(" —")[0].strip()
     best_score = res["scores"][0]
 
     tone_instruction = _TONE_INSTRUCTIONS[best_label]

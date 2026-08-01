@@ -55,6 +55,18 @@ _HUMAN_REQUEST_PHRASES: tuple[str, ...] = (
     "get a person",
     "speak to a representative",
     "connect me to",
+    "talk to your vp",
+    "speak to your vp",
+    "talk to a manager",
+    "speak to a manager",
+    "talk to your manager",
+    "speak to your manager",
+    "talk to a supervisor",
+    "speak to a supervisor",
+    "talk to your ceo",
+    "speak to your ceo",
+    "get your manager",
+    "escalate this",
 )
 
 
@@ -245,6 +257,17 @@ if __name__ == "__main__":
         },
         user_input="I hate this, it's too expensive and I'm angry",
         expected_trigger=HandoffTrigger.ANGRY_CUSTOMER,
+    )
+
+    # Test 6: Explicit VP demand (Bug B) overrides ANGRY_CUSTOMER exemption for standard objections
+    _test(
+        "Explicit authority demand (Bug B)",
+        state={
+            "objection": {"label": "price", "confidence": 0.9},
+            "sentiment": {"label": "negative", "score": 0.9},
+        },
+        user_input="I am extremely frustrated with your pricing model, legal rejected the terms, and I demand to talk to your VP immediately!",
+        expected_trigger=HandoffTrigger.USER_REQUESTED,
     )
 
     print("\nAll handoff tests passed.")

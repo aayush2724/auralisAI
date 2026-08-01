@@ -12,6 +12,7 @@ interface SidebarProps {
   sessionId: string;
   isOpen: boolean;
   onToggle: () => void;
+  role: string | null;
 }
 
 const navItems = [
@@ -21,7 +22,7 @@ const navItems = [
   { id: 'kb', label: 'Knowledge Base', icon: Database },
 ] as const;
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, isOpen, onToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, isOpen, onToggle, role }) => {
   const clearToken = useAuthStore((state) => state.clearToken);
 
   const handleLogout = () => {
@@ -78,7 +79,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
           </div>
           
           <nav className="px-3 space-y-1.5 mt-4 relative" aria-label="Dashboard tabs">
-            {navItems.map((item) => {
+            {(role === 'admin' ? navItems : navItems.filter(item => item.id === 'chat')).map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (

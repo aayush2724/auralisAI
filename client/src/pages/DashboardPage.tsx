@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar, { type Tab } from '../components/layout/Sidebar';
+import { useAuthStore } from '../store/authStore';
 import ChatPanel from '../components/chat/ChatPanel';
 import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';
 import ABTestPanel from '../components/ab/ABTestPanel';
@@ -9,6 +10,7 @@ const DashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [sessionId] = useState<string>(() => crypto.randomUUID());
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const role = useAuthStore((state) => state.role);
 
   useEffect(() => {
     const handleResize = () => {
@@ -43,6 +45,7 @@ const DashboardPage: React.FC = () => {
         sessionId={sessionId}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
+        role={role}
       />
       <main className="lg:ml-[240px] h-screen flex flex-col pt-16 lg:pt-0 overflow-hidden">
         {renderContent()}

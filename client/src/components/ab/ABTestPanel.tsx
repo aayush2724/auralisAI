@@ -39,12 +39,12 @@ export default function ABTestPanel() {
 
   const Header = () => (
     <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <h2 className="text-2xl font-display font-normal text-[#0a0a0a] tracking-tight">A/B Test Results</h2>
+      <h2 className="text-2xl font-display font-normal text-theme-primary tracking-tight">A/B Test Results</h2>
       <div className="flex items-center gap-2">
         <select
           value={refreshMs}
           onChange={(event) => setRefreshMs(Number(event.target.value))}
-          className="h-10 rounded-xl border border-[#f9fafb] bg-white px-3 text-xs font-medium text-[#0a0a0a] outline-none focus:border-[#dd6668]"
+          className="h-10 rounded-xl border border-theme-border bg-theme-surface-solid px-3 text-xs font-medium text-theme-primary outline-none focus:border-[#dd6668]"
           aria-label="A/B test auto refresh interval"
         >
           {REFRESH_OPTIONS.map((option) => (
@@ -66,7 +66,7 @@ export default function ABTestPanel() {
 
   if (isPending) {
     return (
-      <div className="px-6 py-8 overflow-y-auto h-full bg-[#FAFBF9]">
+      <div className="px-6 py-8 overflow-y-auto h-full">
         <Header />
         <div className="grid grid-cols-2 gap-6 mb-6">
           <Skeleton className="h-48" />
@@ -78,10 +78,10 @@ export default function ABTestPanel() {
 
   if (isError || !data) {
     return (
-      <div className="px-6 py-8 overflow-y-auto h-full bg-[#FAFBF9]">
+      <div className="px-6 py-8 overflow-y-auto h-full">
         <Header />
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 flex items-center space-x-3">
-          <AlertCircle className="w-5 h-5" />
+        <div className="bg-red-500/10 border border-red-500/20 text-red-300 rounded-xl p-4 flex items-center space-x-3">
+          <AlertCircle className="w-5 h-5 text-red-400" />
           <span>Failed to load A/B test data.</span>
         </div>
       </div>
@@ -110,42 +110,58 @@ export default function ABTestPanel() {
     show: { opacity: 1, y: 0 }
   };
 
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-theme-surface-solid border border-theme-border rounded-lg p-3 shadow-lg z-50 relative">
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center space-x-2 text-sm font-sans font-light text-theme-primary">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.fill }} />
+              <span>{entry.name}: {entry.value}%</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="px-6 py-8 overflow-y-auto h-full bg-[#FAFBF9]">
+    <div className="px-6 py-8 overflow-y-auto h-full bg-transparent">
       <Header />
 
       {isEmpty && (
-        <div className="mb-6 rounded-2xl border border-[#f9fafb] bg-white p-8 text-center shadow-sm">
-          <FlaskConical className="mx-auto mb-3 h-8 w-8 text-[#6b7280]" />
-          <h3 className="font-display text-lg text-[#0a0a0a]">No A/B test sessions yet</h3>
-          <p className="mt-1 text-sm font-light text-[#6b7280]">STATIC and ADAPTIVE performance will populate after conversations are logged.</p>
+        <div className="mb-6 rounded-2xl border border-theme-border bg-theme-surface p-8 text-center shadow-lg">
+          <FlaskConical className="mx-auto mb-3 h-8 w-8 text-theme-muted" />
+          <h3 className="font-display text-lg text-theme-primary">No A/B test sessions yet</h3>
+          <p className="mt-1 text-sm font-light text-theme-muted">STATIC and ADAPTIVE performance will populate after conversations are logged.</p>
         </div>
       )}
 
       {/* Hero Comparison */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* STATIC Card */}
-        <motion.div 
+          <motion.div 
             variants={itemVariants}
-            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(28,46,30,0.08)" }}
+            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(221,102,104,0.12)" }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className={`bg-white border-2 rounded-2xl p-6 relative ${!adaptiveWins && totalSessions > 0 ? 'border-[#dd6668]' : 'border-[#F1F3F1]'}`}
+            className={`bg-theme-surface border-2 rounded-2xl p-6 relative ${!adaptiveWins && totalSessions > 0 ? 'border-[#dd6668]' : 'border-theme-border'}`}
           >
             {!adaptiveWins && totalSessions > 0 && <Crown className="absolute top-6 right-6 w-6 h-6 text-[#dd6668]" />}
-            <div className="text-xs font-sans font-medium tracking-widest uppercase text-[#6b7280] mb-2">STATIC</div>
-            <div className="flex items-start text-[#0a0a0a] mb-6">
+            <div className="text-xs font-sans font-medium tracking-widest uppercase text-theme-muted mb-2">STATIC</div>
+            <div className="flex items-start text-theme-primary mb-6">
               <span className="text-6xl font-display font-normal tracking-tight">{staticRate.toFixed(1)}</span>
-              <span className="text-2xl font-sans font-light text-[#6b7280] mt-1">%</span>
+              <span className="text-2xl font-sans font-light text-theme-muted mt-1">%</span>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 border-t border-[#f9fafb] pt-4">
+            <div className="grid grid-cols-2 gap-4 border-t border-theme-border pt-4">
               <div>
-                <div className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mb-1">Sessions</div>
-                <div className="text-lg font-display font-normal text-[#0a0a0a]">{Math.round(staticSessions)}</div>
+                <div className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Sessions</div>
+                <div className="text-lg font-display font-normal text-theme-primary">{Math.round(staticSessions)}</div>
               </div>
               <div>
-                <div className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mb-1">Avg Confidence</div>
-                <div className="text-lg font-display font-normal text-[#0a0a0a]">{staticConf.toFixed(0)}%</div>
+                <div className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Avg Confidence</div>
+                <div className="text-lg font-display font-normal text-theme-primary">{staticConf.toFixed(0)}%</div>
               </div>
             </div>
           </motion.div>
@@ -153,25 +169,25 @@ export default function ABTestPanel() {
           {/* ADAPTIVE Card */}
           <motion.div 
             variants={itemVariants}
-            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(28,46,30,0.08)" }}
+            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(221,102,104,0.15)" }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className={`bg-white border-2 rounded-2xl p-6 relative ${adaptiveWins ? 'border-[#dd6668] bg-[#f9fafb]/30 shadow-[0_12px_40px_rgba(77,109,71,0.14)]' : 'border-[#F1F3F1]'}`}
+            className={`bg-theme-surface border-2 rounded-2xl p-6 relative ${adaptiveWins ? 'border-[#dd6668] bg-[rgba(221,102,104,0.02)] shadow-[0_12px_40px_rgba(221,102,104,0.15)]' : 'border-theme-border'}`}
           >
             {adaptiveWins && <Crown className="absolute top-6 right-6 w-6 h-6 text-[#dd6668]" />}
-            <div className="text-xs font-sans font-medium tracking-widest uppercase text-[#6b7280] mb-2">ADAPTIVE</div>
-            <div className="flex items-start text-[#0a0a0a] mb-6">
+            <div className="text-xs font-sans font-medium tracking-widest uppercase text-theme-muted mb-2">ADAPTIVE</div>
+            <div className="flex items-start text-theme-primary mb-6">
               <span className="text-6xl font-display font-normal tracking-tight">{adaptiveRate.toFixed(1)}</span>
-              <span className="text-2xl font-sans font-light text-[#6b7280] mt-1">%</span>
+              <span className="text-2xl font-sans font-light text-theme-muted mt-1">%</span>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 border-t border-[#f9fafb] pt-4">
+            <div className="grid grid-cols-2 gap-4 border-t border-theme-border pt-4">
               <div>
-                <div className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mb-1">Sessions</div>
-                <div className="text-lg font-display font-normal text-[#0a0a0a]">{Math.round(adaptiveSessions)}</div>
+                <div className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Sessions</div>
+                <div className="text-lg font-display font-normal text-theme-primary">{Math.round(adaptiveSessions)}</div>
               </div>
               <div>
-                <div className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mb-1">Avg Confidence</div>
-                <div className="text-lg font-display font-normal text-[#0a0a0a]">{adaptiveConf.toFixed(0)}%</div>
+                <div className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Avg Confidence</div>
+                <div className="text-lg font-display font-normal text-theme-primary">{adaptiveConf.toFixed(0)}%</div>
               </div>
             </div>
           </motion.div>
@@ -184,8 +200,8 @@ export default function ABTestPanel() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-            <div className="mb-6 bg-[#f9fafb] rounded-2xl px-6 py-4 flex items-center justify-center space-x-3 text-[#dd6668] font-medium">
-              <ArrowUpRight className="w-5 h-5" />
+            <div className="mb-6 bg-[rgba(221,102,104,0.05)] border border-theme-border-strong rounded-2xl px-6 py-4 flex items-center justify-center space-x-3 text-[#dd6668] font-medium shadow-md">
+              <ArrowUpRight className="w-5 h-5 text-[#dd6668]" />
               <span>Adaptive is outperforming static by {improvement.toFixed(1)}%</span>
             </div>
         </motion.div>
@@ -197,18 +213,18 @@ export default function ABTestPanel() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white border border-[#f9fafb] rounded-2xl p-6 shadow-sm flex flex-col"
+          className="bg-theme-surface border border-theme-border rounded-2xl p-6 shadow-lg flex flex-col"
         >
-          <h3 className="text-lg font-display font-normal text-[#0a0a0a] mb-6">Conversion Comparison</h3>
+          <h3 className="text-lg font-display font-normal text-theme-primary mb-6">Conversion Comparison</h3>
           <div className="w-full h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#5A635A', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 12, fill: '#5A635A', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{ fill: '#F1F3F1' }} contentStyle={{ borderRadius: '12px', border: '1px solid #EAECE9', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#5A635A', fontFamily: 'DM Sans', paddingTop: '10px' }} />
-                <Bar dataKey="STATIC" fill="#D1D5DB" radius={[6, 6, 0, 0]} animationDuration={1500}>
-                  <LabelList dataKey="STATIC" position="top" fill="#5A635A" fontSize={12} formatter={(val: any) => `${val}%`} />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748B', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#64748B', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(15,23,42,0.02)' }} />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#64748B', fontFamily: 'DM Sans', paddingTop: '10px' }} />
+                <Bar dataKey="STATIC" fill="rgba(15,23,42,0.1)" radius={[6, 6, 0, 0]} animationDuration={1500}>
+                  <LabelList dataKey="STATIC" position="top" fill="#64748B" fontSize={12} formatter={(val: any) => `${val}%`} />
                 </Bar>
                 <Bar dataKey="ADAPTIVE" fill="#dd6668" radius={[6, 6, 0, 0]} animationDuration={1500}>
                   <LabelList dataKey="ADAPTIVE" position="top" fill="#dd6668" fontSize={12} fontWeight={500} formatter={(val: any) => `${val}%`} />
@@ -226,35 +242,35 @@ export default function ABTestPanel() {
           className="grid grid-cols-2 gap-4"
         >
           {/* STATIC Column */}
-          <motion.div variants={itemVariants} className="bg-white border border-[#f9fafb] rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mb-1">Static Sessions</p>
-            <p className="text-xl font-display font-normal text-[#0a0a0a]">{data.sessions_per_variant.STATIC}</p>
+          <motion.div variants={itemVariants} className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
+            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Static Sessions</p>
+            <p className="text-xl font-display font-normal text-theme-primary">{data.sessions_per_variant.STATIC}</p>
           </motion.div>
           
           {/* ADAPTIVE Column */}
-          <motion.div variants={itemVariants} className="bg-[#f9fafb]/50 border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
+          <motion.div variants={itemVariants} className="bg-[rgba(221,102,104,0.02)] border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
             <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#dd6668] mb-1">Adaptive Sessions</p>
-            <p className="text-xl font-display font-normal text-[#0a0a0a]">{data.sessions_per_variant.ADAPTIVE}</p>
+            <p className="text-xl font-display font-normal text-theme-primary">{data.sessions_per_variant.ADAPTIVE}</p>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="bg-white border border-[#f9fafb] rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mb-1">Static Conv.</p>
-            <p className="text-xl font-display font-normal text-[#0a0a0a]">{staticRate}%</p>
+          <motion.div variants={itemVariants} className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
+            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Static Conv.</p>
+            <p className="text-xl font-display font-normal text-theme-primary">{staticRate.toFixed(1)}%</p>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="bg-[#f9fafb]/50 border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
+          <motion.div variants={itemVariants} className="bg-[rgba(221,102,104,0.02)] border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
             <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#dd6668] mb-1">Adaptive Conv.</p>
-            <p className="text-xl font-display font-normal text-[#0a0a0a]">{adaptiveRate}%</p>
+            <p className="text-xl font-display font-normal text-theme-primary">{adaptiveRate.toFixed(1)}%</p>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="bg-white border border-[#f9fafb] rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mb-1">Static Conf.</p>
-            <p className="text-xl font-display font-normal text-[#0a0a0a]">{(data.static_avg_confidence * 100).toFixed(0)}%</p>
+          <motion.div variants={itemVariants} className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
+            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Static Conf.</p>
+            <p className="text-xl font-display font-normal text-theme-primary">{(data.static_avg_confidence * 100).toFixed(0)}%</p>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="bg-[#f9fafb]/50 border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
+          <motion.div variants={itemVariants} className="bg-[rgba(221,102,104,0.02)] border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
             <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#dd6668] mb-1">Adaptive Conf.</p>
-            <p className="text-xl font-display font-normal text-[#0a0a0a]">{(data.adaptive_avg_confidence * 100).toFixed(0)}%</p>
+            <p className="text-xl font-display font-normal text-theme-primary">{(data.adaptive_avg_confidence * 100).toFixed(0)}%</p>
           </motion.div>
         </motion.div>
       </div>

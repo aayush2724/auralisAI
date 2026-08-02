@@ -28,22 +28,22 @@ export default function MetricCard({ label, value, suffix, icon: Icon, color }: 
     <motion.div 
       ref={ref}
       variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-      whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(28,46,30,0.08)" }}
+      whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(221,102,104,0.15)" }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="bg-white border border-[#f9fafb] rounded-2xl p-5 shadow-sm"
+      className="bg-white border border-[#f9fafb] rounded-2xl p-5 shadow-sm [.light-shell_&]:bg-theme-surface [.light-shell_&]:backdrop-blur [.light-shell_&]:border-theme-border [.light-shell_&]:shadow-[0_8px_30px_rgba(15,23,42,0.04)]"
     >
       <div className="flex justify-between items-start">
         <div>
-          <div className="text-3xl font-display font-normal text-[#0a0a0a] flex items-baseline space-x-1 tracking-tight">
+          <div className="text-3xl font-display font-normal text-[#0a0a0a] [.light-shell_&]:text-theme-primary flex items-baseline space-x-1 tracking-tight">
             <span>{displayValue}</span>
-            {suffix && <span className="text-sm font-sans font-light text-[#6b7280]">{suffix}</span>}
+            {suffix && <span className="text-sm font-sans font-light text-[#6b7280] [.light-shell_&]:text-theme-muted">{suffix}</span>}
           </div>
-          <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mt-1">{label}</p>
+          <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] [.light-shell_&]:text-theme-muted mt-1">{label}</p>
         </div>
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center
-          ${color === '[#dd6668]' ? 'bg-[#dd6668]/10 text-[#dd6668]' : 
-            color === 'green' ? 'bg-green-100 text-green-700' : 
-            'bg-purple-100 text-purple-700'}
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center border
+          ${color === '[#dd6668]' ? 'bg-[#dd6668]/10 text-[#dd6668] border-[#dd6668]/20' : 
+            color === 'green' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
+            'bg-purple-500/10 text-purple-400 border-purple-500/20'}
         `}>
           <Icon className="w-5 h-5" />
         </div>

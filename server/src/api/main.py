@@ -83,8 +83,8 @@ async def lifespan(app: FastAPI):
         await init_db()
         logger.info("customer_sessions table ready.")
         
-        from src.rag.kb_store import load_kb_from_postgres_on_startup
         from src.api.routes.kb import VECTORSTORE_PATH
+        from src.rag.kb_store import load_kb_from_postgres_on_startup
         await load_kb_from_postgres_on_startup(VECTORSTORE_PATH)
     except Exception:
         # Broad exception caught because DB initialization can fail in many ways

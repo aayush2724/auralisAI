@@ -11,7 +11,6 @@ from pathlib import Path
 from sqlalchemy import text
 
 from src.memory.db import _get_engine, _session_factory
-from src.rag.retriever import VECTORSTORE_PATH
 
 logger = logging.getLogger("auralis.rag.kb_store")
 

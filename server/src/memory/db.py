@@ -121,8 +121,9 @@ async def init_db() -> None:
             if stmt.strip():
                 await conn.execute(text(stmt))
     logger.info("customer_sessions table initialised.")
-    
+
     from src.rag.kb_store import init_kb_db
+
     await init_kb_db()
 
 

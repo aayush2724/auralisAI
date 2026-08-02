@@ -41,9 +41,9 @@ _TONE_INSTRUCTIONS: dict[str, str] = {
 # Regression guard: Ensure that labels exactly match what the backend fast-path
 # and mocked tests expect. Do NOT change these to descriptive strings.
 _CANDIDATE_LABELS = ["positive", "neutral", "negative"]
-assert set(_CANDIDATE_LABELS) == set(_TONE_INSTRUCTIONS.keys()), (
-    "Candidate labels must exactly match the tone instruction keys."
-)
+assert set(_CANDIDATE_LABELS) == set(
+    _TONE_INSTRUCTIONS.keys()
+), "Candidate labels must exactly match the tone instruction keys."
 
 # ─── TypedDict ────────────────────────────────────────────────────────────────
 

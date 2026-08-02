@@ -142,6 +142,10 @@ class TestEdgeCases:
         result = analyze(text)
         # It should either be neutral, or if it is negative, its score must be < 0.85 (handoff threshold)
         if result["label"] == "negative":
-            assert result["score"] < 0.85, f"Calm factual question scored too high for negative sentiment: {result['score']}"
+            assert (
+                result["score"] < 0.85
+            ), f"Calm factual question scored too high for negative sentiment: {result['score']}"
         else:
-            assert result["label"] == "neutral", f"Expected neutral or low-score negative, got {result['label']}"
+            assert (
+                result["label"] == "neutral"
+            ), f"Expected neutral or low-score negative, got {result['label']}"

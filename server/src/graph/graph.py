@@ -223,10 +223,10 @@ def retrieve_node(state: GraphState) -> dict[str, Any]:
     obj_label = objection.get("label", "")
 
     _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT = {"price", "trust", "timing", "competitor"}
-    
+
     try:
         raw_docs = retrieve(user_input, top_k=5)
-        
+
         if obj_label in _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT:
             enriched_query = f"{user_input} {obj_label} objection handling"
             logger.info("[retrieve_node] enriched_query='%s'", enriched_query[:100])
@@ -238,16 +238,25 @@ def retrieve_node(state: GraphState) -> dict[str, Any]:
         merged = {}
         for d in raw_docs + enriched_docs:
             key = (d.get("source_file"), d.get("chunk_index"))
-            if key not in merged or d.get("score", float("inf")) < merged[key].get("score", float("inf")):
+            if key not in merged or d.get("score", float("inf")) < merged[key].get(
+                "score", float("inf")
+            ):
                 merged[key] = d
-                
+
         docs = sorted(merged.values(), key=lambda d: d.get("score", float("inf")))[:5]
         citations = format_citations(docs)
-        
-        logger.debug("[DEBUG retrieve_node] user_input='%s', num_docs=%d", user_input, len(docs))
+
+        logger.debug(
+            "[DEBUG retrieve_node] user_input='%s', num_docs=%d", user_input, len(docs)
+        )
         for i, d in enumerate(docs):
-            logger.debug("[DEBUG retrieve_node] doc[%d] score=%.4f source=%s text_preview=%s",
-                        i, d.get("score"), d.get("source_file"), d.get("text", "")[:120])
+            logger.debug(
+                "[DEBUG retrieve_node] doc[%d] score=%.4f source=%s text_preview=%s",
+                i,
+                d.get("score"),
+                d.get("source_file"),
+                d.get("text", "")[:120],
+            )
     except FileNotFoundError:
         logger.warning(
             "[retrieve_node] FAISS index not found — proceeding without retrieval."
@@ -425,8 +434,11 @@ def generate_node(state: GraphState) -> dict[str, Any]:
         (state.get("objection") or {}).get("label", "?"),
         persona_label,
     )
-    logger.debug("[DEBUG generate_node] obj_label='%s' | citations_present=%s",
-                (state.get("objection") or {}).get("label"), bool(state.get("citations")))
+    logger.debug(
+        "[DEBUG generate_node] obj_label='%s' | citations_present=%s",
+        (state.get("objection") or {}).get("label"),
+        bool(state.get("citations")),
+    )
 
     # Build the specialised user-turn prompt via the strategy router
     user_prompt = get_strategy_prompt(state)

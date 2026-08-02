@@ -3,6 +3,7 @@ auralis/src/rag/kb_store.py
 ─────────────────────────
 PostgreSQL persistence layer for the FAISS knowledge base.
 """
+
 import io
 import logging
 import zipfile
@@ -24,12 +25,14 @@ CREATE TABLE IF NOT EXISTS kb_vectorstore (
 );
 """
 
+
 async def init_kb_db() -> None:
     """Create the kb_vectorstore table if it does not already exist."""
     engine = _get_engine()
     async with engine.begin() as conn:
         await conn.execute(text(_CREATE_KB_TABLE_SQL))
     logger.info("kb_vectorstore table initialised.")
+
 
 def serialize_faiss_dir(vectorstore_path: Path) -> bytes:
     """Zip the contents of the FAISS vectorstore directory into a byte buffer."""
@@ -41,12 +44,14 @@ def serialize_faiss_dir(vectorstore_path: Path) -> bytes:
                 zf.write(file_path, arcname)
     return buf.getvalue()
 
+
 def deserialize_faiss_dir(data: bytes, vectorstore_path: Path) -> None:
     """Unzip the byte buffer into the FAISS vectorstore directory."""
     buf = io.BytesIO(data)
     with zipfile.ZipFile(buf, "r") as zf:
         vectorstore_path.mkdir(parents=True, exist_ok=True)
         zf.extractall(vectorstore_path)
+
 
 async def save_kb_to_postgres(vectorstore_path: Path) -> None:
     """Read local FAISS dir, zip it, and persist to Postgres."""
@@ -66,23 +71,25 @@ async def save_kb_to_postgres(vectorstore_path: Path) -> None:
         await session.execute(upsert_sql, {"data": data})
     logger.info("Saved FAISS index to Postgres (%d bytes).", len(data))
 
+
 async def load_kb_from_postgres_on_startup(vectorstore_path: Path) -> None:
     """On startup, load the zipped FAISS index from Postgres and extract it locally."""
     # Ensure engine is initialised
     _get_engine()
-    
+
     select_sql = text("SELECT index_data FROM kb_vectorstore WHERE id = 1")
     async with _session_factory() as session:
         result = await session.execute(select_sql)
         row = result.fetchone()
-        
+
     if row is None:
         logger.info("No persisted KB index found in Postgres — starting with empty KB.")
         return
-        
+
     logger.info("Restoring KB index from Postgres...")
     deserialize_faiss_dir(row.index_data, vectorstore_path)
     logger.info("KB index restored from Postgres to local disk.")
+
 
 async def delete_kb_from_postgres() -> None:
     delete_sql = text("DELETE FROM kb_vectorstore WHERE id = 1")

@@ -219,3 +219,56 @@ async def kb_stats(
             index_path=str(VECTORSTORE_PATH / "index.faiss"),
             last_updated=None,
         )
+
+# ─── DELETE /kb/reset ────────────────────────────────────────────────────────
+
+
+@router.delete(
+    "/reset",
+    summary="Delete all knowledge base content and reset the index.",
+    description=(
+        "Deletes the local FAISS vectorstore, clears the Postgres-persisted "
+        "copy, and removes uploaded source files. This is irreversible — "
+        "all ingested documents must be re-uploaded after this call.\n\n"
+        "**Required role**: `admin`."
+    ),
+    responses={
+        401: {"description": "Missing or invalid Bearer token."},
+        403: {"description": "Insufficient role. Requires admin."},
+        500: {"description": "Internal error during reset."},
+    },
+)
+async def kb_reset(
+    current_user: User = require_roles("admin"),
+) -> dict:
+    logger.info(
+        "DELETE /kb/reset | user=%s role=%s", current_user.email, current_user.role
+    )
+
+    try:
+        import shutil
+
+        # 1. Remove local FAISS index directory
+        if VECTORSTORE_PATH.exists():
+            shutil.rmtree(VECTORSTORE_PATH)
+            logger.info("Removed local vectorstore at %s", VECTORSTORE_PATH)
+
+        # 2. Remove uploaded source files
+        if UPLOAD_BASE.exists():
+            shutil.rmtree(UPLOAD_BASE)
+            UPLOAD_BASE.mkdir(parents=True, exist_ok=True)
+            logger.info("Removed uploaded files at %s", UPLOAD_BASE)
+
+        # 3. Clear the Postgres-persisted copy (added in the earlier persistence fix)
+        from src.rag.kb_store import delete_kb_from_postgres
+
+        await delete_kb_from_postgres()
+        logger.info("Cleared KB blob from Postgres")
+
+        return {"status": "ok", "detail": "Knowledge base reset. All content removed."}
+    except Exception:
+        logger.exception("KB reset failed")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred during reset. Please try again or contact support.",
+        )

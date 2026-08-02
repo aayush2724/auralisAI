@@ -24,3 +24,12 @@ export const useIngestFiles = () => {
     },
   });
 };
+
+export const useResetKB = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await client.delete<{ status: string; detail: string }>('/kb/reset');
+      return data;
+    },
+  });
+};

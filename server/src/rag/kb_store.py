@@ -84,3 +84,8 @@ async def load_kb_from_postgres_on_startup(vectorstore_path: Path) -> None:
     logger.info("Restoring KB index from Postgres...")
     deserialize_faiss_dir(row.index_data, vectorstore_path)
     logger.info("KB index restored from Postgres to local disk.")
+
+async def delete_kb_from_postgres() -> None:
+    delete_sql = text("DELETE FROM kb_vectorstore WHERE id = 1")
+    async with _session_factory() as session, session.begin():
+        await session.execute(delete_sql)

@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Database, Layers, Clock, AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw, Files, Boxes, Clock3 } from 'lucide-react';
 import { useKBStats, useIngestFiles, useResetKB } from '../../api/hooks/useKnowledgeBase';
 import { useCountUp } from '../../hooks/useCountUp';
 import FileDropzone from './FileDropzone';
 import Skeleton from '../ui/Skeleton';
+import SectionHeader from '../ui/SectionHeader';
+import MetricCard from '../ui/MetricCard';
+import GlassPanel from '../ui/GlassPanel';
+import { Button } from '../ui/Button';
 
 const Toast = ({ message, onClose }: { message: string, onClose: () => void }) => {
   useEffect(() => {
@@ -69,13 +73,15 @@ export default function KnowledgeBasePanel() {
       <h2 className="text-2xl font-display font-normal text-theme-primary mb-2 tracking-tight">Knowledge Base</h2>
       <p className="text-sm font-sans font-light text-theme-muted mb-8">Upload sales collateral to train auralis</p>
 
-      <FileDropzone 
-        onIngest={handleIngest} 
-        isIngesting={ingestMutation.isPending}
-        isSuccess={ingestMutation.isSuccess}
-        error={ingestMutation.isError ? "Failed to ingest files. Please try again." : null}
-        successData={ingestMutation.data}
-      />
+        <div className="w-full max-w-4xl">
+          <FileDropzone
+            onIngest={handleIngest}
+            isIngesting={ingestMutation.isPending}
+            isSuccess={ingestMutation.isSuccess}
+            error={ingestMutation.isError ? 'Failed to ingest files. Please try again.' : null}
+            successData={ingestMutation.data}
+          />
+        </div>
 
       <div className="my-8 border-t border-theme-border" />
 

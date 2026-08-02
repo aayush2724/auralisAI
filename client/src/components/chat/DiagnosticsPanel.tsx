@@ -5,6 +5,9 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ChatResponse } from '../../types/api';
+import GlassPanel from '../ui/GlassPanel';
+import SectionHeader from '../ui/SectionHeader';
+import IconCircle from '../ui/IconCircle';
 
 const sentimentIcons: Record<string, LucideIcon> = {
   positive: SmilePlus,
@@ -38,7 +41,7 @@ function Accordion({ title, children, defaultOpen = false }: { title: string, ch
           {children}
         </div>
       )}
-    </div>
+    </GlassPanel>
   );
 }
 
@@ -63,7 +66,12 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
       animate={{ opacity: 1, x: 0 }}
       className="w-72 border-l border-theme-border bg-white/90 backdrop-blur-md h-full flex flex-col overflow-y-auto shadow-md"
     >
-      <div className="p-5 space-y-6">
+      <div className="flex h-full flex-col gap-5 overflow-y-auto p-5">
+        <SectionHeader
+          eyebrow="Diagnostics"
+          title="Conversation Intelligence"
+          description="Premium signal view for objection, sentiment, and retrieval context."
+        />
         
         {/* Objection Badge */}
         <div>
@@ -82,7 +90,7 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
           <p className="text-right text-[10px] text-theme-muted mt-1 font-mono">
             {Math.round(data.confidence * 100)}% CONFIDENCE
           </p>
-        </div>
+        </GlassPanel>
 
         {/* Handoff Warning */}
         {data.should_handoff && (
@@ -91,8 +99,12 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
             animate={{ scale: 1, opacity: 1 }}
             className="bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl p-3 flex items-start space-x-3"
           >
-            <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-            <span className="text-sm font-sans font-medium">Human handoff recommended</span>
+            <div className="flex items-start gap-3">
+              <span className="icon-badge icon-badge--primary h-10 w-10 shrink-0">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+              </span>
+              <span className="text-sm font-medium">Human handoff recommended</span>
+            </div>
           </motion.div>
         )}
 
@@ -110,7 +122,8 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
             <Zap className="w-4 h-4 text-theme-muted" />
             <span className="capitalize">{data.strategy.replace(/_/g, ' ')} Strategy</span>
           </div>
-        </div>
+          </div>
+        </GlassPanel>
 
         {/* Memory Context */}
         {data.memory_context && (

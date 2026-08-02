@@ -1,8 +1,8 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import type { HTMLMotionProps } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'framer-motion';
+import { buttonBase, buttonVariants } from './designSystem';
 
-export type ButtonVariant = 'primary' | 'outline' | 'ghost';
+export type ButtonVariant = keyof typeof buttonVariants;
 
 export interface ButtonProps extends HTMLMotionProps<"button"> {
   variant?: ButtonVariant;
@@ -25,9 +25,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
-        whileTap={variant !== 'ghost' ? { scale: 0.97 } : undefined}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className={`${variantStyles} ${className}`}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+        className={`${buttonBase} ${variantClass} ${className}`}
         {...props}
       >
         {children}
@@ -44,3 +44,4 @@ export const PillTag = ({ children, className = '' }: { children: React.ReactNod
     </span>
   );
 };
+

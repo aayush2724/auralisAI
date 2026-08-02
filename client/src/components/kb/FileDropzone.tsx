@@ -1,8 +1,10 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UploadCloud, FileText, FileSpreadsheet, FileCode, X, Loader2, Check } from 'lucide-react';
+import { FileText, FileSpreadsheet, FileCode, X, Loader2, Check, CloudUpload } from 'lucide-react';
 import type { KBIngestResponse } from '../../types/api';
 import { Button } from '../ui/Button';
+import IconCircle from '../ui/IconCircle';
+import UploadPanel from '../ui/UploadPanel';
 
 interface FileDropzoneProps {
   onIngest: (files: File[]) => void;
@@ -138,30 +140,7 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
         </div>
       )}
 
-      <div className="mt-6 flex justify-end">
-        <Button
-          variant="primary"
-          onClick={handleIngestClick}
-          disabled={files.length === 0 || isIngesting}
-          className={`flex items-center justify-center space-x-2 ${
-            isSuccess ? 'bg-emerald-500 hover:bg-emerald-600' : ''
-          }`}
-        >
-          {isIngesting ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Ingesting...</span>
-            </>
-          ) : isSuccess && successData ? (
-            <>
-              <Check className="w-5 h-5" />
-              <span>{successData.chunks_added} chunks added</span>
-            </>
-          ) : (
-            <span>Ingest Files ({files.length})</span>
-          )}
-        </Button>
-      </div>
+
     </div>
   );
 }

@@ -7,10 +7,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"DM Serif Display"', 'Georgia', 'serif'],
-        sans:    ['"DM Sans"', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)'],
+        sans:    ['var(--font-sans)'],
         mono:    ['"JetBrains Mono"', 'Menlo', 'monospace'],
-        logo:    ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        logo:    ['var(--font-sans)'],
       },
       colors: {
         theme: {
@@ -27,28 +27,31 @@ export default {
           indigo: 'var(--brand-indigo)',
         },
         auralis: {
-          black:  '#0F172A',
-          canvas: '#F8FAFC',
-          card:   '#FFFFFF',
-          frost:  '#F1F5F9',
-          cream:  '#E2E8F0',
-          text:   '#334155',
-          textDark: '#0F172A',
-          textMuted: '#64748B',
-          accent: '#0D9488',
-          teal:   '#0D9488',
-          indigo: '#4F46E5',
-          border: '#E2E8F0',
-          borderDark: '#CBD5E1',
+          canvas: '#EEF4FB',
+          card: '#FFFFFF',
+          accent: '#4F46E5',
+          teal: '#0D9488',
+          text: '#102033',
+          textMuted: '#5D6B7C',
+          border: '#D7E2EE',
+          borderDark: '#B7C8D8',
         }
       },
       animation: {
         blink:   'blink 1s step-end infinite',
         shimmer: 'shimmer 1.5s infinite',
+        fade:    'fade-in 260ms ease-out both',
+        scale:   'scale-in 260ms ease-out both',
+        lift:    'lift-up 260ms ease-out both',
+        glow:    'glow-pulse 2.8s ease-in-out infinite',
       },
       keyframes: {
         blink:   { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0' } },
         shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
+        'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
+        'scale-in': { from: { opacity: '0', transform: 'scale(0.98)' }, to: { opacity: '1', transform: 'scale(1)' } },
+        'lift-up': { from: { opacity: '0', transform: 'translateY(12px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+        'glow-pulse': { '0%, 100%': { boxShadow: 'var(--glow-primary)' }, '50%': { boxShadow: 'var(--glow-secondary)' } },
       }
     },
   },

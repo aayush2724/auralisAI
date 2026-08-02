@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, ChevronDown, ChevronUp, FileText, Gauge, Lightbulb, ShieldAlert, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { Mic, ChevronDown, ChevronUp, FileText, Gauge, Lightbulb, ShieldAlert, PanelRightOpen, PanelRightClose, Send, Sparkles } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChat } from '../../api/hooks/useChat';
@@ -9,6 +9,12 @@ import remarkGfm from 'remark-gfm';
 import DiagnosticsPanel from './DiagnosticsPanel';
 import TypingIndicator from './TypingIndicator';
 import { Button } from '../ui/Button';
+import Card from '../ui/Card';
+import ChatBubble from '../ui/ChatBubble';
+import GlassPanel from '../ui/GlassPanel';
+import IconButton from '../ui/IconButton';
+import PrimaryButton from '../ui/PrimaryButton';
+import Tooltip from '../ui/Tooltip';
 import type { ChatResponse, Message } from '../../types/api';
 
 function highlightTriggerPhrases(text: string, phrases: string[]) {
@@ -36,6 +42,7 @@ function ConfidenceIndicator({ confidence }: { confidence: number }) {
   const offset = stroke - (stroke * percent) / 100;
 
   return (
+    <div className="flex items-center gap-2 rounded-full border border-theme-border bg-white/60 px-2.5 py-1 text-[11px] font-medium text-theme-primary shadow-sm backdrop-blur-xl">
     <div className="flex items-center gap-2 rounded-full border border-theme-border bg-theme-surface px-2.5 py-1 text-[11px] font-medium text-theme-primary shadow-sm">
       <span className="relative h-8 w-8">
         <svg className="h-8 w-8 -rotate-90" viewBox="0 0 32 32" aria-hidden="true">
@@ -68,6 +75,7 @@ function MessageAccordion({ title, icon: Icon, children, defaultOpen = false }: 
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
+    <Card variant="glass" className="overflow-hidden rounded-[24px]">
     <div className="overflow-hidden rounded-xl border border-theme-border bg-theme-surface">
       <button
         type="button"
@@ -85,7 +93,7 @@ function MessageAccordion({ title, icon: Icon, children, defaultOpen = false }: 
           {children}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -265,15 +273,17 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0 ml-2">
-            <button
+            <Tooltip content={diagnosticsOpen ? 'Hide diagnostics' : 'Show diagnostics'}>
+              <button
               onClick={() => setDiagnosticsOpen(!diagnosticsOpen)}
               className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-theme-border bg-theme-border text-theme-primary hover:bg-theme-border-strong transition-colors"
               aria-label={diagnosticsOpen ? 'Hide diagnostics' : 'Show diagnostics'}
             >
               {diagnosticsOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
             </button>
-            <Button 
-              variant="outline"
+            </Tooltip>
+            <Button
+              variant="secondary"
               onClick={handleNewSession}
               className="flex-shrink-0"
             >

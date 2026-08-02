@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu, Building2 } from 'lucide-react';
+import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
+import IconCircle from '../ui/IconCircle';
 
 export type Tab = 'chat' | 'analytics' | 'ab' | 'kb';
 
@@ -27,15 +28,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
 
   const handleLogout = () => {
     clearToken();
-    window.location.href = '/'; 
+    window.location.href = '/';
   };
 
   const handleNavClick = (tab: Tab) => {
     setActiveTab(tab);
-    if (window.innerWidth < 1024) {
-      onToggle();
-    }
+    if (window.innerWidth < 1024) onToggle();
   };
+
+  const visibleItems = role === 'admin' ? navItems : navItems.filter((item) => item.id === 'chat');
 
   return (
     <>
@@ -44,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
         className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-theme-surface-solid border border-theme-border shadow-md text-theme-primary hover:bg-theme-border transition-colors"
         aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
       >
-        <Menu className="w-5 h-5" />
+        <Menu className="h-5 w-5" />
       </button>
 
       <AnimatePresence>
@@ -54,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-30 bg-slate-950/20 backdrop-blur-sm lg:hidden"
             onClick={onToggle}
             aria-hidden="true"
           />
@@ -77,11 +78,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
               <span className="text-[11px] font-mono text-theme-muted font-semibold">default_tenant</span>
             </div>
           </div>
-          
-          <nav className="px-3 space-y-1.5 mt-4 relative" aria-label="Dashboard tabs">
-            {(role === 'admin' ? navItems : navItems.filter(item => item.id === 'chat')).map((item) => {
+
+          <nav className="space-y-2" aria-label="Dashboard tabs">
+            {visibleItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+
               return (
                 <button
                    key={item.id}
@@ -118,11 +120,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
             </span>
           </div>
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={handleLogout}
             className="w-full flex items-center justify-center space-x-2 py-2 px-3 text-theme-muted hover:text-theme-primary hover:bg-theme-border border border-transparent hover:border-theme-border no-underline transition-all"
           >
-            <LogOut className="w-4 h-4" aria-hidden="true" />
+            <LogOut className="h-4 w-4" aria-hidden="true" />
             <span>Logout</span>
           </Button>
         </div>

@@ -2,6 +2,8 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { useCountUp } from '../../hooks/useCountUp';
+import Card from '../ui/Card';
+import IconCircle from '../ui/IconCircle';
 
 interface MetricCardProps {
   label: string;
@@ -25,9 +27,29 @@ export default function MetricCard({ label, value, suffix, icon: Icon, color }: 
   const displayValue = count.toFixed(decimals);
 
   return (
-    <motion.div 
+    <motion.div
       ref={ref}
       variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className="relative overflow-hidden"
+    >
+      <Card variant="glass" className="card-hover relative flex min-h-[110px] items-center overflow-hidden px-8 py-5">
+        <div className={`absolute -right-8 -bottom-8 h-40 w-40 rounded-full blur-[40px] opacity-30 pointer-events-none
+          ${color === 'indigo' ? 'bg-indigo-400' :
+            color === 'green' ? 'bg-teal-400' :
+            'bg-orange-400'}
+        `} />
+        <div className="relative z-10 flex w-full items-center justify-between">
+          <div className="flex flex-col justify-center">
+            <div className="mb-1 flex items-baseline text-4xl font-semibold tracking-tight text-theme-primary">
+            <span>{displayValue}</span>
+              {suffix && <span className="ml-1 text-xl font-normal text-theme-muted">{suffix}</span>}
+            </div>
+            <p className="section-label">{label}</p>
+          </div>
+          <IconCircle icon={Icon} variant="secondary" />
+        </div>
+      </Card>
       whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(221,102,104,0.15)" }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="bg-white border border-[#f9fafb] rounded-2xl p-5 shadow-sm [.light-shell_&]:bg-theme-surface [.light-shell_&]:backdrop-blur [.light-shell_&]:border-theme-border [.light-shell_&]:shadow-[0_8px_30px_rgba(15,23,42,0.04)]"

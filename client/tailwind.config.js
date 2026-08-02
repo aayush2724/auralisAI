@@ -14,17 +14,15 @@ export default {
       },
       colors: {
         theme: {
-          bg: 'var(--theme-bg)',
-          surface: 'var(--theme-surface)',
-          'surface-solid': 'var(--theme-surface-solid)',
-          border: 'var(--theme-border)',
-          'border-strong': 'var(--theme-border-strong)',
+          bg: 'var(--bg-primary)',
+          surface: 'var(--bg-glass)',
+          'surface-solid': 'var(--bg-glass-strong)',
+          panel: 'var(--bg-panel)',
+          border: 'var(--border-subtle)',
+          'border-strong': 'var(--border-strong)',
           primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
           muted: 'var(--text-muted)',
-        },
-        brand: {
-          teal: 'var(--brand-teal)',
-          indigo: 'var(--brand-indigo)',
         },
         auralis: {
           canvas: '#EEF4FB',

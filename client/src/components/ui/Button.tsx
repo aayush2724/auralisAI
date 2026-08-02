@@ -11,12 +11,14 @@ export interface ButtonProps extends HTMLMotionProps<"button"> {
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', children, className = '', ...props }, ref) => {
+    const variantClass = buttonVariants[variant];
+
     return (
       <motion.button
         ref={ref}
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-        className={`${buttonBase} ${buttonVariants[variant]} ${className}`}
+        className={`${buttonBase} ${variantClass} ${className}`}
         {...props}
       >
         {children}
@@ -28,7 +30,7 @@ Button.displayName = 'Button';
 
 export const PillTag = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
   return (
-    <span className={`bg-theme-surface-solid text-theme-primary px-3 py-1 rounded-full text-xs font-sans font-medium tracking-widest uppercase inline-flex items-center gap-1.5 border border-theme-border-strong ${className}`}>
+    <span className={`button-pill text-[11px] uppercase tracking-[0.2em] ${className}`}>
       {children}
     </span>
   );

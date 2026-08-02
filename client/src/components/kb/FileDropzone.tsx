@@ -1,14 +1,20 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, FileSpreadsheet, FileCode, X, CloudUpload } from 'lucide-react';
-
+import { FileText, FileSpreadsheet, FileCode, X, Loader2, Check, CloudUpload } from 'lucide-react';
+import type { KBIngestResponse } from '../../types/api';
+import { Button } from '../ui/Button';
+import IconCircle from '../ui/IconCircle';
+import UploadPanel from '../ui/UploadPanel';
 
 interface FileDropzoneProps {
   onIngest: (files: File[]) => void;
+  isIngesting: boolean;
+  isSuccess: boolean;
   error: string | null;
+  successData?: KBIngestResponse;
 }
 
-export default function FileDropzone({ onIngest, error }: FileDropzoneProps) {
+export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, successData }: FileDropzoneProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,9 +55,17 @@ export default function FileDropzone({ onIngest, error }: FileDropzoneProps) {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleIngestClick = () => {
+    if (files.length > 0) {
+      onIngest(files);
+      // Optional: empty files list if we want it to clear on ingest
+      // setFiles([]); 
+    }
+  };
+
   const getFileIcon = (filename: string) => {
     const ext = filename.toLowerCase().split('.').pop();
-    if (ext === 'csv') return <FileSpreadsheet className="w-5 h-5 text-[#dd6668]" />;
+    if (ext === 'csv') return <FileSpreadsheet className="w-5 h-5 text-[#4F46E5]" />;
     if (ext === 'md') return <FileCode className="w-5 h-5 text-[#94A3B8]" />;
     return <FileText className="w-5 h-5 text-[#4F46E5]" />;
   };
@@ -81,15 +95,42 @@ export default function FileDropzone({ onIngest, error }: FileDropzoneProps) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 rounded-2xl p-6 sm:p-12 cursor-pointer flex flex-col items-center justify-center transition-colors ${
-          isDragging 
-            ? 'border-[#dd6668] bg-slate-900/[0.04] border-solid' 
-            : 'border-theme-border bg-theme-surface hover:bg-slate-900/[0.024] border-dashed text-theme-primary'
-        }`}
+        className="mb-4 cursor-pointer"
       >
-        <CloudUpload className="w-12 h-12 text-[#dd6668] mb-4" />
-        <p className="text-sm font-sans font-light text-theme-muted">Drop PDF, CSV, or Markdown files here</p>
-        <p className="text-xs font-sans font-medium text-[#dd6668] underline mt-1">or click to browse</p>
+        <UploadPanel
+          title="Upload Collateral"
+          description="Drag and drop PDF, CSV, or MD files to train the knowledge base."
+        >
+          <div className={`flex flex-col items-center justify-center rounded-[32px] border border-dashed px-8 py-16 text-center transition-all duration-200 ${
+            isDragging
+              ? 'border-[#4F46E5]/40 bg-[rgba(79,70,229,0.08)] shadow-[0_0_40px_rgba(79,70,229,0.12)]'
+              : 'border-theme-border bg-white/35 hover:bg-white/50'
+          }`}>
+            <div className="relative mb-6">
+              <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(79,70,229,0.24),transparent_70%)] blur-2xl" />
+              <IconCircle icon={CloudUpload} variant="secondary" className="relative h-16 w-16" />
+            </div>
+            <h2 className="mb-3 text-4xl font-semibold tracking-tight text-theme-primary">Drop files here</h2>
+            <p className="mb-8 max-w-lg text-[11px] font-semibold uppercase tracking-[0.22em] text-theme-muted leading-relaxed">
+              Or click anywhere in this area to browse your computer
+            </p>
+
+            <Button
+              onClick={(e) => { e.stopPropagation(); handleIngestClick(); }}
+              disabled={files.length === 0 || isIngesting}
+              variant={isSuccess ? 'secondary' : 'primary'}
+              className="z-20 rounded-full px-10 py-3.5 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isIngesting ? (
+                <div className="flex items-center space-x-2"><Loader2 className="w-4 h-4 animate-spin" /><span>Ingesting...</span></div>
+              ) : isSuccess && successData ? (
+                <div className="flex items-center space-x-2"><Check className="w-4 h-4" /><span>{successData.chunks_added} chunks added</span></div>
+              ) : (
+                <span>Ingest Files {files.length > 0 ? `(${files.length})` : ''}</span>
+              )}
+            </Button>
+          </div>
+        </UploadPanel>
       </motion.div>
 
       <div className="mt-6">
@@ -100,7 +141,7 @@ export default function FileDropzone({ onIngest, error }: FileDropzoneProps) {
               initial={{ opacity: 0, height: 0, marginBottom: 0 }}
               animate={{ opacity: 1, height: 'auto', marginBottom: 8 }}
               exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-              className="flex items-center justify-between bg-theme-surface border border-theme-border rounded-xl p-3 overflow-hidden"
+              className="flex items-center justify-between rounded-[var(--radius-card)] p-3 overflow-hidden glass-card"
             >
               <div className="flex items-center space-x-3 truncate pr-4">
                 {getFileIcon(file.name)}
@@ -111,7 +152,7 @@ export default function FileDropzone({ onIngest, error }: FileDropzoneProps) {
               </div>
               <button 
                 onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
-                className="p-1.5 hover:bg-theme-border rounded-lg transition-colors text-theme-muted hover:text-red-400 flex-shrink-0"
+                className="p-1.5 hover:bg-white/70 rounded-full transition-colors text-theme-muted hover:text-red-400 flex-shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -120,25 +161,13 @@ export default function FileDropzone({ onIngest, error }: FileDropzoneProps) {
         </AnimatePresence>
       </div>
 
-      {files.length > 0 && (
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={() => {
-              onIngest(files);
-              setFiles([]);
-            }}
-            className="px-6 py-2 bg-[#dd6668] text-white rounded-xl hover:bg-[#c45557] font-medium transition-colors"
-          >
-            Upload Files
-          </button>
-        </div>
-      )}
-
       {error && (
         <div className="mt-4 text-sm text-red-300 bg-red-500/10 px-4 py-2 rounded-lg border border-red-500/20">
           {error}
         </div>
       )}
+
+
     </div>
   );
 }

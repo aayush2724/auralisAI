@@ -17,7 +17,7 @@ const Toast = ({ message, onClose }: { message: string, onClose: () => void }) =
       initial={{ opacity: 0, y: 50, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 50, scale: 0.9 }}
-      className="fixed bottom-6 right-6 bg-[#0a0a0a] text-white rounded-xl px-4 py-3 shadow-lg z-50 flex items-center space-x-2"
+      className="fixed bottom-6 right-6 bg-theme-surface-solid text-theme-primary border border-theme-border rounded-xl px-4 py-3 shadow-2xl z-50 flex items-center space-x-2"
     >
       <span className="text-sm font-medium">{message}</span>
     </motion.div>
@@ -50,9 +50,9 @@ export default function KnowledgeBasePanel() {
   };
 
   return (
-    <div className="px-6 py-8 max-w-3xl mx-auto bg-white min-h-full">
-      <h2 className="text-2xl font-display font-normal text-[#0a0a0a] mb-2 tracking-tight">Knowledge Base</h2>
-      <p className="text-sm font-sans font-light text-[#6b7280] mb-8">Upload sales collateral to train auralis</p>
+    <div className="px-6 py-8 max-w-3xl mx-auto bg-transparent min-h-full">
+      <h2 className="text-2xl font-display font-normal text-theme-primary mb-2 tracking-tight">Knowledge Base</h2>
+      <p className="text-sm font-sans font-light text-theme-muted mb-8">Upload sales collateral to train auralis</p>
 
       <FileDropzone 
         onIngest={handleIngest} 
@@ -62,9 +62,9 @@ export default function KnowledgeBasePanel() {
         successData={ingestMutation.data}
       />
 
-      <div className="my-8 border-t border-[#f9fafb]" />
+      <div className="my-8 border-t border-theme-border" />
 
-      <h3 className="text-lg font-display font-normal text-[#0a0a0a] mb-4">Current Statistics</h3>
+      <h3 className="text-lg font-display font-normal text-theme-primary mb-4">Current Statistics</h3>
       
       {statsLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -73,37 +73,37 @@ export default function KnowledgeBasePanel() {
           <Skeleton className="h-24" />
         </div>
       ) : statsError || !stats ? (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 flex items-center space-x-3">
-          <AlertCircle className="w-5 h-5" />
+        <div className="bg-red-500/10 border border-red-500/20 text-red-300 rounded-xl p-4 flex items-center space-x-3">
+          <AlertCircle className="w-5 h-5 text-red-400" />
           <span>Failed to load KB stats.</span>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="bg-[#f9fafb] border border-[#f9fafb] rounded-xl p-4 flex flex-col items-center justify-center text-center"
+            className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
           >
             <Database className="w-6 h-6 text-[#dd6668] mb-2" />
-            <p className="text-xl font-display font-normal text-[#0a0a0a]">{Math.round(docCount)}</p>
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mt-1">Total Documents</p>
+            <p className="text-xl font-display font-normal text-theme-primary">{Math.round(docCount)}</p>
+            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mt-1">Total Documents</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-            className="bg-[#f9fafb] border border-[#f9fafb] rounded-xl p-4 flex flex-col items-center justify-center text-center"
+            className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
           >
             <Layers className="w-6 h-6 text-[#dd6668] mb-2" />
-            <p className="text-xl font-display font-normal text-[#0a0a0a]">{Math.round(chunkCount)}</p>
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mt-1">Total Chunks</p>
+            <p className="text-xl font-display font-normal text-theme-primary">{Math.round(chunkCount)}</p>
+            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mt-1">Total Chunks</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            className="bg-[#f9fafb] border border-[#f9fafb] rounded-xl p-4 flex flex-col items-center justify-center text-center"
+            className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
           >
             <Clock className="w-6 h-6 text-[#dd6668] mb-2" />
-            <p className="text-sm font-sans font-medium text-[#0a0a0a] truncate w-full px-2">
+            <p className="text-sm font-sans font-medium text-theme-primary truncate w-full px-2">
               {stats.last_updated ? new Date(stats.last_updated).toLocaleDateString() : 'Never'}
             </p>
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] mt-1">Last Updated</p>
+            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mt-1">Last Updated</p>
           </motion.div>
         </div>
       )}

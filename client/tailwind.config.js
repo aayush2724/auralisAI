@@ -13,6 +13,19 @@ export default {
         logo:    ['"Space Grotesk"', 'system-ui', 'sans-serif'],
       },
       colors: {
+        theme: {
+          bg: 'var(--theme-bg)',
+          surface: 'var(--theme-surface)',
+          'surface-solid': 'var(--theme-surface-solid)',
+          border: 'var(--theme-border)',
+          'border-strong': 'var(--theme-border-strong)',
+          primary: 'var(--text-primary)',
+          muted: 'var(--text-muted)',
+        },
+        brand: {
+          teal: 'var(--brand-teal)',
+          indigo: 'var(--brand-indigo)',
+        },
         auralis: {
           black:  '#0F172A',
           canvas: '#F8FAFC',

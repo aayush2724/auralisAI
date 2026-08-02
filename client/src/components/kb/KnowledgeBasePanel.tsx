@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Database, Layers, Clock, AlertCircle } from 'lucide-react';
-import { useKBStats, useIngestFiles } from '../../api/hooks/useKnowledgeBase';
+import { useKBStats, useIngestFiles, useResetKB } from '../../api/hooks/useKnowledgeBase';
 import { useCountUp } from '../../hooks/useCountUp';
 import FileDropzone from './FileDropzone';
 import Skeleton from '../ui/Skeleton';
@@ -27,6 +27,7 @@ const Toast = ({ message, onClose }: { message: string, onClose: () => void }) =
 export default function KnowledgeBasePanel() {
   const { data: stats, isLoading: statsLoading, isError: statsError, refetch } = useKBStats();
   const ingestMutation = useIngestFiles();
+  const resetMutation = useResetKB();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const docCount = useCountUp(stats?.total_documents || 0, 1200, true);
@@ -49,6 +50,20 @@ export default function KnowledgeBasePanel() {
     });
   };
 
+  const handleReset = async () => {
+    if (window.confirm("This will delete all knowledge base content. Are you sure?")) {
+      resetMutation.mutate(undefined, {
+        onSuccess: () => {
+          setToastMessage("Knowledge Base has been reset successfully.");
+          refetch();
+        },
+        onError: () => {
+          setToastMessage("Failed to reset Knowledge Base.");
+        }
+      });
+    }
+  };
+
   return (
     <div className="px-6 py-8 max-w-3xl mx-auto bg-transparent min-h-full">
       <h2 className="text-2xl font-display font-normal text-theme-primary mb-2 tracking-tight">Knowledge Base</h2>
@@ -65,6 +80,16 @@ export default function KnowledgeBasePanel() {
       <div className="my-8 border-t border-theme-border" />
 
       <h3 className="text-lg font-display font-normal text-theme-primary mb-4">Current Statistics</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-display font-normal text-[#0a0a0a]">Current Statistics</h3>
+        <button
+          onClick={handleReset}
+          disabled={resetMutation.isPending}
+          className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+        >
+          {resetMutation.isPending ? 'Resetting...' : 'Reset Knowledge Base'}
+        </button>
+      </div>
       
       {statsLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

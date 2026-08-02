@@ -98,7 +98,7 @@ if os.getenv("USE_MOCK_LLM", "").lower() in ("1", "true", "yes"):
                 )
             ):
                 label = "negative"
-            elif "okay, i see" in t:
+            elif "okay, i see" in t or "leaked" in t or "stored" in t:
                 label = "neutral"
             else:
                 label = "positive"

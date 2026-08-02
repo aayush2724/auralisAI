@@ -339,6 +339,7 @@ async def chat(
 
 _ws_rate_limits = {}
 
+
 @router.websocket("/ws/chat")
 async def chat_websocket(websocket: WebSocket) -> None:
     token = _extract_ws_token(websocket)
@@ -392,11 +393,11 @@ async def chat_websocket(websocket: WebSocket) -> None:
             now = time.time()
             if user.id not in _ws_rate_limits:
                 _ws_rate_limits[user.id] = deque()
-            
+
             user_timestamps = _ws_rate_limits[user.id]
             while user_timestamps and user_timestamps[0] < now - 60:
                 user_timestamps.popleft()
-                
+
             if len(user_timestamps) >= 20:
                 await websocket.send_json(
                     {
@@ -405,7 +406,7 @@ async def chat_websocket(websocket: WebSocket) -> None:
                     }
                 )
                 continue
-                
+
             user_timestamps.append(now)
 
             start_time = time.perf_counter()

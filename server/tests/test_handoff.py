@@ -75,8 +75,15 @@ def test_user_requested_overrides_low_confidence() -> None:
 
 def test_explicit_authority_demand_overrides_angry_exemption() -> None:
     # Bug B scenario: standard objection (price) + high negative sentiment + explicit VP demand
-    state = make_state(confidence=0.9, objection_label="price", sentiment="negative", sentiment_score=0.95)
-    result = evaluate_handoff(state, "I am extremely frustrated and demand to talk to your VP immediately!")
+    state = make_state(
+        confidence=0.9,
+        objection_label="price",
+        sentiment="negative",
+        sentiment_score=0.95,
+    )
+    result = evaluate_handoff(
+        state, "I am extremely frustrated and demand to talk to your VP immediately!"
+    )
     assert result["should_handoff"] is True
     assert result["trigger"] == HandoffTrigger.USER_REQUESTED
 
@@ -84,8 +91,12 @@ def test_explicit_authority_demand_overrides_angry_exemption() -> None:
 def test_standard_objection_with_negative_sentiment_no_handoff() -> None:
     # Ensure standard objections with plain negative sentiment don't silently regress
     for label in ("price", "competitor", "timing", "fit"):
-        state = make_state(confidence=0.9, objection_label=label, sentiment="negative", sentiment_score=0.95)
+        state = make_state(
+            confidence=0.9,
+            objection_label=label,
+            sentiment="negative",
+            sentiment_score=0.95,
+        )
         result = evaluate_handoff(state, "I hate this pricing model and this product.")
         assert result["should_handoff"] is False
         assert result["trigger"] is None
-

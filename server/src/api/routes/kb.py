@@ -112,10 +112,11 @@ async def kb_ingest(
         from src.rag.ingest import ingest_directory
 
         chunks_added = ingest_directory(str(upload_dir), str(VECTORSTORE_PATH))
-        
+
         from src.rag.kb_store import save_kb_to_postgres
+
         await save_kb_to_postgres(VECTORSTORE_PATH)
-        
+
         logger.info(
             "Ingestion complete: %d chunks from %d files", chunks_added, files_saved
         )
@@ -146,19 +147,23 @@ async def kb_ingest(
 async def kb_debug_chunks() -> list[dict[str, Any]]:
     try:
         from src.rag.retriever import _get_vectorstore
+
         vs = _get_vectorstore()
         chunks = []
         for doc_id, doc in vs.docstore._dict.items():
             if "kb-demo-reference-sheet" in str(doc.metadata.get("source_file", "")):
-                chunks.append({
-                    "chunk_id": doc_id,
-                    "metadata": doc.metadata,
-                    "content": doc.page_content
-                })
+                chunks.append(
+                    {
+                        "chunk_id": doc_id,
+                        "metadata": doc.metadata,
+                        "content": doc.page_content,
+                    }
+                )
         return chunks
     except Exception as e:
         logger.exception("Debug chunks failed")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get(
     "/stats",
@@ -218,4 +223,58 @@ async def kb_stats(
             total_chunks=0,
             index_path=str(VECTORSTORE_PATH / "index.faiss"),
             last_updated=None,
+        )
+
+
+# ─── DELETE /kb/reset ────────────────────────────────────────────────────────
+
+
+@router.delete(
+    "/reset",
+    summary="Delete all knowledge base content and reset the index.",
+    description=(
+        "Deletes the local FAISS vectorstore, clears the Postgres-persisted "
+        "copy, and removes uploaded source files. This is irreversible — "
+        "all ingested documents must be re-uploaded after this call.\n\n"
+        "**Required role**: `admin`."
+    ),
+    responses={
+        401: {"description": "Missing or invalid Bearer token."},
+        403: {"description": "Insufficient role. Requires admin."},
+        500: {"description": "Internal error during reset."},
+    },
+)
+async def kb_reset(
+    current_user: User = require_roles("admin"),
+) -> dict:
+    logger.info(
+        "DELETE /kb/reset | user=%s role=%s", current_user.email, current_user.role
+    )
+
+    try:
+        import shutil
+
+        # 1. Remove local FAISS index directory
+        if VECTORSTORE_PATH.exists():
+            shutil.rmtree(VECTORSTORE_PATH)
+            logger.info("Removed local vectorstore at %s", VECTORSTORE_PATH)
+
+        # 2. Remove uploaded source files
+        if UPLOAD_BASE.exists():
+            shutil.rmtree(UPLOAD_BASE)
+            UPLOAD_BASE.mkdir(parents=True, exist_ok=True)
+            logger.info("Removed uploaded files at %s", UPLOAD_BASE)
+
+        # 3. Clear the Postgres-persisted copy (added in the earlier persistence fix)
+        from src.rag.kb_store import delete_kb_from_postgres
+
+        await delete_kb_from_postgres()
+        logger.info("Cleared KB blob from Postgres")
+
+        return {"status": "ok", "detail": "Knowledge base reset. All content removed."}
+    except Exception:
+        logger.exception("KB reset failed")
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred during reset. Please try again or contact support.",
         )

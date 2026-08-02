@@ -13,15 +13,15 @@ const HowItWorks = () => {
 
   // Step 1 Transforms
   const step1Opacity = useTransform(scrollYProgress, [0.15, 0.23], [0, 1]);
-  const step1Color = useTransform(scrollYProgress, [0.15, 0.23], ['#e5e7eb', '#dd6668']);
+  const step1Color = useTransform(scrollYProgress, [0.15, 0.23], ['#d9e2ef', '#4f46e5']);
 
   // Step 2 Transforms
   const step2Opacity = useTransform(scrollYProgress, [0.45, 0.53], [0, 1]);
-  const step2Color = useTransform(scrollYProgress, [0.45, 0.53], ['#e5e7eb', '#dd6668']);
+  const step2Color = useTransform(scrollYProgress, [0.45, 0.53], ['#d9e2ef', '#0d9488']);
 
   // Step 3 Transforms
   const step3Opacity = useTransform(scrollYProgress, [0.73, 0.81], [0, 1]);
-  const step3Color = useTransform(scrollYProgress, [0.73, 0.81], ['#e5e7eb', '#dd6668']);
+  const step3Color = useTransform(scrollYProgress, [0.73, 0.81], ['#d9e2ef', '#f59e0b']);
 
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
     const path = pathRef.current;
@@ -36,16 +36,16 @@ const HowItWorks = () => {
   const pathD = "M 0 140 C 80 140, 140 30, 250 30 C 380 30, 460 250, 600 250 C 740 250, 820 30, 950 30 C 1060 30, 1120 140, 1200 140";
 
   return (
-    <section id="how-it-works" className="bg-white">
+    <section id="how-it-works" className="py-24">
       <div ref={wrapperRef} style={{ height: '300vh' }} className="relative hidden md:block">
         <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden px-6">
           
           {/* Section header */}
           <div className="text-center mb-4 mt-[-40px]">
-            <p className="text-xs font-sans font-medium tracking-widest text-[#dd6668] uppercase mb-3">
+            <p className="section-label mb-3">
               HOW IT WORKS
             </p>
-            <h2 className="font-display text-4xl md:text-5xl text-[#0a0a0a] leading-tight max-w-2xl mx-auto">
+            <h2 className="text-4xl font-semibold tracking-tight text-theme-primary md:text-5xl leading-tight max-w-2xl mx-auto">
               Three steps to a smarter sales conversation.
             </h2>
           </div>
@@ -63,13 +63,13 @@ const HowItWorks = () => {
               </defs>
 
               {/* Background path */}
-              <path ref={pathRef} d={pathD} fill="none" stroke="#e5e7eb" strokeWidth={3} />
+              <path ref={pathRef} d={pathD} fill="none" stroke="rgba(149,174,205,0.35)" strokeWidth={3} />
 
               {/* Reveal path */}
               <motion.path
                 d={pathD}
                 fill="none"
-                stroke="#dd6668"
+                stroke="#4f46e5"
                 strokeWidth={3}
                 style={{ pathLength: scrollYProgress }}
                 strokeDasharray="1"
@@ -77,8 +77,8 @@ const HowItWorks = () => {
 
               {/* Glowing circle group */}
               <g ref={glowGroupRef} transform="translate(0, 140)">
-                <circle r="10" fill="#dd6668" filter="url(#glow)" opacity="0.6" />
-                <circle r="5" fill="#dd6668" />
+                <circle r="10" fill="#4f46e5" filter="url(#glow)" opacity="0.6" />
+                <circle r="5" fill="#4f46e5" />
                 <circle r="2.5" fill="white" />
               </g>
             </svg>
@@ -95,10 +95,10 @@ const HowItWorks = () => {
                 <motion.div style={{ color: step1Color as any }} className="font-display text-7xl leading-none mb-6">
                   01
                 </motion.div>
-                <h3 className="font-sans font-medium text-lg text-[#0a0a0a] mb-3">
+                <h3 className="text-lg font-semibold text-theme-primary mb-3">
                   Message comes in
                 </h3>
-                <p className="font-sans text-sm text-[#6b7280] leading-relaxed max-w-xs">
+                <p className="body-text max-w-xs">
                   A prospect sends a message. Auralis receives it and immediately begins reading intent, tone, and context.
                 </p>
               </motion.div>
@@ -112,10 +112,10 @@ const HowItWorks = () => {
                 <motion.div style={{ color: step2Color as any }} className="font-display text-7xl leading-none mb-14">
                   02
                 </motion.div>
-                <h3 className="font-sans font-medium text-lg text-[#0a0a0a] mb-3">
+                <h3 className="text-lg font-semibold text-theme-primary mb-3">
                   Auralis reads the room
                 </h3>
-                <p className="font-sans text-sm text-[#6b7280] leading-relaxed max-w-xs">
+                <p className="body-text max-w-xs">
                   Objection type, buyer persona, competitor mentions, and sentiment are all classified in under 2 seconds.
                 </p>
               </motion.div>
@@ -129,10 +129,10 @@ const HowItWorks = () => {
                 <motion.div style={{ color: step3Color as any }} className="font-display text-7xl leading-none mb-6">
                   03
                 </motion.div>
-                <h3 className="font-sans font-medium text-lg text-[#0a0a0a] mb-3">
+                <h3 className="text-lg font-semibold text-theme-primary mb-3">
                   The right response, instantly
                 </h3>
-                <p className="font-sans text-sm text-[#6b7280] leading-relaxed max-w-xs">
+                <p className="body-text max-w-xs">
                   A tailored reply is generated. If confidence is low or frustration is high, Auralis flags for human handoff automatically.
                 </p>
               </motion.div>
@@ -143,12 +143,12 @@ const HowItWorks = () => {
       </div>
 
       {/* MOBILE FALLBACK */}
-      <div className="md:hidden px-6 py-24 bg-white">
+      <div className="md:hidden px-6 py-24">
         <div className="text-center mb-16">
-          <p className="text-xs font-sans font-medium tracking-widest text-[#dd6668] uppercase mb-3">
+          <p className="section-label mb-3">
             HOW IT WORKS
           </p>
-          <h2 className="font-display text-4xl text-[#0a0a0a] leading-tight">
+          <h2 className="text-4xl font-semibold tracking-tight text-theme-primary leading-tight">
             Three steps to a smarter sales conversation.
           </h2>
         </div>
@@ -161,16 +161,16 @@ const HowItWorks = () => {
             viewport={{ once: true }}
             className="flex flex-row gap-6 w-full"
           >
-            <div className="font-display text-4xl text-[#dd6668] leading-none shrink-0">01</div>
+            <div className="font-display text-4xl text-[#4f46e5] leading-none shrink-0">01</div>
             <div className="flex flex-col">
-              <h3 className="font-sans font-medium text-lg text-[#0a0a0a] mb-2">Message comes in</h3>
-              <p className="font-sans text-sm text-[#6b7280] leading-relaxed">
+              <h3 className="text-lg font-semibold text-theme-primary mb-2">Message comes in</h3>
+              <p className="body-text">
                 A prospect sends a message. Auralis receives it and immediately begins reading intent, tone, and context.
               </p>
             </div>
           </motion.div>
           
-          <div className="w-[2px] h-12 bg-[#e5e7eb] ml-[22px] my-4" />
+          <div className="w-[2px] h-12 bg-theme-border ml-[22px] my-4" />
 
           {/* Mobile Step 2 */}
           <motion.div 
@@ -179,16 +179,16 @@ const HowItWorks = () => {
             viewport={{ once: true }}
             className="flex flex-row gap-6 w-full"
           >
-            <div className="font-display text-4xl text-[#dd6668] leading-none shrink-0">02</div>
+            <div className="font-display text-4xl text-[#0d9488] leading-none shrink-0">02</div>
             <div className="flex flex-col">
-              <h3 className="font-sans font-medium text-lg text-[#0a0a0a] mb-2">Auralis reads the room</h3>
-              <p className="font-sans text-sm text-[#6b7280] leading-relaxed">
+              <h3 className="text-lg font-semibold text-theme-primary mb-2">Auralis reads the room</h3>
+              <p className="body-text">
                 Objection type, buyer persona, competitor mentions, and sentiment are all classified in under 2 seconds.
               </p>
             </div>
           </motion.div>
 
-          <div className="w-[2px] h-12 bg-[#e5e7eb] ml-[22px] my-4" />
+          <div className="w-[2px] h-12 bg-theme-border ml-[22px] my-4" />
 
           {/* Mobile Step 3 */}
           <motion.div 
@@ -197,10 +197,10 @@ const HowItWorks = () => {
             viewport={{ once: true }}
             className="flex flex-row gap-6 w-full"
           >
-            <div className="font-display text-4xl text-[#dd6668] leading-none shrink-0">03</div>
+            <div className="font-display text-4xl text-[#f59e0b] leading-none shrink-0">03</div>
             <div className="flex flex-col">
-              <h3 className="font-sans font-medium text-lg text-[#0a0a0a] mb-2">The right response, instantly</h3>
-              <p className="font-sans text-sm text-[#6b7280] leading-relaxed">
+              <h3 className="text-lg font-semibold text-theme-primary mb-2">The right response, instantly</h3>
+              <p className="body-text">
                 A tailored reply is generated. If confidence is low or frustration is high, Auralis flags for human handoff automatically.
               </p>
             </div>

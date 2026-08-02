@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FileText, PlayCircle, BookOpen, ArrowRight } from 'lucide-react';
-import PageNavbar from '../components/layout/PageNavbar';
+import PublicShell from '../components/layout/PublicShell';
+import { Button } from '../components/ui/Button';
 
 const resources = [
   {
@@ -52,23 +53,21 @@ export default function ResourcesPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white text-[#0a0a0a] antialiased min-h-screen font-sans">
-      <PageNavbar />
-
+    <PublicShell>
       {/* HERO */}
-      <section className="pt-36 pb-20 px-6 text-center border-b border-[#f3f4f6]">
+      <section className="pt-36 pb-20 px-6 text-center border-b border-theme-border">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <span className="text-xs font-sans font-semibold tracking-widest text-[#dd6668] uppercase mb-4 block">
+          <span className="section-label mb-4 block">
             Resources
           </span>
-          <h1 className="font-display text-5xl md:text-6xl text-[#0a0a0a] leading-tight mb-6">
+          <h1 className="text-5xl font-semibold tracking-tight text-theme-primary md:text-6xl leading-tight mb-6">
             Level up your sales game.
           </h1>
-          <p className="font-sans text-lg text-[#6b7280] max-w-xl mx-auto leading-relaxed">
+          <p className="body-text text-lg max-w-xl mx-auto">
             Guides, research, and best practices for modern sales teams using AI.
           </p>
         </motion.div>
@@ -83,26 +82,23 @@ export default function ResourcesPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group cursor-pointer rounded-2xl p-8 border border-[#e5e7eb] hover:border-[#dd6668]/30 hover:shadow-lg transition-all duration-300 flex flex-col h-full bg-white"
+              className="group cursor-pointer rounded-[28px] p-8 border border-theme-border hover:border-[#4F46E5]/30 hover:shadow-[0_24px_70px_rgba(16,32,51,0.12)] transition-all duration-200 flex flex-col h-full glass-card"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div 
-                  className="w-10 h-10 rounded-lg flex items-center justify-center bg-opacity-10"
-                  style={{ backgroundColor: `${resource.color}15`, color: resource.color }}
-                >
+                <div className="icon-badge icon-badge--secondary h-10 w-10">
                   {resource.icon}
                 </div>
-                <span className="text-sm font-sans font-medium text-[#6b7280]">
+                <span className="text-sm font-medium text-theme-secondary">
                   {resource.type}
                 </span>
               </div>
-              <h3 className="font-logo font-semibold text-xl mb-3 text-[#0a0a0a] group-hover:text-[#dd6668] transition-colors">
+              <h3 className="text-xl font-semibold tracking-tight text-theme-primary mb-3 group-hover:text-[#4F46E5] transition-colors">
                 {resource.title}
               </h3>
-              <p className="text-sm font-sans text-[#6b7280] leading-relaxed mb-8 flex-grow">
+              <p className="body-text mb-8 flex-grow">
                 {resource.description}
               </p>
-              <div className="flex items-center gap-2 text-[#dd6668] font-sans font-medium text-sm group-hover:gap-3 transition-all">
+              <div className="flex items-center gap-2 text-[#4F46E5] font-medium text-sm group-hover:gap-3 transition-all">
                 Read more <ArrowRight size={16} />
               </div>
             </motion.div>
@@ -111,36 +107,36 @@ export default function ResourcesPage() {
       </section>
 
       {/* FOOTER CTA */}
-      <section className="w-full bg-[#0a0a0a] py-24 px-6 flex flex-col items-center justify-center text-center">
-        <h2 className="font-display text-4xl md:text-5xl text-white leading-tight mb-6">
+      <section className="w-full bg-theme-primary py-24 px-6 flex flex-col items-center justify-center text-center">
+        <h2 className="text-4xl font-semibold tracking-tight text-white md:text-5xl leading-tight mb-6">
           Put these insights into practice.
         </h2>
-        <button
+        <Button
           onClick={() => navigate('/?login=true')}
-          className="bg-[#dd6668] text-white font-sans font-medium text-sm px-8 py-4 rounded-full hover:bg-[#c45557] transition-colors duration-300 mt-4"
+          className="mt-4 rounded-full px-8 py-4"
         >
           Start your free trial
-        </button>
+        </Button>
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white py-8 px-6 border-t border-[#f3f4f6]">
+      <footer className="bg-white py-8 px-6 border-t border-theme-border">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-          <span className="text-[#0a0a0a] font-logo font-semibold text-xl">Auralis</span>
+          <span className="text-theme-primary font-semibold text-xl">Auralis</span>
           <div className="flex gap-6">
             {['Product', 'Solutions', 'Pricing', 'Resources'].map((l) => (
               <button
                 key={l}
                 onClick={() => navigate(l === 'Pricing' ? '/pricing' : l === 'Resources' ? '/resources' : '/')}
-                className="text-[#6b7280] text-sm font-sans hover:text-[#0a0a0a] transition-colors"
+                className="text-sm text-theme-secondary hover:text-theme-primary transition-colors"
               >
                 {l}
               </button>
             ))}
           </div>
-          <span className="text-[#6b7280] text-xs font-sans">© 2026 Auralis. All rights reserved.</span>
+          <span className="text-xs text-theme-muted">(c) 2026 Auralis. All rights reserved.</span>
         </div>
       </footer>
-    </div>
+    </PublicShell>
   );
 }

@@ -2,6 +2,8 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { useCountUp } from '../../hooks/useCountUp';
+import Card from '../ui/Card';
+import IconCircle from '../ui/IconCircle';
 
 interface MetricCardProps {
   label: string;
@@ -25,30 +27,29 @@ export default function MetricCard({ label, value, suffix, icon: Icon, color }: 
   const displayValue = count.toFixed(decimals);
 
   return (
-    <motion.div 
+    <motion.div
       ref={ref}
       variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-      whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(99,102,241,0.15)" }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="neo-card relative overflow-hidden px-8 py-5 rounded-[40px] flex items-center min-h-[110px]"
+      className="relative overflow-hidden"
     >
-      <div className={`absolute -right-8 -bottom-8 w-40 h-40 rounded-full blur-[40px] opacity-30 pointer-events-none 
-        ${color === 'indigo' ? 'bg-indigo-400' : 
-          color === 'green' ? 'bg-teal-400' : 
-          'bg-orange-400'}
-      `} />
-      <div className="flex justify-between items-center w-full relative z-10">
-        <div className="flex flex-col justify-center">
-          <div className="text-4xl font-display font-medium text-[#1e293b] [.light-shell_&]:text-theme-primary flex items-baseline tracking-tighter mb-1">
+      <Card variant="glass" className="card-hover relative flex min-h-[110px] items-center overflow-hidden px-8 py-5">
+        <div className={`absolute -right-8 -bottom-8 h-40 w-40 rounded-full blur-[40px] opacity-30 pointer-events-none
+          ${color === 'indigo' ? 'bg-indigo-400' :
+            color === 'green' ? 'bg-teal-400' :
+            'bg-orange-400'}
+        `} />
+        <div className="relative z-10 flex w-full items-center justify-between">
+          <div className="flex flex-col justify-center">
+            <div className="mb-1 flex items-baseline text-4xl font-semibold tracking-tight text-theme-primary">
             <span>{displayValue}</span>
-            {suffix && <span className="text-xl font-sans font-light text-[#64748b] [.light-shell_&]:text-theme-muted ml-1">{suffix}</span>}
+              {suffix && <span className="ml-1 text-xl font-normal text-theme-muted">{suffix}</span>}
+            </div>
+            <p className="section-label">{label}</p>
           </div>
-          <p className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#64748b] [.light-shell_&]:text-theme-muted">{label}</p>
+          <IconCircle icon={Icon} variant="secondary" />
         </div>
-        <div className="w-12 h-12 rounded-full flex items-center justify-center neo-inset text-[#64748b] shrink-0">
-          <Icon className="w-5 h-5 opacity-80" />
-        </div>
-      </div>
+      </Card>
     </motion.div>
   );
 }

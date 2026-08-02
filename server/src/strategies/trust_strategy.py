@@ -67,8 +67,9 @@ You are handling a TRUST objection. Follow this exact structure:
      or a no-commitment pilot.
    - "We can arrange a 15-minute call with [similar customer] this week."
 
-4. **Guarantee Language**
-   - Mention SLA, money-back option, or data-portability if applicable.
+4. **Guarantee Language** (only state specifics found in {citations}):
+   - Only mention a specific SLA percentage, policy detail, feature name, or figure if it is explicitly present in the retrieved context above.
+   - If the retrieved context does not contain a relevant fact for this part of the response, omit this section entirely rather than inventing a plausible-sounding detail.
 
 5. **Verification Invitation**
    - Invite them to check G2/Capterra reviews or analyst reports.

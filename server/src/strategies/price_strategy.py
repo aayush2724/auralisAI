@@ -59,10 +59,9 @@ You are handling a PRICE objection. Follow this exact structure:
    - Quote the TCO reduction and/or ROI figure from the proof points above.
    - Relate it specifically to the prospect's role: {pitch_angle}
 
-3. **Payment Flexibility**
-   - Mention monthly billing, annual discount, or a time-boxed pilot/POC.
-   - Example: "We offer a 30-day pilot at no risk so you can validate ROI
-     before committing."
+3. **Payment Flexibility** (only state specifics found in {citations}):
+   - Only mention a specific SLA percentage, policy detail, feature name, or figure if it is explicitly present in the retrieved context above.
+   - If the retrieved context does not contain a relevant fact for this part of the response, omit this section entirely rather than inventing a plausible-sounding detail.
 
 4. **Value Anchor Question**
    - End with one open question that ties cost to their stated goal.

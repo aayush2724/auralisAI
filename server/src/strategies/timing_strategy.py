@@ -64,11 +64,9 @@ You are handling a TIMING objection. Follow this exact structure:
    - "Would a 20-minute async walkthrough work while your team finalises plans?"
    - Or: "We can reserve a pilot slot for Q[next] now, no cost to start."
 
-4. **Soft Urgency Trigger** — Choose ONE of:
-   - Limited pilot slots: "We have 3 onboarding slots left this quarter."
-   - Pricing lock: "Our current pricing is locked until [month-end]."
-   - Implementation lead time: "Onboarding takes 3 weeks — starting now means
-     you're live by [date]."
+4. **Soft Urgency Trigger** (only state specifics found in {citations}):
+   - Only mention a specific SLA percentage, policy detail, feature name, or figure if it is explicitly present in the retrieved context above.
+   - If the retrieved context does not contain a relevant fact for this part of the response, omit this section entirely rather than inventing a plausible-sounding detail.
 
 5. **Re-engagement Hook** — If they truly cannot move:
    - Agree a specific follow-up date/trigger.

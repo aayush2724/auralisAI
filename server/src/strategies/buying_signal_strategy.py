@@ -74,13 +74,13 @@ Follow this exact structure:
    reinforce they're making the right choice.
    Frame through: {pitch_angle}
 
-4. **Proactive Blocker Removal** — Anticipate one common blocker:
-   - "If you need IT/legal sign-off, I can prep a one-pager for them."
-   - "We handle data migration — zero effort on your side."
+4. **Proactive Blocker Removal** (only state specifics found in {citations}):
+   - Only mention a specific SLA percentage, policy detail, feature name, or figure if it is explicitly present in the retrieved context above.
+   - If the retrieved context does not contain a relevant fact for this part of the response, omit this section entirely rather than inventing a plausible-sounding detail.
 
-5. **Time-Bound Close**
-   - "If we kick off by [end of week / month], you'll be live by [date]."
-   - "Shall I block time with our onboarding team for next [day]?"
+5. **Time-Bound Close** (only state specifics found in {citations}):
+   - Only mention a specific SLA percentage, policy detail, feature name, or figure if it is explicitly present in the retrieved context above.
+   - If the retrieved context does not contain a relevant fact for this part of the response, omit this section entirely rather than inventing a plausible-sounding detail.
 
 ### Source Citations (Feature 11)
 {citations}

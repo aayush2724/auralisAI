@@ -65,10 +65,9 @@ Follow this exact structure — NEVER badmouth the competitor:
    Draw facts from the retrieved intel above.
    Frame through {pitch_angle}
 
-3. **Switching Ease**
-   - Migration timeline (e.g., "most teams are fully live in 2 weeks").
-   - Data portability (CSV/API export from {competitor_name}).
-   - Dedicated onboarding engineer included.
+3. **Switching Ease** (only state specifics found in {citations}):
+   - Only mention a specific SLA percentage, policy detail, feature name, or figure if it is explicitly present in the retrieved context above.
+   - If the retrieved context does not contain a relevant fact for this part of the response, omit this section entirely rather than inventing a plausible-sounding detail.
 
 4. **Evaluation Proposal**
    - Propose a parallel pilot or bake-off: "Run Auralis alongside {competitor_name}

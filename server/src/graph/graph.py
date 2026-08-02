@@ -222,20 +222,29 @@ def retrieve_node(state: GraphState) -> dict[str, Any]:
     objection = state.get("objection", {})
     obj_label = objection.get("label", "")
 
-    # Enrich query with the objection class for better retrieval precision
     _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT = {"price", "trust", "timing", "competitor"}
-    query = (
-        f"{user_input} {obj_label} objection handling"
-        if obj_label in _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT
-        else user_input
-    )
-    logger.info("[retrieve_node] query='%s'", query[:100])
-
+    
     try:
-        docs = retrieve(query, top_k=5)
+        raw_docs = retrieve(user_input, top_k=5)
+        
+        if obj_label in _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT:
+            enriched_query = f"{user_input} {obj_label} objection handling"
+            logger.info("[retrieve_node] enriched_query='%s'", enriched_query[:100])
+            enriched_docs = retrieve(enriched_query, top_k=5)
+        else:
+            enriched_docs = []
+
+        # Merge, dedupe by source_file and chunk_index, keep best (lowest distance) score
+        merged = {}
+        for d in raw_docs + enriched_docs:
+            key = (d.get("source_file"), d.get("chunk_index"))
+            if key not in merged or d.get("score", float("inf")) < merged[key].get("score", float("inf")):
+                merged[key] = d
+                
+        docs = sorted(merged.values(), key=lambda d: d.get("score", float("inf")))[:5]
         citations = format_citations(docs)
-        logger.debug("[DEBUG retrieve_node] query='%s'", query)
-        logger.debug("[DEBUG retrieve_node] num_docs=%d", len(docs))
+        
+        logger.debug("[DEBUG retrieve_node] user_input='%s', num_docs=%d", user_input, len(docs))
         for i, d in enumerate(docs):
             logger.debug("[DEBUG retrieve_node] doc[%d] score=%.4f source=%s text_preview=%s",
                         i, d.get("score"), d.get("source_file"), d.get("text", "")[:120])

@@ -15,6 +15,7 @@ import SecondaryButton from '../ui/SecondaryButton';
 
 const PIE_COLORS = ['#c7d2fe', '#bae6fd', '#a7f3d0', '#fde68a', '#fbcfe8'];
 const BAR_COLORS = ['#c7d2fe', '#bae6fd', '#a7f3d0', '#fde68a', '#fbcfe8', '#ddd6fe'];
+const PIE_COLORS = ['#dd6668', '#f4a261', '#e87a7c', '#f8b4b4', '#e29578'];
 const REFRESH_OPTIONS = [
   { label: 'Off', value: 0 },
   { label: '15s', value: 15000 },
@@ -27,6 +28,64 @@ export default function AnalyticsDashboard() {
   const { data, isPending, isError, isSuccess, isFetching, refetch } = useAnalyticsDashboard(refreshMs || false);
 
   const objectionData = data ? Object.entries(data.objection_distribution).map(([name, value]) => ({
+  const Header = () => (
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <h2 className="text-2xl font-display font-normal text-theme-primary tracking-tight">Analytics</h2>
+      <div className="flex items-center gap-2">
+        <select
+          value={refreshMs}
+          onChange={(event) => setRefreshMs(Number(event.target.value))}
+          className="h-10 rounded-xl border border-theme-border bg-theme-surface-solid px-3 text-xs font-medium text-theme-primary outline-none focus:border-[#dd6668]"
+          aria-label="Analytics auto refresh interval"
+        >
+          {REFRESH_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>Auto {option.label}</option>
+          ))}
+        </select>
+        <Button
+          variant="outline"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+      </div>
+    </div>
+  );
+
+  if (isPending) {
+    return (
+      <div className="px-6 py-8 overflow-y-auto h-full">
+        <Header />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {[1, 2, 3].map(i => (
+            <Skeleton key={i} className="h-[130px]" />
+          ))}
+        </div>
+        <Skeleton className="h-[320px] mb-6" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-[280px]" />
+          <Skeleton className="h-[280px]" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="px-6 py-8 overflow-y-auto h-full">
+        <Header />
+        <div className="bg-red-500/10 border border-red-500/20 text-red-300 rounded-xl p-4 flex items-center space-x-3">
+          <AlertCircle className="w-5 h-5 text-red-400" />
+          <span>Failed to load analytics data. Please make sure the backend is running.</span>
+        </div>
+      </div>
+    );
+  }
+
+  const objectionData = Object.entries(data.objection_distribution).map(([name, value]) => ({
     name: name.replace('_', ' ').toUpperCase(),
     rawName: name,
     value,
@@ -50,6 +109,11 @@ export default function AnalyticsDashboard() {
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2 text-sm text-theme-primary">
               <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color || entry.fill }} />
+        <div className="bg-theme-surface-solid border border-theme-border rounded-lg p-3 shadow-lg z-50 relative">
+          {label && <p className="text-xs font-sans font-medium tracking-widest uppercase text-theme-muted mb-1">{label}</p>}
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center space-x-2 text-sm font-sans font-light text-theme-primary">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.fill }} />
               <span>{entry.name}: {entry.value}</span>
             </div>
           ))}
@@ -122,6 +186,7 @@ export default function AnalyticsDashboard() {
 
   return (
     <div className="h-full overflow-y-auto px-6 py-8 bg-transparent">
+    <div className="px-6 py-8 overflow-y-auto h-full bg-transparent">
       <Header />
 
       <motion.div
@@ -205,6 +270,45 @@ export default function AnalyticsDashboard() {
       <div className="grid grid-cols-1 gap-6 pb-12 lg:grid-cols-2">
         <ChartCard title="Persona Distribution" subtitle="Soft-glow donut with pastel palette." size="large">
           <div className="h-[250px] w-full">
+        <div className="mb-6 rounded-2xl border border-theme-border bg-theme-surface p-8 text-center shadow-lg">
+          <Brain className="mx-auto mb-3 h-8 w-8 text-[#dd6668]" />
+          <h3 className="font-display text-lg text-theme-primary">No analytics events yet</h3>
+          <p className="mt-1 text-sm font-light text-theme-muted">Conversation telemetry will appear here after live chat sessions are recorded.</p>
+        </div>
+      )}
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-theme-surface backdrop-blur-md border border-theme-border rounded-2xl p-6 mb-6 shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+      >
+        <h3 className="text-lg font-display font-normal text-theme-primary mb-4">Objection Distribution</h3>
+        <div className="w-full h-[280px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={objectionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748B', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748B', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(15,23,42,0.02)' }} />
+              <Bar dataKey="value" radius={[4, 4, 0, 0]} animationDuration={600} isAnimationActive={true}>
+                {objectionData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={OBJECTION_COLORS[entry.rawName] || OBJECTION_COLORS['neutral']} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-theme-surface backdrop-blur-md border border-theme-border rounded-2xl p-6 shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+        >
+          <h3 className="text-lg font-display font-normal text-theme-primary mb-4">Persona Distribution</h3>
+          <div className="w-full h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <defs>
@@ -237,6 +341,7 @@ export default function AnalyticsDashboard() {
                   iconType="circle"
                   wrapperStyle={{ fontSize: '12px', color: '#7b8796', fontWeight: 600 }}
                 />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#64748B', fontFamily: 'DM Sans' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -261,6 +366,22 @@ export default function AnalyticsDashboard() {
                   tick={{ fontSize: 10, fill: '#7b8796', fontWeight: 600 }}
                   tickLine={false}
                   axisLine={false}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-theme-surface backdrop-blur-md border border-theme-border rounded-2xl p-6 shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+        >
+          <h3 className="text-lg font-display font-normal text-theme-primary mb-4">Sentiment Trend</h3>
+          <div className="w-full h-[240px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.sentiment_trend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(15,23,42,0.08)" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 10, fill: '#64748B', fontFamily: 'DM Sans' }} 
+                  tickLine={false} 
+                  axisLine={false} 
                   tickFormatter={(val) => {
                     const d = new Date(val);
                     return `${d.getMonth() + 1}/${d.getDate()}`;
@@ -277,6 +398,12 @@ export default function AnalyticsDashboard() {
                   iconType="circle"
                   wrapperStyle={{ fontSize: '11px', paddingTop: '10px', fontWeight: 600, color: '#7b8796' }}
                 />
+                <YAxis tick={{ fontSize: 10, fill: '#64748B', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Line type="monotone" dataKey="positive" name="Positive" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} animationDuration={1000} />
+                <Line type="monotone" dataKey="neutral" name="Neutral" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} animationDuration={1000} />
+                <Line type="monotone" dataKey="negative" name="Negative" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} animationDuration={1000} />
+                <Legend verticalAlign="bottom" height={20} iconType="rect" wrapperStyle={{ fontSize: '11px', paddingTop: '10px', fontFamily: 'DM Sans', color: '#64748B' }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

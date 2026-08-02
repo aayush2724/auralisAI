@@ -5,7 +5,7 @@ import ChatPanel from '../components/chat/ChatPanel';
 import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';
 import ABTestPanel from '../components/ab/ABTestPanel';
 import KnowledgeBasePanel from '../components/kb/KnowledgeBasePanel';
-import DashboardShell from '../components/layout/DashboardShell';
+import AmbientBackground from '../components/ui/AmbientBackground';
 
 const DashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('chat');
@@ -39,19 +39,24 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <DashboardShell
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      sessionId={sessionId}
-      sidebarOpen={sidebarOpen}
-      setSidebarOpen={setSidebarOpen}
-      role={role}
-    >
-      <div className="h-full overflow-hidden">
-        {renderContent()}
+    <div className="min-h-screen light-shell relative overflow-hidden bg-theme-bg text-theme-primary font-sans">
+      <AmbientBackground />
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          sessionId={sessionId}
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          role={role}
+        />
+        <main className="lg:ml-[240px] h-screen flex flex-col pt-16 lg:pt-0 overflow-hidden relative z-10">
+          {renderContent()}
+        </main>
       </div>
-    </DashboardShell>
+    </div>
   );
 };
 
 export default DashboardPage;
+

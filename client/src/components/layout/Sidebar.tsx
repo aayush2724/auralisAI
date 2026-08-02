@@ -42,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
     <>
       <button
         onClick={onToggle}
-        className="fixed left-4 top-4 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full border border-theme-border bg-theme-surface-solid text-theme-primary shadow-[0_10px_30px_rgba(16,32,51,0.12)] backdrop-blur-xl lg:hidden"
+        className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-theme-surface-solid border border-theme-border shadow-md text-theme-primary hover:bg-theme-border transition-colors"
         aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
       >
         <Menu className="h-5 w-5" />
@@ -63,21 +63,19 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
       </AnimatePresence>
 
       <aside
-        className={`fixed left-0 top-0 z-40 flex h-screen w-[300px] -translate-x-full flex-col justify-between border-r border-theme-border bg-white/55 px-5 py-6 shadow-[28px_0_80px_rgba(16,32,51,0.10)] backdrop-blur-2xl transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : ''}`}
+        className={`fixed left-0 top-0 h-screen w-[240px] border-r border-theme-border bg-white/90 backdrop-blur-md shadow-md flex flex-col justify-between z-40 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
         role="navigation"
         aria-label="Dashboard navigation"
       >
-        <div className="space-y-8">
-          <div className="space-y-4 px-2">
-            <div className="flex items-start gap-3">
-              <div className="flex flex-col">
-                <span className="text-[34px] font-semibold tracking-[-0.05em] text-theme-primary leading-none">Auralis</span>
-                <span className="mt-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-theme-muted">default tenant</span>
-              </div>
-              <div className="mt-2 h-3 w-3 rounded-full bg-[#4f46e5] shadow-[0_0_18px_rgba(79,70,229,0.7)]" aria-hidden="true" />
+        <div>
+          <div className="p-6 flex flex-col space-y-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-xl font-logo font-bold text-theme-primary tracking-tight">Auralis</span>
+              <div className="w-2 h-2 rounded-full bg-[#dd6668] shadow-[0_0_8px_rgba(221,102,104,0.5)] animate-blink" aria-hidden="true"></div>
             </div>
-            <div className="w-fit rounded-full border border-theme-border bg-white/50 px-3 py-1 text-[11px] font-medium text-theme-secondary shadow-sm">
-              Live session
+            <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-theme-border border border-theme-border-strong w-fit">
+              <Building2 className="w-3 h-3 text-[#dd6668]" />
+              <span className="text-[11px] font-mono text-theme-muted font-semibold">default_tenant</span>
             </div>
           </div>
 
@@ -88,46 +86,43 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
 
               return (
                 <button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.id as Tab)}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`relative flex w-full items-center gap-4 rounded-[24px] px-4 py-4 text-left transition-all duration-200 ${
-                    isActive
-                      ? 'bg-white/75 text-theme-primary shadow-[0_12px_32px_rgba(79,70,229,0.14)] ring-1 ring-white/70'
-                      : 'text-theme-secondary hover:bg-white/45 hover:text-theme-primary'
-                  }`}
+                   key={item.id}
+                   onClick={() => handleNavClick(item.id as Tab)}
+                   aria-current={isActive ? 'page' : undefined}
+                   className={`relative w-full flex items-center px-3.5 py-2.5 rounded-lg transition-all font-sans text-sm z-10 ${
+                     isActive
+                       ? 'text-theme-primary font-semibold'
+                       : 'text-theme-muted font-medium hover:bg-theme-border hover:text-theme-primary'
+                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="sidebar-pill"
-                      className="absolute inset-0 rounded-[24px] border border-white/80 bg-gradient-to-r from-[rgba(79,70,229,0.14)] to-[rgba(13,148,136,0.10)] shadow-[0_0_24px_rgba(79,70,229,0.12)]"
-                      transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                      className="absolute inset-0 bg-gradient-to-r from-[rgba(221,102,104,0.12)] to-[rgba(244,162,97,0.12)] border border-theme-border-strong rounded-lg z-0 shadow-[0_0_12px_rgba(221,102,104,0.15)]"
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />
                   )}
-                  <IconCircle
-                    icon={Icon}
-                    variant={isActive ? 'primary' : 'neutral'}
-                    className="relative z-10 h-11 w-11"
-                    iconClassName={isActive ? 'text-[#4f46e5]' : 'text-theme-muted'}
-                  />
-                  <span className="relative z-10 text-sm font-semibold tracking-tight">{item.label}</span>
+                  <div className="relative z-10 flex items-center space-x-3">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#dd6668]' : 'text-theme-muted'}`} aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </div>
                 </button>
               );
             })}
           </nav>
         </div>
 
-        <div className="space-y-4 border-t border-theme-border pt-5">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-theme-muted">Session</span>
-            <span className="rounded-full border border-theme-border bg-white/65 px-3 py-1 text-[11px] font-medium text-theme-primary shadow-sm">
+        <div className="p-4 border-t border-theme-border bg-slate-50/50">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <span className="text-[11px] font-sans font-semibold text-theme-muted uppercase tracking-wider">Session</span>
+            <span className="text-xs font-mono text-theme-primary bg-theme-bg border border-theme-border px-2 py-0.5 rounded font-medium shadow-xs">
               {sessionId.slice(0, 8)}
             </span>
           </div>
           <Button
             variant="secondary"
             onClick={handleLogout}
-            className="w-full justify-center py-3"
+            className="w-full flex items-center justify-center space-x-2 py-2 px-3 text-theme-muted hover:text-theme-primary hover:bg-theme-border border border-transparent hover:border-theme-border no-underline transition-all"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
             <span>Logout</span>

@@ -324,13 +324,25 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
                         <Sparkles className="h-5 w-5 text-[#0D9488]" />
                       </span>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-theme-primary">Try a suggestion</p>
+                        <p className="text-sm font-semibold text-theme-primary">New here? Start with one of these</p>
                         <p className="mt-1 text-sm leading-6 text-theme-secondary">
-                          Ask about pricing objections, competitor comparisons, or when to hand off to a human rep.
+                          See what Auralis can actually do — no setup needed, just ask.
                         </p>
                         <div className="mt-4 flex flex-wrap gap-2">
-                          {['Handle a price objection', 'Compare with a competitor', 'When should I hand off?'].map((item) => (
-                            <button key={item} type="button" className="rounded-full border border-theme-border bg-white/60 px-4 py-2 text-xs font-medium text-theme-primary transition-all hover:-translate-y-0.5 hover:shadow-sm">
+                          {[
+                            "Why are you 2x more expensive than [Competitor]?",
+                            "How do I know our data is safe with you?",
+                            "We don't have engineering bandwidth to integrate right now."
+                          ].map((item) => (
+                            <button 
+                              key={item} 
+                              type="button" 
+                              onClick={() => {
+                                setInput('');
+                                sendMessage(item);
+                              }}
+                              className="rounded-full border border-theme-border bg-white/60 px-4 py-2 text-xs font-medium text-theme-primary transition-all hover:-translate-y-0.5 hover:shadow-sm"
+                            >
                               {item}
                             </button>
                           ))}

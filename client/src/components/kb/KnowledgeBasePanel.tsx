@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Database, Layers, Clock, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useKBStats, useIngestFiles, useResetKB } from '../../api/hooks/useKnowledgeBase';
 import { useCountUp } from '../../hooks/useCountUp';
 import FileDropzone from './FileDropzone';
@@ -105,29 +105,27 @@ export default function KnowledgeBasePanel() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+            className="neo-inset rounded-[40px] py-4 px-6 flex flex-col items-center justify-center text-center shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),_inset_-2px_-2px_6px_rgba(255,255,255,0.7)]"
           >
-            <Database className="w-6 h-6 text-[#dd6668] mb-2" />
-            <p className="text-xl font-display font-normal text-theme-primary">{Math.round(docCount)}</p>
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mt-1">Total Documents</p>
+            <p className="text-3xl font-display font-medium text-[#1e293b]">{Math.round(docCount)}</p>
+            <p className="text-[11px] font-sans font-bold uppercase tracking-[0.2em] text-[#64748b] mt-1">Total Documents</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-            className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+            className="neo-inset rounded-[40px] py-4 px-6 flex flex-col items-center justify-center text-center shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),_inset_-2px_-2px_6px_rgba(255,255,255,0.7)]"
           >
-            <Layers className="w-6 h-6 text-[#dd6668] mb-2" />
-            <p className="text-xl font-display font-normal text-theme-primary">{Math.round(chunkCount)}</p>
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mt-1">Total Chunks</p>
+            <p className="text-3xl font-display font-medium text-[#1e293b]">{Math.round(chunkCount)}</p>
+            <p className="text-[11px] font-sans font-bold uppercase tracking-[0.2em] text-[#64748b] mt-1">Total Chunks</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+            className="bg-[#1e293b] rounded-[40px] py-4 px-6 flex flex-col items-center justify-center text-center shadow-[0_10px_20px_rgba(30,41,59,0.3)] relative overflow-hidden"
           >
-            <Clock className="w-6 h-6 text-[#dd6668] mb-2" />
-            <p className="text-sm font-sans font-medium text-theme-primary truncate w-full px-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent" />
+            <p className="text-3xl font-sans font-normal text-white truncate w-full px-2 relative z-10 tracking-tight">
               {stats.last_updated ? new Date(stats.last_updated).toLocaleDateString() : 'Never'}
             </p>
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mt-1">Last Updated</p>
+            <p className="text-[11px] font-sans font-light uppercase tracking-[0.2em] text-slate-300 mt-1 relative z-10">Last Updated</p>
           </motion.div>
         </div>
       )}

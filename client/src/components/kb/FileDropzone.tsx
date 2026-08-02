@@ -2,7 +2,6 @@ import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UploadCloud, FileText, FileSpreadsheet, FileCode, X, Loader2, Check } from 'lucide-react';
 import type { KBIngestResponse } from '../../types/api';
-import { Button } from '../ui/Button';
 
 interface FileDropzoneProps {
   onIngest: (files: File[]) => void;
@@ -63,7 +62,7 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
 
   const getFileIcon = (filename: string) => {
     const ext = filename.toLowerCase().split('.').pop();
-    if (ext === 'csv') return <FileSpreadsheet className="w-5 h-5 text-[#dd6668]" />;
+    if (ext === 'csv') return <FileSpreadsheet className="w-5 h-5 text-[#4F46E5]" />;
     if (ext === 'md') return <FileCode className="w-5 h-5 text-[#94A3B8]" />;
     return <FileText className="w-5 h-5 text-[#4F46E5]" />;
   };
@@ -93,15 +92,34 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 rounded-2xl p-6 sm:p-12 cursor-pointer flex flex-col items-center justify-center transition-colors ${
-          isDragging 
-            ? 'border-[#dd6668] bg-slate-900/[0.04] border-solid' 
-            : 'border-theme-border bg-theme-surface hover:bg-slate-900/[0.024] border-dashed text-theme-primary'
+        className={`neo-inset rounded-[40px] px-8 py-20 cursor-pointer flex flex-col items-center justify-center transition-colors shadow-[inset_4px_4px_10px_rgba(0,0,0,0.05),_inset_-4px_-4px_10px_rgba(255,255,255,0.7)] mb-4 ${
+          isDragging ? 'bg-slate-900/[0.04]' : 'hover:bg-slate-900/[0.024]'
         }`}
       >
-        <UploadCloud className="w-12 h-12 text-[#dd6668] mb-4" />
-        <p className="text-sm font-sans font-light text-theme-muted">Drop PDF, CSV, or Markdown files here</p>
-        <p className="text-xs font-sans font-medium text-[#dd6668] underline mt-1">or click to browse</p>
+        <div className="relative mb-6">
+           <UploadCloud className="w-16 h-16 text-white absolute inset-0 blur-[6px] opacity-70 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+           <UploadCloud className="w-16 h-16 text-white relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]" />
+        </div>
+        <h2 className="text-4xl font-display font-medium text-[#1e293b] mb-3">Knowledge Base</h2>
+        <p className="text-[11px] font-sans font-bold uppercase tracking-[0.2em] text-[#64748b] mb-8 text-center max-w-md leading-relaxed">
+          Drop PDF, CSV, or MD files here <br/><span className="underline underline-offset-4 cursor-pointer">Click to Browse</span>
+        </p>
+
+        <button
+          onClick={(e) => { e.stopPropagation(); handleIngestClick(); }}
+          disabled={files.length === 0 || isIngesting}
+          className={`neo-card rounded-full bg-[#1e293b] px-10 py-3.5 text-white text-sm font-sans font-medium transition-transform hover:-translate-y-0.5 active:translate-y-0 shadow-[0_10px_20px_rgba(30,41,59,0.3)] disabled:opacity-50 disabled:cursor-not-allowed z-20 ${
+            isSuccess ? 'bg-emerald-600' : ''
+          }`}
+        >
+          {isIngesting ? (
+            <div className="flex items-center space-x-2"><Loader2 className="w-4 h-4 animate-spin" /><span>Ingesting...</span></div>
+          ) : isSuccess && successData ? (
+            <div className="flex items-center space-x-2"><Check className="w-4 h-4" /><span>{successData.chunks_added} chunks added</span></div>
+          ) : (
+            <span>Ingest Files {files.length > 0 ? `(${files.length})` : ''}</span>
+          )}
+        </button>
       </motion.div>
 
       <div className="mt-6">
@@ -112,7 +130,7 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
               initial={{ opacity: 0, height: 0, marginBottom: 0 }}
               animate={{ opacity: 1, height: 'auto', marginBottom: 8 }}
               exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-              className="flex items-center justify-between bg-theme-surface border border-theme-border rounded-xl p-3 overflow-hidden"
+              className="flex items-center justify-between neo-inset rounded-[40px] p-3 overflow-hidden"
             >
               <div className="flex items-center space-x-3 truncate pr-4">
                 {getFileIcon(file.name)}
@@ -138,30 +156,7 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
         </div>
       )}
 
-      <div className="mt-6 flex justify-end">
-        <Button
-          variant="primary"
-          onClick={handleIngestClick}
-          disabled={files.length === 0 || isIngesting}
-          className={`flex items-center justify-center space-x-2 ${
-            isSuccess ? 'bg-emerald-500 hover:bg-emerald-600' : ''
-          }`}
-        >
-          {isIngesting ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Ingesting...</span>
-            </>
-          ) : isSuccess && successData ? (
-            <>
-              <Check className="w-5 h-5" />
-              <span>{successData.chunks_added} chunks added</span>
-            </>
-          ) : (
-            <span>Ingest Files ({files.length})</span>
-          )}
-        </Button>
-      </div>
+
     </div>
   );
 }

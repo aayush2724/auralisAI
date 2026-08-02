@@ -28,24 +28,25 @@ export default function MetricCard({ label, value, suffix, icon: Icon, color }: 
     <motion.div 
       ref={ref}
       variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-      whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(221,102,104,0.15)" }}
+      whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(99,102,241,0.15)" }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="bg-white border border-[#f9fafb] rounded-2xl p-5 shadow-sm [.light-shell_&]:bg-theme-surface [.light-shell_&]:backdrop-blur [.light-shell_&]:border-theme-border [.light-shell_&]:shadow-[0_8px_30px_rgba(15,23,42,0.04)]"
+      className="neo-card relative overflow-hidden px-8 py-5 rounded-[40px] flex items-center min-h-[110px]"
     >
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="text-3xl font-display font-normal text-[#0a0a0a] [.light-shell_&]:text-theme-primary flex items-baseline space-x-1 tracking-tight">
+      <div className={`absolute -right-8 -bottom-8 w-40 h-40 rounded-full blur-[40px] opacity-30 pointer-events-none 
+        ${color === 'indigo' ? 'bg-indigo-400' : 
+          color === 'green' ? 'bg-teal-400' : 
+          'bg-orange-400'}
+      `} />
+      <div className="flex justify-between items-center w-full relative z-10">
+        <div className="flex flex-col justify-center">
+          <div className="text-4xl font-display font-medium text-[#1e293b] [.light-shell_&]:text-theme-primary flex items-baseline tracking-tighter mb-1">
             <span>{displayValue}</span>
-            {suffix && <span className="text-sm font-sans font-light text-[#6b7280] [.light-shell_&]:text-theme-muted">{suffix}</span>}
+            {suffix && <span className="text-xl font-sans font-light text-[#64748b] [.light-shell_&]:text-theme-muted ml-1">{suffix}</span>}
           </div>
-          <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#6b7280] [.light-shell_&]:text-theme-muted mt-1">{label}</p>
+          <p className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#64748b] [.light-shell_&]:text-theme-muted">{label}</p>
         </div>
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center border
-          ${color === '[#dd6668]' ? 'bg-[#dd6668]/10 text-[#dd6668] border-[#dd6668]/20' : 
-            color === 'green' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
-            'bg-purple-500/10 text-purple-400 border-purple-500/20'}
-        `}>
-          <Icon className="w-5 h-5" />
+        <div className="w-12 h-12 rounded-full flex items-center justify-center neo-inset text-[#64748b] shrink-0">
+          <Icon className="w-5 h-5 opacity-80" />
         </div>
       </div>
     </motion.div>

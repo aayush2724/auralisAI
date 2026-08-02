@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, ChevronDown, ChevronUp, FileText, Gauge, Lightbulb, ShieldAlert, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { Mic, ChevronDown, ChevronUp, FileText, Gauge, Lightbulb, ShieldAlert, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChat } from '../../api/hooks/useChat';
@@ -81,7 +81,7 @@ function MessageAccordion({ title, icon: Icon, children, defaultOpen = false }: 
         {isOpen ? <ChevronUp className="h-4 w-4 text-theme-muted" /> : <ChevronDown className="h-4 w-4 text-theme-muted" />}
       </button>
       {isOpen && (
-        <div className="border-t border-theme-border px-3 py-3 text-xs text-theme-muted">
+        <div className="p-4 border-t border-theme-border/50 max-w-2xl mx-auto w-full relative z-10">
           {children}
         </div>
       )}
@@ -295,16 +295,31 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
                   className="flex flex-col items-center justify-center text-center py-12 relative"
                 >
                   {/* Glowing spec background halo */}
-                  <div className="absolute w-80 h-80 rounded-full bg-gradient-to-br from-[#dd6668] via-rose-400 to-orange-500 opacity-15 blur-[100px] animate-halo-pulse z-0 pointer-events-none" />
+                  <div className="absolute w-80 h-80 rounded-full bg-gradient-to-br from-[#4F46E5] via-rose-400 to-orange-500 opacity-15 blur-[100px] animate-halo-pulse z-0 pointer-events-none" />
                   
-                  {/* Hero Orb */}
-                  <div className="relative w-28 h-28 mb-8 z-10 animate-orb-breath">
-                    <div className="w-full h-full rounded-full bg-gradient-to-br from-[#dd6668] via-rose-400 to-orange-500 shadow-[0_0_30px_rgba(221,102,104,0.3)] border border-white/20" />
-                    {/* Specular highlight */}
-                    <div className="absolute top-3 left-3 w-7 h-7 rounded-full bg-white/40 blur-[2px]" />
+                  {/* Hero Orb & Floating Element */}
+                  <div className="relative w-full flex justify-center items-center mb-6 z-10">
+                    <div className="relative w-32 h-32 animate-orb-breath">
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-200 via-slate-100 to-sky-200 shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.1),_inset_10px_10px_20px_rgba(255,255,255,1),_0_20px_40px_rgba(79,70,229,0.2)]" />
+                      <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-sky-400/40 to-transparent blur-[2px]" />
+                      <div className="absolute inset-2 rounded-full bg-gradient-to-bl from-purple-400/40 to-transparent blur-[2px]" />
+                      <div className="absolute inset-[15%] rounded-full border border-white/40 shadow-[inset_0_0_15px_rgba(255,255,255,0.8)]" />
+                      <div className="absolute top-4 left-6 w-10 h-6 rounded-full bg-white opacity-80 blur-[2px] transform -rotate-45" />
+                    </div>
+                    {/* Floating Card */}
+                    <motion.div 
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5, type: 'spring' }}
+                      className="absolute right-0 lg:right-10 top-1/2 -translate-y-1/2 neo-card rounded-[24px] p-5 w-48 hidden md:block"
+                    >
+                      <p className="text-xs font-sans text-center text-[#1e293b] leading-relaxed">
+                        Send a message to it... <br /> (Test your AI)
+                      </p>
+                    </motion.div>
                   </div>
 
-                  <p className="text-sm font-sans font-light text-theme-muted tracking-wide mb-2 z-10">
+                  <p className="text-xs font-serif italic text-theme-muted tracking-wide mb-2 z-10">
                     Auralis Sales Assistant
                   </p>
                   <h2 className="text-3xl font-display font-normal text-theme-primary tracking-tight z-10">
@@ -377,17 +392,16 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
 
         {/* Gradient-border chat input bar */}
         <div className="absolute bottom-0 inset-x-0 bg-transparent p-3 sm:p-4 z-20">
-          <div className="max-w-3xl mx-auto relative">
+          <div className="max-w-4xl mx-auto relative">
             {wsError && (
               <div className="absolute -top-9 left-1/2 w-[min(92vw,42rem)] -translate-x-1/2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-300 font-medium">
                 {wsError}
               </div>
             )}
             
-            <div className="relative group">
-              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-[#dd6668] via-rose-400 to-orange-500 opacity-40 blur-md transition duration-500 group-hover:opacity-60" aria-hidden="true"></div>
-              <div className="relative p-[1.5px] rounded-2xl bg-gradient-to-r from-[#dd6668] via-rose-400 to-orange-500 flex items-end">
-                <div className="w-full flex items-end space-x-3 rounded-[15px] bg-white/95 backdrop-blur-md px-4 py-2.5">
+            <div className="relative group w-full">
+              <div className="relative p-1.5 rounded-[40px] neo-inset flex items-center shadow-[inset_4px_4px_8px_rgba(0,0,0,0.05),_inset_-4px_-4px_8px_rgba(255,255,255,0.7)]">
+                <div className="w-full flex items-center space-x-3 rounded-[32px] bg-transparent px-6 py-2">
                   <label htmlFor="chat-input" className="sr-only">Type your message</label>
                   <textarea
                     id="chat-input"
@@ -423,11 +437,14 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
                   <button
                     onClick={handleSubmit}
                     disabled={!input.trim() || isLoading}
-                    className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-[#dd6668] hover:bg-[#c45557] text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_10px_rgba(221,102,104,0.3)] hover:shadow-[0_0_15px_rgba(221,102,104,0.5)] active:scale-95 transition-all"
+                    className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white/40 hover:bg-white/60 text-theme-muted rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,0.8)] active:scale-95 transition-all"
                     type="button"
                     aria-label="Send message"
                   >
-                    <Send className="w-4 h-4" />
+                    <span className="sr-only">Send</span>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-slate-500 ml-1">
+                      <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z" fill="currentColor"/>
+                    </svg>
                   </button>
                 </div>
               </div>

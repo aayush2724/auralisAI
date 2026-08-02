@@ -23,18 +23,12 @@ export default function ABTestPanel() {
   const adaptiveConversionRate = data?.adaptive_conversion_rate ?? 0;
   const staticSessionCount = data?.sessions_per_variant.STATIC ?? 0;
   const adaptiveSessionCount = data?.sessions_per_variant.ADAPTIVE ?? 0;
-  const staticAvgConfidence = data?.static_avg_confidence ?? 0;
-  const adaptiveAvgConfidence = data?.adaptive_avg_confidence ?? 0;
   const improvementTarget = staticConversionRate > 0 
     ? (((adaptiveConversionRate - staticConversionRate) / staticConversionRate) * 100)
     : 0;
 
   const staticRate = useCountUp(staticConversionRate * 100, 1200, true);
   const adaptiveRate = useCountUp(adaptiveConversionRate * 100, 1200, true);
-  const staticSessions = useCountUp(staticSessionCount, 1200, true);
-  const adaptiveSessions = useCountUp(adaptiveSessionCount, 1200, true);
-  const staticConf = useCountUp(staticAvgConfidence * 100, 1200, true);
-  const adaptiveConf = useCountUp(adaptiveAvgConfidence * 100, 1200, true);
   const improvement = useCountUp(improvementTarget, 1200, true);
 
   const Header = () => (
@@ -44,7 +38,7 @@ export default function ABTestPanel() {
         <select
           value={refreshMs}
           onChange={(event) => setRefreshMs(Number(event.target.value))}
-          className="h-10 rounded-xl border border-theme-border bg-theme-surface-solid px-3 text-xs font-medium text-theme-primary outline-none focus:border-[#dd6668]"
+          className="h-10 rounded-xl border border-theme-border bg-theme-surface-solid px-3 text-xs font-medium text-theme-primary outline-none focus:border-[#4F46E5]"
           aria-label="A/B test auto refresh interval"
         >
           {REFRESH_OPTIONS.map((option) => (
@@ -113,7 +107,7 @@ export default function ABTestPanel() {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-theme-surface-solid border border-theme-border rounded-lg p-3 shadow-lg z-50 relative">
+        <div className="neo-card rounded-[24px] p-3 z-50 relative">
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center space-x-2 text-sm font-sans font-light text-theme-primary">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.fill }} />
@@ -131,7 +125,7 @@ export default function ABTestPanel() {
       <Header />
 
       {isEmpty && (
-        <div className="mb-6 rounded-2xl border border-theme-border bg-theme-surface p-8 text-center shadow-lg">
+        <div className="neo-card rounded-[24px] mb-6 p-8 text-center">
           <FlaskConical className="mx-auto mb-3 h-8 w-8 text-theme-muted" />
           <h3 className="font-display text-lg text-theme-primary">No A/B test sessions yet</h3>
           <p className="mt-1 text-sm font-light text-theme-muted">STATIC and ADAPTIVE performance will populate after conversations are logged.</p>
@@ -143,53 +137,33 @@ export default function ABTestPanel() {
         {/* STATIC Card */}
           <motion.div 
             variants={itemVariants}
-            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(221,102,104,0.12)" }}
+            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(79,70,229,0.12)" }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className={`bg-theme-surface border-2 rounded-2xl p-6 relative ${!adaptiveWins && totalSessions > 0 ? 'border-[#dd6668]' : 'border-theme-border'}`}
+            className={`neo-card rounded-[32px] p-8 flex flex-col relative ${!adaptiveWins && (data.sessions_per_variant.STATIC + data.sessions_per_variant.ADAPTIVE) > 0 ? 'border-[#4F46E5] border-2' : ''}`}
           >
-            {!adaptiveWins && totalSessions > 0 && <Crown className="absolute top-6 right-6 w-6 h-6 text-[#dd6668]" />}
-            <div className="text-xs font-sans font-medium tracking-widest uppercase text-theme-muted mb-2">STATIC</div>
-            <div className="flex items-start text-theme-primary mb-6">
-              <span className="text-6xl font-display font-normal tracking-tight">{staticRate.toFixed(1)}</span>
-              <span className="text-2xl font-sans font-light text-theme-muted mt-1">%</span>
+            {!adaptiveWins && (data.sessions_per_variant.STATIC + data.sessions_per_variant.ADAPTIVE) > 0 && <Crown className="absolute top-8 right-8 w-6 h-6 text-[#1e293b] opacity-20" />}
+            <span className="text-lg font-display font-medium text-[#1e293b] mb-4">Static</span>
+            <div className="flex items-baseline text-[#1e293b] [.light-shell_&]:text-theme-primary mb-2">
+              <span className="text-7xl font-display font-medium tracking-tighter">{staticRate.toFixed(1)}</span>
+              <span className="text-3xl font-sans font-light text-[#64748b] ml-1">%</span>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4 border-t border-theme-border pt-4">
-              <div>
-                <div className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Sessions</div>
-                <div className="text-lg font-display font-normal text-theme-primary">{Math.round(staticSessions)}</div>
-              </div>
-              <div>
-                <div className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Avg Confidence</div>
-                <div className="text-lg font-display font-normal text-theme-primary">{staticConf.toFixed(0)}%</div>
-              </div>
-            </div>
+            <span className="text-[11px] font-sans font-bold uppercase tracking-[0.2em] text-[#64748b]">Total Sessions</span>
           </motion.div>
 
           {/* ADAPTIVE Card */}
           <motion.div 
             variants={itemVariants}
-            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(221,102,104,0.15)" }}
+            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(79,70,229,0.15)" }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className={`bg-theme-surface border-2 rounded-2xl p-6 relative ${adaptiveWins ? 'border-[#dd6668] bg-[rgba(221,102,104,0.02)] shadow-[0_12px_40px_rgba(221,102,104,0.15)]' : 'border-theme-border'}`}
+            className={`neo-card rounded-[32px] p-8 flex flex-col relative ${adaptiveWins ? 'border-[#4F46E5] border-2 bg-transparent shadow-[0_12px_40px_rgba(79,70,229,0.15)]' : ''}`}
           >
-            {adaptiveWins && <Crown className="absolute top-6 right-6 w-6 h-6 text-[#dd6668]" />}
-            <div className="text-xs font-sans font-medium tracking-widest uppercase text-theme-muted mb-2">ADAPTIVE</div>
-            <div className="flex items-start text-theme-primary mb-6">
-              <span className="text-6xl font-display font-normal tracking-tight">{adaptiveRate.toFixed(1)}</span>
-              <span className="text-2xl font-sans font-light text-theme-muted mt-1">%</span>
+            {adaptiveWins && <Crown className="absolute top-8 right-8 w-6 h-6 text-[#1e293b] opacity-20" />}
+            <span className="text-lg font-display font-medium text-[#1e293b] mb-4">Adaptive</span>
+            <div className="flex items-baseline text-[#1e293b] [.light-shell_&]:text-theme-primary mb-2">
+              <span className="text-7xl font-display font-medium tracking-tighter">{adaptiveRate.toFixed(1)}</span>
+              <span className="text-3xl font-sans font-light text-[#64748b] ml-1">%</span>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4 border-t border-theme-border pt-4">
-              <div>
-                <div className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Sessions</div>
-                <div className="text-lg font-display font-normal text-theme-primary">{Math.round(adaptiveSessions)}</div>
-              </div>
-              <div>
-                <div className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Avg Confidence</div>
-                <div className="text-lg font-display font-normal text-theme-primary">{adaptiveConf.toFixed(0)}%</div>
-              </div>
-            </div>
+            <span className="text-[11px] font-sans font-bold uppercase tracking-[0.2em] text-[#64748b]">Conversion Rate</span>
           </motion.div>
       </div>
 
@@ -200,8 +174,8 @@ export default function ABTestPanel() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-            <div className="mb-6 bg-[rgba(221,102,104,0.05)] border border-theme-border-strong rounded-2xl px-6 py-4 flex items-center justify-center space-x-3 text-[#dd6668] font-medium shadow-md">
-              <ArrowUpRight className="w-5 h-5 text-[#dd6668]" />
+            <div className="mb-6 bg-[rgba(79,70,229,0.05)] border border-theme-border-strong rounded-2xl px-6 py-4 flex items-center justify-center space-x-3 text-theme-primary font-medium shadow-md">
+              <ArrowUpRight className="w-5 h-5 text-theme-primary" />
               <span>Adaptive is outperforming static by {improvement.toFixed(1)}%</span>
             </div>
         </motion.div>
@@ -213,7 +187,7 @@ export default function ABTestPanel() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-theme-surface border border-theme-border rounded-2xl p-6 shadow-lg flex flex-col"
+          className="neo-card rounded-[24px] p-6 flex flex-col"
         >
           <h3 className="text-lg font-display font-normal text-theme-primary mb-6">Conversion Comparison</h3>
           <div className="w-full h-[260px]">
@@ -226,8 +200,8 @@ export default function ABTestPanel() {
                 <Bar dataKey="STATIC" fill="rgba(15,23,42,0.1)" radius={[6, 6, 0, 0]} animationDuration={1500}>
                   <LabelList dataKey="STATIC" position="top" fill="#64748B" fontSize={12} formatter={(val: any) => `${val}%`} />
                 </Bar>
-                <Bar dataKey="ADAPTIVE" fill="#dd6668" radius={[6, 6, 0, 0]} animationDuration={1500}>
-                  <LabelList dataKey="ADAPTIVE" position="top" fill="#dd6668" fontSize={12} fontWeight={500} formatter={(val: any) => `${val}%`} />
+                <Bar dataKey="ADAPTIVE" fill="#1e293b" radius={[6, 6, 0, 0]} animationDuration={1500}>
+                  <LabelList dataKey="ADAPTIVE" position="top" fill="#1e293b" fontSize={12} fontWeight={500} formatter={(val: any) => `${val}%`} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -239,38 +213,34 @@ export default function ABTestPanel() {
           variants={gridVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-2 gap-4"
+          className="grid grid-cols-3 gap-3"
         >
-          {/* STATIC Column */}
-          <motion.div variants={itemVariants} className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Static Sessions</p>
-            <p className="text-xl font-display font-normal text-theme-primary">{data.sessions_per_variant.STATIC}</p>
+          {/* STATIC Row */}
+          <motion.div variants={itemVariants} className="neo-inset rounded-[24px] p-3 flex flex-col items-center justify-center text-center bg-white/30">
+            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#64748b] mb-1">Static Sess</p>
+            <p className="text-xl font-display font-medium text-[#1e293b]">{data.sessions_per_variant.STATIC}</p>
+          </motion.div>
+          <motion.div variants={itemVariants} className="neo-inset rounded-[24px] p-3 flex flex-col items-center justify-center text-center bg-white/30">
+            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#64748b] mb-1">Static Conv</p>
+            <p className="text-xl font-display font-medium text-[#1e293b]">{staticRate.toFixed(1)}%</p>
+          </motion.div>
+          <motion.div variants={itemVariants} className="neo-inset rounded-[24px] p-3 flex flex-col items-center justify-center text-center bg-white/30">
+            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#64748b] mb-1">Static Conf</p>
+            <p className="text-xl font-display font-medium text-[#1e293b]">{(data.static_avg_confidence * 100).toFixed(0)}%</p>
           </motion.div>
           
-          {/* ADAPTIVE Column */}
-          <motion.div variants={itemVariants} className="bg-[rgba(221,102,104,0.02)] border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#dd6668] mb-1">Adaptive Sessions</p>
-            <p className="text-xl font-display font-normal text-theme-primary">{data.sessions_per_variant.ADAPTIVE}</p>
+          {/* ADAPTIVE Row */}
+          <motion.div variants={itemVariants} className="neo-inset rounded-[24px] p-3 flex flex-col items-center justify-center text-center bg-white/30">
+            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#64748b] mb-1">Adapt Sess</p>
+            <p className="text-xl font-display font-medium text-[#1e293b]">{data.sessions_per_variant.ADAPTIVE}</p>
           </motion.div>
-
-          <motion.div variants={itemVariants} className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Static Conv.</p>
-            <p className="text-xl font-display font-normal text-theme-primary">{staticRate.toFixed(1)}%</p>
+          <motion.div variants={itemVariants} className="neo-inset rounded-[24px] p-3 flex flex-col items-center justify-center text-center bg-white/30">
+            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#64748b] mb-1">Adapt Conv</p>
+            <p className="text-xl font-display font-medium text-[#1e293b]">{adaptiveRate.toFixed(1)}%</p>
           </motion.div>
-
-          <motion.div variants={itemVariants} className="bg-[rgba(221,102,104,0.02)] border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#dd6668] mb-1">Adaptive Conv.</p>
-            <p className="text-xl font-display font-normal text-theme-primary">{adaptiveRate.toFixed(1)}%</p>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="bg-theme-surface border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-theme-muted mb-1">Static Conf.</p>
-            <p className="text-xl font-display font-normal text-theme-primary">{(data.static_avg_confidence * 100).toFixed(0)}%</p>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="bg-[rgba(221,102,104,0.02)] border border-[#dd6668]/20 rounded-xl p-4 flex flex-col items-center justify-center text-center shadow-sm">
-            <p className="text-xs font-sans font-medium uppercase tracking-widest text-[#dd6668] mb-1">Adaptive Conf.</p>
-            <p className="text-xl font-display font-normal text-theme-primary">{(data.adaptive_avg_confidence * 100).toFixed(0)}%</p>
+          <motion.div variants={itemVariants} className="neo-inset rounded-[24px] p-3 flex flex-col items-center justify-center text-center bg-white/30">
+            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#64748b] mb-1">Adapt Conf</p>
+            <p className="text-xl font-display font-medium text-[#1e293b]">{(data.adaptive_avg_confidence * 100).toFixed(0)}%</p>
           </motion.div>
         </motion.div>
       </div>

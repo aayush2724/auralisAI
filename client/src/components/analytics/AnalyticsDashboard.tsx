@@ -11,17 +11,8 @@ import MetricCard from './MetricCard';
 import Skeleton from '../ui/Skeleton';
 import { Button } from '../ui/Button';
 
-const OBJECTION_COLORS: Record<string, string> = {
-  price: '#ef4444',
-  trust: '#f97316',
-  timing: '#eab308',
-  competitor: '#22c55e',
-  fit: '#3b82f6',
-  buying_signal: '#a855f7',
-  neutral: '#6b7280',
-};
 
-const PIE_COLORS = ['#dd6668', '#f4a261', '#e87a7c', '#f8b4b4', '#e29578'];
+const PIE_COLORS = ['#4F46E5', '#0ea5e9', '#6366f1', '#38bdf8', '#818cf8'];
 const REFRESH_OPTIONS = [
   { label: 'Off', value: 0 },
   { label: '15s', value: 15000 },
@@ -40,7 +31,7 @@ export default function AnalyticsDashboard() {
         <select
           value={refreshMs}
           onChange={(event) => setRefreshMs(Number(event.target.value))}
-          className="h-10 rounded-xl border border-theme-border bg-theme-surface-solid px-3 text-xs font-medium text-theme-primary outline-none focus:border-[#dd6668]"
+          className="h-10 rounded-xl border border-theme-border bg-theme-surface-solid px-3 text-xs font-medium text-theme-primary outline-none focus:border-[#4F46E5]"
           aria-label="Analytics auto refresh interval"
         >
           {REFRESH_OPTIONS.map((option) => (
@@ -108,7 +99,7 @@ export default function AnalyticsDashboard() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-theme-surface-solid border border-theme-border rounded-lg p-3 shadow-lg z-50 relative">
+        <div className="neo-card p-3 z-50 relative rounded-[16px]">
           {label && <p className="text-xs font-sans font-medium tracking-widest uppercase text-theme-muted mb-1">{label}</p>}
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center space-x-2 text-sm font-sans font-light text-theme-primary">
@@ -136,7 +127,7 @@ export default function AnalyticsDashboard() {
           label="Total Sessions" 
           value={data.total_sessions} 
           icon={Users} 
-          color="[#dd6668]" 
+          color="indigo" 
         />
         <MetricCard 
           label="Conversion Rate" 
@@ -155,8 +146,8 @@ export default function AnalyticsDashboard() {
       </motion.div>
 
       {isEmpty && (
-        <div className="mb-6 rounded-2xl border border-theme-border bg-theme-surface p-8 text-center shadow-lg">
-          <Brain className="mx-auto mb-3 h-8 w-8 text-[#dd6668]" />
+        <div className="neo-card mb-6 p-8 text-center rounded-[24px]">
+          <Brain className="mx-auto mb-3 h-8 w-8 text-[#4F46E5]" />
           <h3 className="font-display text-lg text-theme-primary">No analytics events yet</h3>
           <p className="mt-1 text-sm font-light text-theme-muted">Conversation telemetry will appear here after live chat sessions are recorded.</p>
         </div>
@@ -166,7 +157,7 @@ export default function AnalyticsDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-theme-surface backdrop-blur-md border border-theme-border rounded-2xl p-6 mb-6 shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+        className="neo-card bg-liquid-texture p-6 mb-6 rounded-[24px] hover:-translate-y-1 transition-transform duration-300"
       >
         <h3 className="text-lg font-display font-normal text-theme-primary mb-4">Objection Distribution</h3>
         <div className="w-full h-[280px]">
@@ -175,9 +166,9 @@ export default function AnalyticsDashboard() {
               <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748B', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
               <YAxis tick={{ fontSize: 10, fill: '#64748B', fontFamily: 'DM Sans' }} tickLine={false} axisLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(15,23,42,0.02)' }} />
-              <Bar dataKey="value" radius={[4, 4, 0, 0]} animationDuration={600} isAnimationActive={true}>
-                {objectionData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={OBJECTION_COLORS[entry.rawName] || OBJECTION_COLORS['neutral']} />
+              <Bar dataKey="value" radius={[8, 8, 0, 0]} animationDuration={600} isAnimationActive={true}>
+                {objectionData.map((_entry, index) => (
+                  <Cell key={`cell-${index}`} fill="#1e293b" />
                 ))}
               </Bar>
             </BarChart>
@@ -190,7 +181,7 @@ export default function AnalyticsDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-theme-surface backdrop-blur-md border border-theme-border rounded-2xl p-6 shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+          className="neo-card p-6 rounded-[24px] hover:-translate-y-1 transition-transform duration-300"
         >
           <h3 className="text-lg font-display font-normal text-theme-primary mb-4">Persona Distribution</h3>
           <div className="w-full h-[240px]">
@@ -222,7 +213,7 @@ export default function AnalyticsDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-theme-surface backdrop-blur-md border border-theme-border rounded-2xl p-6 shadow-lg hover:shadow-[0_8px_30px_rgba(221,102,104,0.12)] hover:-translate-y-1 transition-all duration-300"
+          className="neo-card p-6 rounded-[24px] hover:-translate-y-1 transition-transform duration-300"
         >
           <h3 className="text-lg font-display font-normal text-theme-primary mb-4">Sentiment Trend</h3>
           <div className="w-full h-[240px]">

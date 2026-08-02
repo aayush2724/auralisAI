@@ -14,12 +14,12 @@
 html { scroll-behavior: smooth; }
 
 .light-shell {
-  --theme-bg:            #F8FAFC;   /* slate-50 background */
-  --theme-surface:       rgba(255, 255, 255, 0.7);  /* glassmorphic light surface */
-  --theme-surface-solid: #FFFFFF;   /* solid card fill */
-  --theme-border:        rgba(15, 23, 42, 0.08);   /* slate-900 border with low opacity */
-  --theme-border-strong: rgba(15, 23, 42, 0.15);   /* stronger slate-900 border */
-  --text-primary:        #0F172A;   /* slate-900 */
+  --theme-bg:            #e8f0f8;   /* Light icy bluish-grey background */
+  --theme-surface:       rgba(255, 255, 255, 0.25);  /* Glassmorphic light surface */
+  --theme-surface-solid: rgba(255, 255, 255, 0.4);   /* Slightly more opaque glass */
+  --theme-border:        rgba(255, 255, 255, 0.18);   /* White glass border */
+  --theme-border-strong: rgba(255, 255, 255, 0.3);   /* Stronger white border */
+  --text-primary:        #1f2937;   /* Dark text */
   --text-muted:          #64748B;   /* slate-500 */
   --brand-teal:          #0D9488;
   --brand-indigo:        #4F46E5;
@@ -62,4 +62,41 @@ html { scroll-behavior: smooth; }
 }
 
 
+/* Glassmorphism Utility Classes */
+.glass-panel {
+    background: var(--theme-surface);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10.6px);
+    -webkit-backdrop-filter: blur(10.6px);
+    border: 1px solid var(--theme-border);
+    border-radius: 16px;
+}
 
+.glass-card {
+    background: var(--theme-surface);
+    border-radius: 12px;
+    border: 1px solid var(--theme-border);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 4px 20px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(10.6px);
+    -webkit-backdrop-filter: blur(10.6px);
+}
+
+/* Advanced Neumorphism + Glassmorphism Classes */
+.neo-card {
+    background: var(--theme-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: -5px -5px 15px rgba(255, 255, 255, 0.9), 5px 5px 15px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.neo-inset {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.08), inset -4px -4px 10px rgba(255, 255, 255, 1);
+}
+
+.bg-liquid-texture {
+    background-color: rgba(255,255,255,0.1);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.005' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+}

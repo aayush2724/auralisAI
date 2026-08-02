@@ -430,6 +430,7 @@ def generate_node(state: GraphState) -> dict[str, Any]:
 
     # Build the specialised user-turn prompt via the strategy router
     user_prompt = get_strategy_prompt(state)
+    logger.info("[DEBUG generate_node] FULL RENDERED PROMPT:\n%s", user_prompt)
 
     llm = _get_llm()
     # pyrefly: ignore [missing-import]

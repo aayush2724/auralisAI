@@ -1,20 +1,14 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, FileSpreadsheet, FileCode, X, Loader2, Check, CloudUpload } from 'lucide-react';
-import type { KBIngestResponse } from '../../types/api';
-import { Button } from '../ui/Button';
-import IconCircle from '../ui/IconCircle';
-import UploadPanel from '../ui/UploadPanel';
+import { FileText, FileSpreadsheet, FileCode, X, CloudUpload } from 'lucide-react';
+
 
 interface FileDropzoneProps {
   onIngest: (files: File[]) => void;
-  isIngesting: boolean;
-  isSuccess: boolean;
   error: string | null;
-  successData?: KBIngestResponse;
 }
 
-export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, successData }: FileDropzoneProps) {
+export default function FileDropzone({ onIngest, error }: FileDropzoneProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,14 +49,6 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleIngestClick = () => {
-    if (files.length > 0) {
-      onIngest(files);
-      // Optional: empty files list if we want it to clear on ingest
-      // setFiles([]); 
-    }
-  };
-
   const getFileIcon = (filename: string) => {
     const ext = filename.toLowerCase().split('.').pop();
     if (ext === 'csv') return <FileSpreadsheet className="w-5 h-5 text-[#dd6668]" />;
@@ -101,7 +87,7 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
             : 'border-theme-border bg-theme-surface hover:bg-slate-900/[0.024] border-dashed text-theme-primary'
         }`}
       >
-        <UploadCloud className="w-12 h-12 text-[#dd6668] mb-4" />
+        <CloudUpload className="w-12 h-12 text-[#dd6668] mb-4" />
         <p className="text-sm font-sans font-light text-theme-muted">Drop PDF, CSV, or Markdown files here</p>
         <p className="text-xs font-sans font-medium text-[#dd6668] underline mt-1">or click to browse</p>
       </motion.div>
@@ -134,13 +120,25 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
         </AnimatePresence>
       </div>
 
+      {files.length > 0 && (
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={() => {
+              onIngest(files);
+              setFiles([]);
+            }}
+            className="px-6 py-2 bg-[#dd6668] text-white rounded-xl hover:bg-[#c45557] font-medium transition-colors"
+          >
+            Upload Files
+          </button>
+        </div>
+      )}
+
       {error && (
         <div className="mt-4 text-sm text-red-300 bg-red-500/10 px-4 py-2 rounded-lg border border-red-500/20">
           {error}
         </div>
       )}
-
-
     </div>
   );
 }

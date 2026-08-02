@@ -1,9 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu } from 'lucide-react';
+import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu, Building2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
-import IconCircle from '../ui/IconCircle';
 
 export type Tab = 'chat' | 'analytics' | 'ab' | 'kb';
 

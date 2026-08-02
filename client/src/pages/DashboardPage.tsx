@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { type Tab } from '../components/layout/Sidebar';
+import Sidebar, { type Tab } from '../components/layout/Sidebar';
 import { useAuthStore } from '../store/authStore';
 import ChatPanel from '../components/chat/ChatPanel';
 import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';

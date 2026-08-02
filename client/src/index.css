@@ -185,8 +185,6 @@ html { scroll-behavior: smooth; }
   .animate-glow {
     animation: glow-pulse 2.8s ease-in-out infinite;
   }
-}
-
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;

@@ -19,6 +19,7 @@ import os
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
@@ -132,6 +133,28 @@ async def kb_ingest(
 
 # ─── GET /kb/stats ───────────────────────────────────────────────────────────
 
+
+@router.get(
+    "/debug/chunks",
+    summary="Temporary debug endpoint to dump chunks.",
+    description="Returns all stored chunks for kb-demo-reference-sheet without auth.",
+)
+async def kb_debug_chunks() -> list[dict[str, Any]]:
+    try:
+        from src.rag.retriever import _get_vectorstore
+        vs = _get_vectorstore()
+        chunks = []
+        for doc_id, doc in vs.docstore._dict.items():
+            if "kb-demo-reference-sheet" in str(doc.metadata.get("source_file", "")):
+                chunks.append({
+                    "chunk_id": doc_id,
+                    "metadata": doc.metadata,
+                    "content": doc.page_content
+                })
+        return chunks
+    except Exception as e:
+        logger.exception("Debug chunks failed")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get(
     "/stats",

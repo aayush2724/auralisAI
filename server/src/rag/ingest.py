@@ -53,8 +53,8 @@ logger = logging.getLogger("auralis.ingest")
 
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/gemini-embedding-001")
 VECTORSTORE_PATH = Path(os.getenv("VECTORSTORE_PATH", "vectorstore"))
-CHUNK_SIZE = 512  # tokens (approx. characters / 4)
-CHUNK_OVERLAP = 64
+CHUNK_SIZE = 128  # tokens (~512 characters) — smaller chunks for better topic separation on short docs
+CHUNK_OVERLAP = 24  # ~96 characters
 
 # ─── Document loaders ─────────────────────────────────────────────────────────
 

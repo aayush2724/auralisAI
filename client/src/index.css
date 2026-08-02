@@ -13,4 +13,53 @@
 
 html { scroll-behavior: smooth; }
 
+.light-shell {
+  --theme-bg:            #F8FAFC;   /* slate-50 background */
+  --theme-surface:       rgba(255, 255, 255, 0.7);  /* glassmorphic light surface */
+  --theme-surface-solid: #FFFFFF;   /* solid card fill */
+  --theme-border:        rgba(15, 23, 42, 0.08);   /* slate-900 border with low opacity */
+  --theme-border-strong: rgba(15, 23, 42, 0.15);   /* stronger slate-900 border */
+  --text-primary:        #0F172A;   /* slate-900 */
+  --text-muted:          #64748B;   /* slate-500 */
+  --brand-teal:          #0D9488;
+  --brand-indigo:        #4F46E5;
+  --brand-gradient:      linear-gradient(135deg, #0D9488, #4F46E5);
+  --glow-teal:           rgba(13, 148, 136, 0.1);
+  --glow-indigo:         rgba(79, 70, 229, 0.1);
+  
+  background-color: var(--theme-bg);
+  color: var(--text-primary);
+}
+
+/* Animations */
+@keyframes orb-breath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes halo-pulse {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.18; }
+}
+
+@keyframes border-gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-orb-breath {
+  animation: orb-breath 4s ease-in-out infinite;
+}
+
+.animate-halo-pulse {
+  animation: halo-pulse 4s ease-in-out infinite;
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: border-gradient-flow 8s linear infinite;
+}
+
+
 

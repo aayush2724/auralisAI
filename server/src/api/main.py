@@ -159,6 +159,7 @@ if allowed_origins_env and allowed_origins_env.strip() != "*":
 else:
     origins = [
         "http://localhost:3000",
+        "http://localhost:4000",
         "http://localhost:5173",
         "https://auralis-ai-demo.vercel.app",
         "https://auralis-client-five.vercel.app",

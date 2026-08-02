@@ -1,7 +1,6 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../ui/Button';
 
 const RobotFeatures = () => {
   const navigate = useNavigate();
@@ -63,7 +62,7 @@ const RobotFeatures = () => {
   );
 
   return (
-    <section id="robot-features" className="relative py-24">
+    <section id="robot-features" className="relative bg-white">
       <div ref={wrapperRef} className="relative w-full h-[500vh]">
         <div className="sticky top-0 h-screen w-full overflow-hidden">
   
@@ -99,13 +98,15 @@ const RobotFeatures = () => {
                 style={{ opacity: stage1Opacity, pointerEvents: stage1PointerEvents as any }}
                 className="absolute inset-0 flex flex-col justify-center"
               >
-                <span className="section-label mb-4 block">
+                <span className="text-[#dd6668] font-sans tracking-wide uppercase
+                                 text-sm font-semibold mb-4 block">
                   BUILT FOR EVERY MOMENT
                 </span>
-                <h2 className="text-[48px] font-semibold tracking-tight text-theme-primary lg:text-[64px] leading-[1.08] mb-6">
+                <h2 className="font-display text-[48px] lg:text-[64px] text-[#0a0a0a]
+                               leading-[1.08] mb-6">
                   Four capabilities.<br />One seamless experience.
                 </h2>
-                <p className="body-text text-xl">
+                <p className="font-sans text-xl text-[#6b7280] leading-relaxed">
                   Scroll to see how Auralis handles the moments that
                   make or break a deal.
                 </p>
@@ -117,13 +118,15 @@ const RobotFeatures = () => {
                 className="absolute inset-0 flex flex-col justify-center
                            pointer-events-none"
               >
-                <span className="section-label mb-4 block">
+                <span className="text-[#dd6668] font-sans tracking-wide uppercase
+                                 text-sm font-semibold mb-4 block">
                   OBJECTION CLASSIFICATION
                 </span>
-                <h2 className="text-[48px] font-semibold tracking-tight text-theme-primary lg:text-[64px] leading-[1.08] mb-6">
+                <h2 className="font-display text-[48px] lg:text-[64px] text-[#0a0a0a]
+                               leading-[1.08] mb-6">
                   Every objection,<br />instantly understood.
                 </h2>
-                <p className="body-text text-xl">
+                <p className="font-sans text-xl text-[#6b7280] leading-relaxed">
                   Price. Trust. Timing. Competitor. Fit. Auralis classifies
                   objection type in under 2 seconds and routes it to the right
                   playbook automatically.
@@ -136,13 +139,15 @@ const RobotFeatures = () => {
                 className="absolute inset-0 flex flex-col justify-center
                            pointer-events-none"
               >
-                <span className="section-label mb-4 block">
+                <span className="text-[#dd6668] font-sans tracking-wide uppercase
+                                 text-sm font-semibold mb-4 block">
                   BUYER PERSONA DETECTION
                 </span>
-                <h2 className="text-[48px] font-semibold tracking-tight text-theme-primary lg:text-[64px] leading-[1.08] mb-6">
+                <h2 className="font-display text-[48px] lg:text-[64px] text-[#0a0a0a]
+                               leading-[1.08] mb-6">
                   Knows who it's<br />talking to.
                 </h2>
-                <p className="body-text text-xl">
+                <p className="font-sans text-xl text-[#6b7280] leading-relaxed">
                   Auralis identifies the prospect's role and communication
                   style so every response feels like it was written for them
                   specifically — not generated.
@@ -155,13 +160,15 @@ const RobotFeatures = () => {
                 className="absolute inset-0 flex flex-col justify-center
                            pointer-events-none"
               >
-                <span className="section-label mb-4 block">
+                <span className="text-[#dd6668] font-sans tracking-wide uppercase
+                                 text-sm font-semibold mb-4 block">
                   SMART HANDOFF
                 </span>
-                <h2 className="text-[48px] font-semibold tracking-tight text-theme-primary lg:text-[64px] leading-[1.08] mb-6">
+                <h2 className="font-display text-[48px] lg:text-[64px] text-[#0a0a0a]
+                               leading-[1.08] mb-6">
                   Knows when to<br />step aside.
                 </h2>
-                <p className="body-text text-xl">
+                <p className="font-sans text-xl text-[#6b7280] leading-relaxed">
                   When confidence drops or frustration spikes, Auralis flags
                   for human takeover before the deal is at risk. No dropped
                   conversations, no awkward moments.
@@ -173,22 +180,26 @@ const RobotFeatures = () => {
                 style={{ opacity: stage5Opacity, pointerEvents: stage5PointerEvents as any }}
                 className="absolute inset-0 flex flex-col justify-center"
               >
-                <span className="section-label mb-4 block">
+                <span className="text-[#dd6668] font-sans tracking-wide uppercase
+                                 text-sm font-semibold mb-4 block">
                   READY TO SEE IT LIVE
                 </span>
-                <h2 className="text-[48px] font-semibold tracking-tight text-theme-primary lg:text-[64px] leading-[1.08] mb-6">
+                <h2 className="font-display text-[48px] lg:text-[64px] text-[#0a0a0a]
+                               leading-[1.08] mb-6">
                   Your pipeline deserves<br />better than guesswork.
                 </h2>
-                <p className="body-text text-xl mb-10">
+                <p className="font-sans text-xl text-[#6b7280] leading-relaxed mb-10">
                   Join sales teams already using Auralis to handle objections,
                   read the room, and never miss a close.
                 </p>
-                <Button
+                <button
                   onClick={() => navigate('/?login=true')}
-                  className="w-fit rounded-full px-7 py-3.5 pointer-events-auto"
+                  className="w-fit bg-[#dd6668] text-white px-7 py-3.5 rounded-full
+                             font-sans font-medium text-sm hover:bg-[#c45557]
+                             transition-colors pointer-events-auto"
                 >
                   Try it now
-                </Button>
+                </button>
               </motion.div>
   
             </div>

@@ -112,6 +112,10 @@ async def kb_ingest(
         from src.rag.ingest import ingest_directory
 
         chunks_added = ingest_directory(str(upload_dir), str(VECTORSTORE_PATH))
+        
+        from src.rag.kb_store import save_kb_to_postgres
+        await save_kb_to_postgres(VECTORSTORE_PATH)
+        
         logger.info(
             "Ingestion complete: %d chunks from %d files", chunks_added, files_saved
         )

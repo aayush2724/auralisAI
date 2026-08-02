@@ -173,10 +173,10 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
                     <span className="font-mono text-[10px] truncate pr-2 text-[#0a0a0a]">
                       {doc.source_file} (Chunk {doc.chunk_index})
                     </span>
-                    <span className="text-[10px] text-[#6b7280]">{Math.round(doc.score * 100)}%</span>
+                    <span className="text-[10px] text-[#6b7280]">{Math.round(Math.max(0, 1 - doc.score / 2) * 100)}%</span>
                   </div>
                   <div className="w-full bg-[#f9fafb] h-1 rounded-full overflow-hidden relative">
-                    <div className="absolute left-0 top-0 bottom-0 bg-[#dd6668]" style={{ width: `${doc.score * 100}%` }} />
+                    <div className="absolute left-0 top-0 bottom-0 bg-[#dd6668]" style={{ width: `${Math.max(0, 1 - doc.score / 2) * 100}%` }} />
                   </div>
                   <p className="text-[10px] leading-snug line-clamp-3 italic opacity-80 mt-1">
                     {doc.text.substring(0, 300)}

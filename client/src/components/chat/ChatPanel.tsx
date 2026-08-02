@@ -139,7 +139,7 @@ function SourcesUsed({ data }: { data: ChatResponse }) {
               {doc.source_file} · chunk {doc.chunk_index}
             </span>
             <span className="shrink-0 rounded-full bg-white px-2 py-0.5 font-mono text-[10px] text-[#6b7280]">
-              {Math.round(doc.score * 100)}%
+              {Math.round(Math.max(0, 1 - doc.score / 2) * 100)}%
             </span>
           </div>
         ))}

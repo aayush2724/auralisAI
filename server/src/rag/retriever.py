@@ -102,7 +102,7 @@ def retrieve(
         text        — chunk content
         source_file — originating filename
         chunk_index — position within source document
-        score       — similarity score (higher = more similar)
+        score       — L2 distance from FAISS (LOWER = more similar; this is a distance, not a similarity score)
     """
     if not query.strip():
         raise ValueError("`query` must be a non-empty string.")

@@ -16,7 +16,7 @@ export function TextInput({
   return (
     <label className={`block space-y-2 ${wrapperClassName}`}>
       {label && <span className="section-label block">{label}</span>}
-      <input className={`input-shell h-12 rounded-[var(--radius-input)] ${className}`} {...props} />
+      <input className={`input-shell h-12 px-4 rounded-[var(--radius-input)] ${className}`} {...props} />
       {helperText && <span className="caption-text block">{helperText}</span>}
     </label>
   );

@@ -9,7 +9,7 @@ export default function PageContainer({
 }) {
   return (
     <div className={`mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-10 xl:px-12 ${className}`}>
-      <div className="glass-panel min-h-[calc(100vh-2rem)] overflow-hidden rounded-[var(--radius-container)]">
+      <div className="glass-panel min-h-[calc(100vh-2rem)] overflow-clip rounded-[var(--radius-container)]">
         {children}
       </div>
     </div>

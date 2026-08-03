@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import LoginModal from '../components/ui/LoginModal';
-import PageNavbar from '../components/layout/PageNavbar';
+import PublicShell from '../components/layout/PublicShell';
 import HowItWorks from '../components/landing/HowItWorks';
 import RobotFeatures from '../components/landing/RobotFeatures';
 import Footer from '../components/landing/Footer';
@@ -67,13 +67,11 @@ const LandingPage = () => {
 
 
   return (
-    <div className="relative bg-theme-bg text-theme-primary font-sans selection:bg-[#f9fafb] selection:text-theme-primary antialiased flex flex-col">
+    <PublicShell transparentNav={true}>
       {showLogin && <LoginModal />}
-      
-      <PageNavbar transparent={true} />
 
       {/* HERO SCROLL WRAPPER */}
-  <div className="relative min-h-screen overflow-hidden bg-white">
+  <div className="relative min-h-[calc(100vh-2rem)] overflow-hidden bg-white">
 
     {/* Video — right side, same container as before */}
     <div
@@ -96,7 +94,7 @@ const LandingPage = () => {
     </div>
 
     {/* Static hero text — left side */}
-    <div className="relative z-10 h-full min-h-screen flex flex-col
+    <div className="relative z-10 h-full min-h-[calc(100vh-2rem)] flex flex-col
                     justify-center px-8 md:px-12 lg:px-20 max-w-7xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -142,7 +140,7 @@ const LandingPage = () => {
       <HowItWorks />
       <RobotFeatures />
       <Footer />
-    </div>
+    </PublicShell>
   );
 };
 

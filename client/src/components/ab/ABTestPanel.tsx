@@ -141,28 +141,6 @@ export default function ABTestPanel() {
         <MetricCard label="Conversion" value={(adaptiveRate - staticRate).toFixed(1)} suffix="%" icon={Brain} tone="amber" size="large" />
       </motion.div>
 
-      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <GlassPanel className="rounded-[28px] p-4 transition-transform duration-200 hover:-translate-y-1">
-          <p className="section-label mb-2">Sessions</p>
-          <p className="text-3xl font-semibold tracking-tight text-theme-primary">{totalSessions}</p>
-          <p className="mt-2 text-sm text-theme-secondary">Total conversations split across both variants.</p>
-        </GlassPanel>
-        <GlassPanel className="rounded-[28px] p-4 transition-transform duration-200 hover:-translate-y-1">
-          <p className="section-label mb-2">Confidence</p>
-          <p className="text-3xl font-semibold tracking-tight text-theme-primary">{Math.round(((staticConfidence + adaptiveConfidence) / 2) * 100)}%</p>
-          <p className="mt-2 text-sm text-theme-secondary">Average model confidence across the experiment.</p>
-        </GlassPanel>
-        <GlassPanel className="rounded-[28px] p-4 transition-transform duration-200 hover:-translate-y-1">
-          <p className="section-label mb-2">Static Confidence</p>
-          <p className="text-3xl font-semibold tracking-tight text-theme-primary">{(staticConfidence * 100).toFixed(0)}%</p>
-          <p className="mt-2 text-sm text-theme-secondary">Signal quality for the static baseline.</p>
-        </GlassPanel>
-        <GlassPanel className="rounded-[28px] p-4 transition-transform duration-200 hover:-translate-y-1">
-          <p className="section-label mb-2">Adaptive Confidence</p>
-          <p className="text-3xl font-semibold tracking-tight text-theme-primary">{(adaptiveConfidence * 100).toFixed(0)}%</p>
-          <p className="mt-2 text-sm text-theme-secondary">Signal quality for the adaptive strategy.</p>
-        </GlassPanel>
-      </div>
 
       {isEmpty && (
         <div className="mb-4">

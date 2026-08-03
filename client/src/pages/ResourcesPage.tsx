@@ -1,8 +1,7 @@
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FileText, PlayCircle, BookOpen, ArrowRight } from 'lucide-react';
 import PublicShell from '../components/layout/PublicShell';
-import { Button } from '../components/ui/Button';
+import Footer from '../components/layout/Footer';
 
 const resources = [
   {
@@ -50,7 +49,6 @@ const resources = [
 ];
 
 export default function ResourcesPage() {
-  const navigate = useNavigate();
 
   return (
     <PublicShell>
@@ -106,37 +104,7 @@ export default function ResourcesPage() {
         </div>
       </section>
 
-      {/* FOOTER CTA */}
-      <section className="w-full bg-theme-primary py-24 px-6 flex flex-col items-center justify-center text-center">
-        <h2 className="text-4xl font-semibold tracking-tight text-white md:text-5xl leading-tight mb-6">
-          Put these insights into practice.
-        </h2>
-        <Button
-          onClick={() => navigate('/?login=true')}
-          className="mt-4 rounded-full px-8 py-4"
-        >
-          Start your free trial
-        </Button>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-white py-8 px-6 border-t border-theme-border">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-          <span className="text-theme-primary font-semibold text-xl">Auralis</span>
-          <div className="flex gap-6">
-            {['Product', 'Solutions', 'Pricing', 'Resources'].map((l) => (
-              <button
-                key={l}
-                onClick={() => navigate(l === 'Pricing' ? '/pricing' : l === 'Resources' ? '/resources' : '/')}
-                className="text-sm text-theme-secondary hover:text-theme-primary transition-colors"
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-          <span className="text-xs text-theme-muted">(c) 2026 Auralis. All rights reserved.</span>
-        </div>
-      </footer>
+      <Footer />
     </PublicShell>
   );
 }

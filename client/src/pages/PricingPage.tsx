@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Check, Zap, Building2, ChevronDown } from 'lucide-react';
 import PublicShell from '../components/layout/PublicShell';
 import { Button } from '../components/ui/Button';
+import Footer from '../components/layout/Footer';
 
 const plans = [
   {
@@ -222,40 +223,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* CTA BAND */}
-      <section className="w-full bg-theme-primary py-24 px-6 flex flex-col items-center justify-center text-center">
-        <h2 className="text-4xl font-semibold tracking-tight text-white md:text-5xl leading-tight mb-6">
-          Ready to close more deals?
-        </h2>
-        <p className="body-text text-white/70 text-lg max-w-xl mx-auto mb-10">
-          Join sales teams already using Auralis to handle objections, read the room, and never miss a close.
-        </p>
-        <Button
-          onClick={() => navigate('/?login=true')}
-          className="rounded-full px-8 py-4"
-        >
-          Try it now
-        </Button>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-theme-primary py-8 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-          <span className="text-white font-semibold text-xl">Auralis</span>
-          <div className="flex gap-6">
-            {['Product', 'Solutions', 'Pricing', 'Resources'].map((l) => (
-              <button
-                key={l}
-                onClick={() => navigate(l === 'Pricing' ? '/pricing' : l === 'Resources' ? '/resources' : '/')}
-                className="text-sm text-white/60 hover:text-white transition-colors"
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-          <span className="text-xs text-white/60">(c) 2026 Auralis. All rights reserved.</span>
-        </div>
-      </footer>
+      <Footer />
     </PublicShell>
   );
 }

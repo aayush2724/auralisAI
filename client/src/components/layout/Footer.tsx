@@ -4,12 +4,6 @@ import { Button } from '../ui/Button';
 export default function Footer() {
   const navigate = useNavigate();
 
-  const links = [
-    { name: 'Product', href: '/#features' },
-    { name: 'Solutions', href: '/#how-it-works' },
-    { name: 'Pricing', href: '/pricing' },
-    { name: 'Resources', href: '/resources' }
-  ];
 
   return (
     <footer id="footer" className="w-full flex flex-col">
@@ -31,31 +25,8 @@ export default function Footer() {
       <footer className="bg-white py-8 px-6 border-t border-theme-border">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <div className="text-theme-primary font-semibold text-xl">
-            auralis
+            Auralis
           </div>
-          
-          <div className="flex flex-row items-center gap-6">
-            {links.map((link) => (
-              <button
-                key={link.name}
-                onClick={() => {
-                  if (link.href.startsWith('/#')) {
-                    navigate('/');
-                    setTimeout(() => {
-                      const id = link.href.replace('/#', '');
-                      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  } else {
-                    navigate(link.href);
-                  }
-                }}
-                className="text-theme-secondary text-sm font-sans hover:text-theme-primary transition-colors"
-              >
-                {link.name}
-              </button>
-            ))}
-          </div>
-
           <div className="text-theme-muted text-xs font-sans">
             © 2026 Auralis. All rights reserved.
           </div>

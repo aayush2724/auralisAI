@@ -6,7 +6,7 @@ import LoginModal from '../components/ui/LoginModal';
 import PublicShell from '../components/layout/PublicShell';
 import HowItWorks from '../components/landing/HowItWorks';
 import RobotFeatures from '../components/landing/RobotFeatures';
-import Footer from '../components/landing/Footer';
+import Footer from '../components/layout/Footer';
 
 const LandingPage = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 export const buttonBase =
-  'button-base px-5 py-3 text-sm tracking-tight transition-all duration-200';
+  'button-base text-sm tracking-tight transition-all duration-200';
 
 export const buttonVariants = {
   primary: 'button-primary',

@@ -12,13 +12,14 @@ export interface ButtonProps extends HTMLMotionProps<"button"> {
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', children, className = '', ...props }, ref) => {
     const variantClass = buttonVariants[variant];
+    const paddingClass = variant === 'icon' ? '' : 'px-5 py-3';
 
     return (
       <motion.button
         ref={ref}
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-        className={`${buttonBase} ${variantClass} ${className}`}
+        className={`${buttonBase} ${paddingClass} ${variantClass} ${className}`}
         {...props}
       >
         {children}

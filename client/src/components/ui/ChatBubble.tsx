@@ -12,7 +12,7 @@ export default function ChatBubble({
   return (
     <Card
       variant="glass"
-      className={`max-w-[80%] rounded-[28px] px-4 py-3 text-sm leading-6 ${
+      className={`max-w-[80%] rounded-[28px] px-3 py-2.5 text-sm leading-6 ${
         isUser
           ? 'ml-auto rounded-br-lg bg-white/70 text-theme-primary'
           : 'rounded-bl-lg bg-white/55 text-theme-primary'

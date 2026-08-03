@@ -68,7 +68,7 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
       animate={{ opacity: 1, x: 0 }}
       className="h-full w-80 border-l border-theme-border bg-white/55 shadow-[0_24px_70px_rgba(16,32,51,0.10)] backdrop-blur-2xl"
     >
-      <div className="flex h-full flex-col gap-5 overflow-y-auto p-5">
+      <div className="flex h-full flex-col gap-4 overflow-y-auto p-4">
         <SectionHeader
           eyebrow="Diagnostics"
           title="Conversation Intelligence"
@@ -77,7 +77,7 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
         />
         
         {/* Objection Badge */}
-        <GlassPanel className="p-4">
+        <GlassPanel className="p-3">
           <h4 className="section-label mb-3">Primary Objection</h4>
           <div className={`w-full border rounded-[22px] p-3 flex flex-col items-center justify-center text-center ${badgeClass}`}>
             <span className="font-semibold text-sm tracking-[0.18em] uppercase">{data.objection_label.replace('_', ' ')}</span>
@@ -100,7 +100,7 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="rounded-[24px] border border-amber-500/20 bg-amber-500/10 p-4 text-amber-700 shadow-sm"
+            className="rounded-[24px] border border-amber-500/20 bg-amber-500/10 p-3 text-amber-700 shadow-sm"
           >
             <div className="flex items-start gap-3">
               <span className="icon-badge icon-badge--primary h-10 w-10 shrink-0">
@@ -112,7 +112,7 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
         )}
 
         {/* Quick Stats */}
-        <GlassPanel className="p-4">
+        <GlassPanel className="p-3">
           <div className="space-y-3">
           <div className="flex items-center space-x-3 text-sm text-theme-primary">
             <SentimentIcon className="w-4 h-4 text-theme-muted" />
@@ -183,7 +183,7 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
         {/* Retrieved Docs */}
         {data.retrieved_docs && data.retrieved_docs.length > 0 && (
           <Accordion title="Retrieved documents">
-            <div className="space-y-4">
+            <div className="space-y-3">
               {data.retrieved_docs.map((doc, i) => (
                 <div key={i} className="space-y-1">
                   <div className="flex items-center justify-between">

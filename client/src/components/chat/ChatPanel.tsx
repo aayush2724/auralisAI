@@ -155,7 +155,7 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
   return (
     <div className="flex h-full w-full flex-row bg-theme-bg text-theme-primary">
       <div className="flex flex-col flex-1 h-full min-w-0 relative">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-theme-border bg-white/65 px-4 py-4 shadow-[0_10px_30px_rgba(16,32,51,0.08)] backdrop-blur-2xl sm:px-6">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-theme-border bg-white/65 px-4 py-3 shadow-[0_10px_30px_rgba(16,32,51,0.08)] backdrop-blur-2xl sm:px-4">
           <div className="flex items-center space-x-2 truncate min-w-0">
             <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse shrink-0" aria-hidden="true" />
             <span className="font-mono text-xs text-theme-muted font-medium truncate">
@@ -182,8 +182,8 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-8 sm:px-6 lg:px-10">
-          <div className="mx-auto flex min-h-full max-w-5xl flex-col justify-center gap-8">
+        <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-4 lg:px-6">
+          <div className="mx-auto flex min-h-full max-w-5xl flex-col justify-center gap-6">
             <AnimatePresence mode="wait">
               {messages.length === 0 ? (
                 <motion.div
@@ -205,12 +205,12 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
                       </div>
                     </div>
                     <p className="section-label mb-2">Auralis Sales Assistant</p>
-                    <h2 className="max-w-2xl text-4xl font-semibold tracking-tight text-theme-primary sm:text-5xl">
+                    <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-theme-primary sm:text-4xl">
                       How can I help you today?
                     </h2>
                   </div>
 
-                  <Card variant="glass" className="relative z-10 w-full max-w-2xl rounded-[28px] p-5 text-left shadow-[0_18px_60px_rgba(16,32,51,0.08)]">
+                  <Card variant="glass" className="relative z-10 w-full max-w-2xl rounded-[28px] p-4 text-left shadow-[0_18px_60px_rgba(16,32,51,0.08)]">
                     <div className="flex items-start gap-4">
                       <span className="icon-badge icon-badge--secondary h-11 w-11 shrink-0">
                         <Sparkles className="h-5 w-5 text-[#0D9488]" />
@@ -244,7 +244,7 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
                   </Card>
                 </motion.div>
               ) : (
-                <div className="flex w-full flex-col gap-5">
+                <div className="flex w-full flex-col gap-4">
                   {messages.map((msg) => {
                     const isUser = msg.role === 'user';
                     return (
@@ -303,7 +303,7 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
         </div>
 
         {/* Gradient-border chat input bar */}
-        <div className="absolute bottom-0 inset-x-0 z-20 bg-transparent p-4 sm:p-5">
+        <div className="absolute bottom-0 inset-x-0 z-20 bg-transparent p-3 sm:p-4">
           <div className="mx-auto max-w-4xl relative">
             {wsError && (
               <div className="absolute -top-10 left-1/2 w-[min(92vw,42rem)] -translate-x-1/2 rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs font-medium text-amber-700 shadow-sm backdrop-blur-xl">
@@ -312,7 +312,7 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
             )}
             
             <GlassPanel className="rounded-[32px] p-3 shadow-[0_20px_70px_rgba(16,32,51,0.12)]">
-              <div className="flex items-end gap-3 rounded-[28px] bg-white/55 px-4 py-4 backdrop-blur-2xl">
+              <div className="flex items-end gap-3 rounded-[28px] bg-white/55 px-3 py-3 backdrop-blur-2xl">
                 <label htmlFor="chat-input" className="sr-only">Type your message</label>
                 <textarea
                   id="chat-input"

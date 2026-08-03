@@ -4,8 +4,8 @@ import Card from './Card';
 type Size = 'small' | 'large';
 
 const sizeClasses: Record<Size, string> = {
-  small: 'p-4 min-h-[240px]',
-  large: 'p-6 min-h-[360px]',
+  small: 'p-3 min-h-[240px]',
+  large: 'p-5 min-h-[360px]',
 };
 
 export default function ChartCard({

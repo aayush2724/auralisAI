@@ -96,15 +96,15 @@ export default function ABTestPanel() {
 
   if (isPending) {
     return (
-      <div className="h-full overflow-y-auto px-6 py-8">
+      <div className="h-full overflow-y-auto px-4 py-6">
         <Header />
-        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="glass-card h-[144px] animate-pulse rounded-[28px]" />
           ))}
         </div>
-        <div className="glass-card mb-6 h-[360px] rounded-[32px] animate-pulse" />
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="glass-card mb-4 h-[360px] rounded-[32px] animate-pulse" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="glass-card h-[340px] rounded-[32px] animate-pulse" />
           <div className="glass-card h-[340px] rounded-[32px] animate-pulse" />
         </div>
@@ -114,9 +114,9 @@ export default function ABTestPanel() {
 
   if (isError || !data) {
     return (
-      <div className="h-full overflow-y-auto px-6 py-8">
+      <div className="h-full overflow-y-auto px-4 py-6">
         <Header />
-        <div className="rounded-[24px] border border-red-500/20 bg-red-500/10 px-4 py-4 text-red-700 shadow-sm">
+        <div className="rounded-[24px] border border-red-500/20 bg-red-500/10 px-3 py-3 text-red-700 shadow-sm">
           <div className="flex items-center gap-3">
             <AlertCircle className="h-5 w-5" />
             <span>Failed to load A/B test data.</span>
@@ -127,45 +127,45 @@ export default function ABTestPanel() {
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-transparent px-6 py-8">
+    <div className="h-full overflow-y-auto bg-transparent px-4 py-6">
       <Header />
 
       <motion.div
         variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
         initial="hidden"
         animate="show"
-        className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3"
+        className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3"
       >
         <MetricCard label="Static" value={staticRate.toFixed(1)} suffix="%" icon={Users} tone="indigo" size="large" />
         <MetricCard label="Adaptive" value={adaptiveRate.toFixed(1)} suffix="%" icon={TrendingUp} tone="teal" size="large" />
         <MetricCard label="Conversion" value={(adaptiveRate - staticRate).toFixed(1)} suffix="%" icon={Brain} tone="amber" size="large" />
       </motion.div>
 
-      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <GlassPanel className="rounded-[28px] p-5 transition-transform duration-200 hover:-translate-y-1">
+      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <GlassPanel className="rounded-[28px] p-4 transition-transform duration-200 hover:-translate-y-1">
           <p className="section-label mb-2">Sessions</p>
-          <p className="text-4xl font-semibold tracking-tight text-theme-primary">{totalSessions}</p>
+          <p className="text-3xl font-semibold tracking-tight text-theme-primary">{totalSessions}</p>
           <p className="mt-2 text-sm text-theme-secondary">Total conversations split across both variants.</p>
         </GlassPanel>
-        <GlassPanel className="rounded-[28px] p-5 transition-transform duration-200 hover:-translate-y-1">
+        <GlassPanel className="rounded-[28px] p-4 transition-transform duration-200 hover:-translate-y-1">
           <p className="section-label mb-2">Confidence</p>
-          <p className="text-4xl font-semibold tracking-tight text-theme-primary">{Math.round(((staticConfidence + adaptiveConfidence) / 2) * 100)}%</p>
+          <p className="text-3xl font-semibold tracking-tight text-theme-primary">{Math.round(((staticConfidence + adaptiveConfidence) / 2) * 100)}%</p>
           <p className="mt-2 text-sm text-theme-secondary">Average model confidence across the experiment.</p>
         </GlassPanel>
-        <GlassPanel className="rounded-[28px] p-5 transition-transform duration-200 hover:-translate-y-1">
+        <GlassPanel className="rounded-[28px] p-4 transition-transform duration-200 hover:-translate-y-1">
           <p className="section-label mb-2">Static Confidence</p>
-          <p className="text-4xl font-semibold tracking-tight text-theme-primary">{(staticConfidence * 100).toFixed(0)}%</p>
+          <p className="text-3xl font-semibold tracking-tight text-theme-primary">{(staticConfidence * 100).toFixed(0)}%</p>
           <p className="mt-2 text-sm text-theme-secondary">Signal quality for the static baseline.</p>
         </GlassPanel>
-        <GlassPanel className="rounded-[28px] p-5 transition-transform duration-200 hover:-translate-y-1">
+        <GlassPanel className="rounded-[28px] p-4 transition-transform duration-200 hover:-translate-y-1">
           <p className="section-label mb-2">Adaptive Confidence</p>
-          <p className="text-4xl font-semibold tracking-tight text-theme-primary">{(adaptiveConfidence * 100).toFixed(0)}%</p>
+          <p className="text-3xl font-semibold tracking-tight text-theme-primary">{(adaptiveConfidence * 100).toFixed(0)}%</p>
           <p className="mt-2 text-sm text-theme-secondary">Signal quality for the adaptive strategy.</p>
         </GlassPanel>
       </div>
 
       {isEmpty && (
-        <div className="mb-6">
+        <div className="mb-4">
           <EmptyState
             title="No A/B test sessions yet"
             description="STATIC and ADAPTIVE performance will populate after conversations are logged."
@@ -184,16 +184,16 @@ export default function ABTestPanel() {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="mb-6"
+          className="mb-4"
         >
-          <div className="flex items-center justify-center gap-3 rounded-[24px] border border-white/70 bg-white/60 px-6 py-4 text-theme-primary shadow-[0_18px_50px_rgba(16,32,51,0.08)] backdrop-blur-2xl">
+          <div className="flex items-center justify-center gap-3 rounded-[24px] border border-white/70 bg-white/60 px-4 py-3 text-theme-primary shadow-[0_18px_50px_rgba(16,32,51,0.08)] backdrop-blur-2xl">
             <ArrowUpRight className="h-5 w-5 text-[#4F46E5]" />
             <span className="font-medium">Adaptive is outperforming static by {improvement.toFixed(1)}%</span>
           </div>
         </motion.div>
       )}
 
-      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChartCard title="Conversion Comparison" subtitle="Rounded bars with a soft pastel treatment." size="large">
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -226,29 +226,29 @@ export default function ABTestPanel() {
 
         <ChartCard title="Statistics Widgets" subtitle="Small floating cards for session and confidence signals." size="large">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <GlassPanel className="rounded-[24px] p-4 transition-transform duration-200 hover:-translate-y-1">
+            <GlassPanel className="rounded-[24px] p-3 transition-transform duration-200 hover:-translate-y-1">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-theme-muted">Static Sessions</p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-theme-primary">{data.sessions_per_variant.STATIC}</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-theme-primary">{data.sessions_per_variant.STATIC}</p>
             </GlassPanel>
-            <GlassPanel className="rounded-[24px] p-4 transition-transform duration-200 hover:-translate-y-1">
+            <GlassPanel className="rounded-[24px] p-3 transition-transform duration-200 hover:-translate-y-1">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-theme-muted">Adaptive Sessions</p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-theme-primary">{data.sessions_per_variant.ADAPTIVE}</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-theme-primary">{data.sessions_per_variant.ADAPTIVE}</p>
             </GlassPanel>
-            <GlassPanel className="rounded-[24px] p-4 transition-transform duration-200 hover:-translate-y-1">
+            <GlassPanel className="rounded-[24px] p-3 transition-transform duration-200 hover:-translate-y-1">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-theme-muted">Static Conv.</p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-theme-primary">{staticRate.toFixed(1)}%</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-theme-primary">{staticRate.toFixed(1)}%</p>
             </GlassPanel>
-            <GlassPanel className="rounded-[24px] p-4 transition-transform duration-200 hover:-translate-y-1">
+            <GlassPanel className="rounded-[24px] p-3 transition-transform duration-200 hover:-translate-y-1">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-theme-muted">Adaptive Conv.</p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-theme-primary">{adaptiveRate.toFixed(1)}%</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-theme-primary">{adaptiveRate.toFixed(1)}%</p>
             </GlassPanel>
-            <GlassPanel className="rounded-[24px] p-4 transition-transform duration-200 hover:-translate-y-1">
+            <GlassPanel className="rounded-[24px] p-3 transition-transform duration-200 hover:-translate-y-1">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-theme-muted">Static Confidence</p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-theme-primary">{(staticConfidence * 100).toFixed(0)}%</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-theme-primary">{(staticConfidence * 100).toFixed(0)}%</p>
             </GlassPanel>
-            <GlassPanel className="rounded-[24px] p-4 transition-transform duration-200 hover:-translate-y-1">
+            <GlassPanel className="rounded-[24px] p-3 transition-transform duration-200 hover:-translate-y-1">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-theme-muted">Adaptive Confidence</p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-theme-primary">{(adaptiveConfidence * 100).toFixed(0)}%</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-theme-primary">{(adaptiveConfidence * 100).toFixed(0)}%</p>
             </GlassPanel>
           </div>
         </ChartCard>

@@ -69,8 +69,8 @@ export default function KnowledgeBasePanel() {
   };
 
   return (
-    <div className="h-full overflow-y-auto px-6 py-8">
-      <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-6">
+    <div className="h-full overflow-y-auto px-4 py-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-4">
         <SectionHeader
           eyebrow="Knowledge Base"
           title="Upload and manage collateral"
@@ -87,11 +87,11 @@ export default function KnowledgeBasePanel() {
           />
         </div>
 
-        <GlassPanel className="w-full max-w-5xl rounded-[32px] p-6">
-          <div className="mb-5 flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
+        <GlassPanel className="w-full max-w-5xl rounded-[32px] p-4">
+          <div className="mb-4 flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
             <div>
               <p className="section-label mb-2">Current Statistics</p>
-              <h3 className="text-2xl font-semibold tracking-tight text-theme-primary">Knowledge Base Status</h3>
+              <h3 className="text-xl font-semibold tracking-tight text-theme-primary">Knowledge Base Status</h3>
             </div>
             <Button
               onClick={handleReset}
@@ -105,20 +105,20 @@ export default function KnowledgeBasePanel() {
           </div>
 
           {statsLoading ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Skeleton className="h-[160px]" />
               <Skeleton className="h-[160px]" />
               <Skeleton className="h-[160px]" />
             </div>
           ) : statsError || !stats ? (
-            <div className="rounded-[24px] border border-red-500/20 bg-red-500/10 px-4 py-4 text-red-700 shadow-sm">
+            <div className="rounded-[24px] border border-red-500/20 bg-red-500/10 px-3 py-3 text-red-700 shadow-sm">
               <div className="flex items-center gap-3">
                 <AlertCircle className="h-5 w-5" />
                 <span>Failed to load KB stats.</span>
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <MetricCard
                 label="Total Documents"
                 value={Math.round(docCount)}

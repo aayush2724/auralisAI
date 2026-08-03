@@ -90,15 +90,15 @@ export default function AnalyticsDashboard() {
 
   if (isPending) {
     return (
-      <div className="h-full overflow-y-auto px-6 py-8">
+      <div className="h-full overflow-y-auto px-4 py-6">
         <Header />
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="glass-card h-[144px] animate-pulse rounded-[28px]" />
           ))}
         </div>
-        <div className="glass-card mb-6 h-[360px] rounded-[32px] animate-pulse" />
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="glass-card mb-4 h-[360px] rounded-[32px] animate-pulse" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="glass-card h-[340px] rounded-[32px] animate-pulse" />
           <div className="glass-card h-[340px] rounded-[32px] animate-pulse" />
         </div>
@@ -108,9 +108,9 @@ export default function AnalyticsDashboard() {
 
   if (isError || !data) {
     return (
-      <div className="h-full overflow-y-auto px-6 py-8">
+      <div className="h-full overflow-y-auto px-4 py-6">
         <Header />
-        <div className="rounded-[24px] border border-red-500/20 bg-red-500/10 px-4 py-4 text-red-700 shadow-sm">
+        <div className="rounded-[24px] border border-red-500/20 bg-red-500/10 px-3 py-3 text-red-700 shadow-sm">
           <div className="flex items-center gap-3">
             <AlertCircle className="h-5 w-5" />
             <span>Failed to load analytics data. Please make sure the backend is running.</span>
@@ -121,14 +121,14 @@ export default function AnalyticsDashboard() {
   }
 
   return (
-    <div className="h-full overflow-y-auto px-6 py-8 bg-transparent">
+    <div className="h-full overflow-y-auto px-4 py-6 bg-transparent">
       <Header />
 
       <motion.div
         variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
         initial="hidden"
         animate="show"
-        className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3"
+        className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3"
       >
         <MetricCard
           label="Total Sessions"
@@ -156,7 +156,7 @@ export default function AnalyticsDashboard() {
       </motion.div>
 
       {isEmpty && (
-        <div className="mb-6">
+        <div className="mb-4">
           <EmptyState
             title="No analytics events yet"
             description="Conversation telemetry will appear here after live chat sessions are recorded."
@@ -170,7 +170,7 @@ export default function AnalyticsDashboard() {
         </div>
       )}
 
-      <div className="mb-6 grid grid-cols-1 gap-6">
+      <div className="mb-4 grid grid-cols-1 gap-4">
         <ChartCard
           title="Objection Distribution"
           subtitle="Pastel bar chart with rounded columns and minimal grid."
@@ -202,7 +202,7 @@ export default function AnalyticsDashboard() {
         </ChartCard>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 pb-12 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 pb-12 lg:grid-cols-2">
         <ChartCard title="Persona Distribution" subtitle="Soft-glow donut with pastel palette." size="large">
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">

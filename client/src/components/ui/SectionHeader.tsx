@@ -14,11 +14,11 @@ export default function SectionHeader({
   size?: 'default' | 'compact';
 }) {
   const titleClass = size === 'compact'
-    ? 'text-lg font-semibold tracking-tight text-theme-primary'
-    : 'text-2xl font-semibold tracking-tight text-theme-primary sm:text-3xl';
+    ? 'text-base font-semibold tracking-tight text-theme-primary'
+    : 'text-xl font-semibold tracking-tight text-theme-primary sm:text-2xl';
 
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-2xl">
         {eyebrow && <p className="section-label mb-2">{eyebrow}</p>}
         <h2 className={titleClass}>{title}</h2>

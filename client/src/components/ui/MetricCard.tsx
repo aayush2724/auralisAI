@@ -6,15 +6,15 @@ type Size = 'small' | 'medium' | 'large';
 type Tone = 'indigo' | 'teal' | 'amber' | 'rose';
 
 const sizeClasses: Record<Size, string> = {
-  small: 'min-h-[118px] p-5',
-  medium: 'min-h-[136px] p-6',
-  large: 'min-h-[158px] p-8',
+  small: 'min-h-[118px] p-4',
+  medium: 'min-h-[136px] p-5',
+  large: 'min-h-[158px] p-6',
 };
 
 const valueClasses: Record<Size, string> = {
-  small: 'text-3xl',
-  medium: 'text-4xl',
-  large: 'text-5xl',
+  small: 'text-2xl',
+  medium: 'text-3xl',
+  large: 'text-4xl',
 };
 
 const toneClasses: Record<Tone, string> = {

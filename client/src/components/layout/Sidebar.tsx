@@ -63,11 +63,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
       </AnimatePresence>
 
       <aside
-        className={`fixed left-0 top-0 z-40 flex h-screen w-[300px] -translate-x-full flex-col justify-between border-r border-theme-border bg-white/55 px-5 py-6 shadow-[28px_0_80px_rgba(16,32,51,0.10)] backdrop-blur-2xl transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : ''}`}
+        className={`fixed left-0 top-0 z-40 flex h-screen w-[300px] -translate-x-full flex-col justify-between border-r border-theme-border bg-white/55 px-4 py-4 shadow-[28px_0_80px_rgba(16,32,51,0.10)] backdrop-blur-2xl transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : ''}`}
         role="navigation"
         aria-label="Dashboard navigation"
       >
-        <div className="space-y-8">
+        <div className="space-y-6">
           <div className="space-y-4 px-2">
             <div className="flex items-start gap-3">
               <div className="flex flex-col">
@@ -91,7 +91,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
                   key={item.id}
                   onClick={() => handleNavClick(item.id as Tab)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`relative flex w-full items-center gap-4 rounded-[24px] px-4 py-4 text-left transition-all duration-200 ${
+                  className={`relative flex w-full items-center gap-3 rounded-[24px] px-3 py-3 text-left transition-all duration-200 ${
                     isActive
                       ? 'bg-white/75 text-theme-primary shadow-[0_12px_32px_rgba(79,70,229,0.14)] ring-1 ring-white/70'
                       : 'text-theme-secondary hover:bg-white/45 hover:text-theme-primary'
@@ -107,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
                   <IconCircle
                     icon={Icon}
                     variant={isActive ? 'primary' : 'neutral'}
-                    className="relative z-10 h-11 w-11"
+                    className="relative z-10 h-9 w-9"
                     iconClassName={isActive ? 'text-[#4f46e5]' : 'text-theme-muted'}
                   />
                   <span className="relative z-10 text-sm font-semibold tracking-tight">{item.label}</span>
@@ -117,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
           </nav>
         </div>
 
-        <div className="space-y-4 border-t border-theme-border pt-5">
+        <div className="space-y-4 border-t border-theme-border pt-4">
           <div className="flex items-center justify-between px-1">
             <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-theme-muted">Session</span>
             <span className="rounded-full border border-theme-border bg-white/65 px-3 py-1 text-[11px] font-medium text-theme-primary shadow-sm">

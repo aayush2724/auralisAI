@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, ChevronDown, ChevronUp, FileText, Gauge, Lightbulb, ShieldAlert, PanelRightOpen, PanelRightClose, Send, Sparkles } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Mic, Gauge, ShieldAlert, PanelRightOpen, PanelRightClose, Send, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChat } from '../../api/hooks/useChat';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
@@ -15,26 +14,8 @@ import GlassPanel from '../ui/GlassPanel';
 import IconButton from '../ui/IconButton';
 import PrimaryButton from '../ui/PrimaryButton';
 import Tooltip from '../ui/Tooltip';
-import type { ChatResponse, Message } from '../../types/api';
+import type { Message } from '../../types/api';
 
-function highlightTriggerPhrases(text: string, phrases: string[]) {
-  const cleanPhrases = phrases.map((phrase) => phrase.trim()).filter(Boolean);
-  if (cleanPhrases.length === 0) return text;
-
-  const escaped = cleanPhrases.map((phrase) => phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  const matcher = new RegExp(`(${escaped.join('|')})`, 'gi');
-
-  return text.split(matcher).map((part, index) => {
-    const isTrigger = cleanPhrases.some((phrase) => phrase.toLowerCase() === part.toLowerCase());
-    if (!isTrigger) return <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>;
-
-    return (
-      <mark key={`${part}-${index}`} className="rounded bg-[#0D9488]/15 px-1 py-0.5 text-theme-primary border border-[#0D9488]/30">
-        {part}
-      </mark>
-    );
-  });
-}
 
 function ConfidenceIndicator({ confidence }: { confidence: number }) {
   const percent = Math.round(confidence * 100);
@@ -65,104 +46,16 @@ function ConfidenceIndicator({ confidence }: { confidence: number }) {
   );
 }
 
-function MessageAccordion({ title, icon: Icon, children, defaultOpen = false }: {
-  title: string;
-  icon: LucideIcon;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
-  return (
-    <Card variant="glass" className="overflow-hidden rounded-[24px]">
-      <button
-        type="button"
-        onClick={() => setIsOpen((open) => !open)}
-        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-xs font-medium text-theme-primary"
-      >
-        <span className="flex items-center gap-2">
-          <Icon className="h-3.5 w-3.5 text-[#0D9488]" />
-          {title}
-        </span>
-        {isOpen ? <ChevronUp className="h-4 w-4 text-theme-muted" /> : <ChevronDown className="h-4 w-4 text-theme-muted" />}
-      </button>
-      {isOpen && (
-        <div className="border-t border-white/50 p-4 max-w-2xl mx-auto w-full relative z-10">
-          {children}
-        </div>
-      )}
-    </Card>
-  );
-}
-
-function WhyThisResponse({ data, sourceMessage }: { data: ChatResponse; sourceMessage?: string }) {
-  const explanationRows = [
-    { label: `Objection: ${data.objection_label.replace(/_/g, ' ')}`, reason: data.explanation.objection_reason },
-    { label: `Persona: ${data.persona}`, reason: data.explanation.persona_reason },
-    { label: `Sentiment: ${data.sentiment}`, reason: data.explanation.sentiment_reason },
-    { label: `Strategy: ${data.strategy.replace(/_/g, ' ')}`, reason: data.explanation.strategy_reason },
-  ];
-
-  return (
-    <MessageAccordion title="Why this response" icon={Lightbulb} defaultOpen>
-      <div className="space-y-3">
-        {sourceMessage && (
-          <div className="rounded-[22px] bg-white/55 p-3 leading-relaxed text-theme-primary border border-theme-border">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-theme-muted">Original signal</span>
-            <p>{highlightTriggerPhrases(sourceMessage, data.explanation.trigger_phrases)}</p>
-          </div>
-        )}
-
-        <div className="grid gap-2">
-          {explanationRows.map((row) => (
-            <div key={row.label} className="rounded-[22px] border border-theme-border bg-white/55 p-3 text-theme-muted shadow-sm">
-              <span className="block text-[10px] font-semibold uppercase tracking-widest text-theme-primary">{row.label}</span>
-              <p className="mt-1 leading-relaxed">{row.reason}</p>
-            </div>
-          ))}
-        </div>
-
-        {data.explanation.confidence_note && (
-          <div className="rounded-[22px] bg-white/60 p-3 leading-relaxed text-theme-primary border border-theme-border">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-[#0D9488]">Confidence note</span>
-            {data.explanation.confidence_note}
-          </div>
-        )}
-      </div>
-    </MessageAccordion>
-  );
-}
-
-function SourcesUsed({ data }: { data: ChatResponse }) {
-  if (!data.retrieved_docs.length) return null;
-
-  return (
-    <MessageAccordion title="Sources used" icon={FileText}>
-      <div className="space-y-2">
-        {data.retrieved_docs.map((doc, index) => (
-          <div key={`${doc.source_file}-${doc.chunk_index}-${index}`} className="flex items-center justify-between gap-3 rounded-[18px] bg-white/60 px-3 py-2 border border-theme-border">
-            <span className="min-w-0 truncate font-mono text-[11px] text-theme-primary">
-              {doc.source_file} · chunk {doc.chunk_index}
-            </span>
-            <span className="shrink-0 rounded-full bg-theme-border px-2 py-0.5 font-mono text-[10px] text-theme-muted border border-theme-border">
-              {Math.round(Math.max(0, 1 - doc.score / 2) * 100)}%
-            </span>
-          </div>
-        ))}
-      </div>
-    </MessageAccordion>
-  );
-}
 
 function AssistantMessageMeta({ message }: { message: Message }) {
   const data = message.responseMeta;
   if (!data) return null;
 
   return (
-    <div className="mt-3 space-y-3">
+    <div className="mt-3 flex flex-col gap-2 relative z-10 w-full">
       <div className="flex flex-wrap items-center gap-2">
         <ConfidenceIndicator confidence={data.confidence} />
-        <span className="rounded-full border border-theme-border bg-white/60 px-2.5 py-1 text-[11px] font-medium capitalize text-theme-muted">
+        <span className="rounded-full border border-theme-border bg-white/60 px-2.5 py-1 text-[11px] font-medium text-theme-primary shadow-sm backdrop-blur-xl">
           {data.objection_label.replace(/_/g, ' ')}
         </span>
       </div>
@@ -182,8 +75,7 @@ function AssistantMessageMeta({ message }: { message: Message }) {
         </div>
       )}
 
-      <WhyThisResponse data={data} sourceMessage={message.sourceMessage} />
-      <SourcesUsed data={data} />
+
     </div>
   );
 }

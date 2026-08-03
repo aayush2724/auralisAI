@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
-import Card from '../ui/Card';
 
 const HowItWorks = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -93,7 +92,6 @@ const HowItWorks = () => {
                   className="w-[10px] h-[10px] rounded-full mb-6"
                   style={{ backgroundColor: step1Color as any }}
                 />
-                <Card variant="glass" className="w-full flex flex-col items-center p-6 text-center">
                   <motion.div style={{ color: step1Color as any }} className="font-display text-7xl leading-none mb-6">
                     01
                   </motion.div>
@@ -103,7 +101,6 @@ const HowItWorks = () => {
                   <p className="body-text max-w-xs">
                     A prospect sends a message. Auralis receives it and immediately begins reading intent, tone, and context.
                   </p>
-                </Card>
               </motion.div>
 
               {/* Step 2 */}
@@ -112,7 +109,6 @@ const HowItWorks = () => {
                   className="w-[10px] h-[10px] rounded-full mb-6"
                   style={{ backgroundColor: step2Color as any }}
                 />
-                <Card variant="glass" className="w-full flex flex-col items-center p-6 text-center">
                   <motion.div style={{ color: step2Color as any }} className="font-display text-7xl leading-none mb-14">
                     02
                   </motion.div>
@@ -122,7 +118,6 @@ const HowItWorks = () => {
                   <p className="body-text max-w-xs">
                     Objection type, buyer persona, competitor mentions, and sentiment are all classified in under 2 seconds.
                   </p>
-                </Card>
               </motion.div>
 
               {/* Step 3 */}
@@ -131,7 +126,6 @@ const HowItWorks = () => {
                   className="w-[10px] h-[10px] rounded-full mb-6"
                   style={{ backgroundColor: step3Color as any }}
                 />
-                <Card variant="glass" className="w-full flex flex-col items-center p-6 text-center">
                   <motion.div style={{ color: step3Color as any }} className="font-display text-7xl leading-none mb-6">
                     03
                   </motion.div>
@@ -141,7 +135,6 @@ const HowItWorks = () => {
                   <p className="body-text max-w-xs">
                     A tailored reply is generated. If confidence is low or frustration is high, Auralis flags for human handoff automatically.
                   </p>
-                </Card>
               </motion.div>
 
             </div>
@@ -166,57 +159,51 @@ const HowItWorks = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="w-full"
+            className="flex flex-row gap-6 w-full"
           >
-            <Card variant="glass" className="flex flex-row gap-6 p-6 w-full">
-              <div className="font-display text-4xl text-[#4f46e5] leading-none shrink-0">01</div>
-              <div className="flex flex-col">
-                <h3 className="font-sans font-medium text-lg text-theme-primary mb-2">Message comes in</h3>
-                <p className="body-text">
-                  A prospect sends a message. Auralis receives it and immediately begins reading intent, tone, and context.
-                </p>
-              </div>
-            </Card>
+            <div className="font-display text-4xl text-[#4f46e5] leading-none shrink-0">01</div>
+            <div className="flex flex-col">
+              <h3 className="font-sans font-medium text-lg text-theme-primary mb-2">Message comes in</h3>
+              <p className="body-text">
+                A prospect sends a message. Auralis receives it and immediately begins reading intent, tone, and context.
+              </p>
+            </div>
           </motion.div>
           
-          <div className="w-[2px] h-12 bg-[var(--border-subtle)] ml-[46px] my-4" />
+          <div className="w-[2px] h-12 bg-[var(--border-subtle)] ml-[22px] my-4" />
 
           {/* Mobile Step 2 */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="w-full"
+            className="flex flex-row gap-6 w-full"
           >
-            <Card variant="glass" className="flex flex-row gap-6 p-6 w-full">
-              <div className="font-display text-4xl text-[#4f46e5] leading-none shrink-0">02</div>
-              <div className="flex flex-col">
-                <h3 className="font-sans font-medium text-lg text-theme-primary mb-2">Auralis reads the room</h3>
-                <p className="body-text">
-                  Objection type, buyer persona, competitor mentions, and sentiment are all classified in under 2 seconds.
-                </p>
-              </div>
-            </Card>
+            <div className="font-display text-4xl text-[#4f46e5] leading-none shrink-0">02</div>
+            <div className="flex flex-col">
+              <h3 className="font-sans font-medium text-lg text-theme-primary mb-2">Auralis reads the room</h3>
+              <p className="body-text">
+                Objection type, buyer persona, competitor mentions, and sentiment are all classified in under 2 seconds.
+              </p>
+            </div>
           </motion.div>
 
-          <div className="w-[2px] h-12 bg-[var(--border-subtle)] ml-[46px] my-4" />
+          <div className="w-[2px] h-12 bg-[var(--border-subtle)] ml-[22px] my-4" />
 
           {/* Mobile Step 3 */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="w-full"
+            className="flex flex-row gap-6 w-full"
           >
-            <Card variant="glass" className="flex flex-row gap-6 p-6 w-full">
-              <div className="font-display text-4xl text-[#4f46e5] leading-none shrink-0">03</div>
-              <div className="flex flex-col">
-                <h3 className="font-sans font-medium text-lg text-theme-primary mb-2">The right response, instantly</h3>
-                <p className="body-text">
-                  A tailored reply is generated. If confidence is low or frustration is high, Auralis flags for human handoff automatically.
-                </p>
-              </div>
-            </Card>
+            <div className="font-display text-4xl text-[#4f46e5] leading-none shrink-0">03</div>
+            <div className="flex flex-col">
+              <h3 className="font-sans font-medium text-lg text-theme-primary mb-2">The right response, instantly</h3>
+              <p className="body-text">
+                A tailored reply is generated. If confidence is low or frustration is high, Auralis flags for human handoff automatically.
+              </p>
+            </div>
           </motion.div>
         </div>
       </div>

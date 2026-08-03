@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
           <div className="space-y-4 px-2">
             <div className="flex items-start gap-3">
               <div className="flex flex-col">
-                <span className="text-[34px] font-semibold tracking-[-0.05em] text-theme-primary leading-none">Auralis</span>
+                <span className="text-2xl font-semibold tracking-[-0.05em] text-theme-primary leading-none">Auralis</span>
                 <span className="mt-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-theme-muted">default tenant</span>
               </div>
               <div className="mt-2 h-3 w-3 rounded-full bg-[#4f46e5] shadow-[0_0_18px_rgba(79,70,229,0.7)]" aria-hidden="true" />

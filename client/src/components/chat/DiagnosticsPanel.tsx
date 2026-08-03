@@ -73,6 +73,7 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
           eyebrow="Diagnostics"
           title="Conversation Intelligence"
           description="Premium signal view for objection, sentiment, and retrieval context."
+          size="compact"
         />
         
         {/* Objection Badge */}

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from '../components/ui/Button';
 import LoginModal from '../components/ui/LoginModal';
 import PageNavbar from '../components/layout/PageNavbar';
 import HowItWorks from '../components/landing/HowItWorks';
@@ -66,7 +67,7 @@ const LandingPage = () => {
 
 
   return (
-    <div className="relative bg-white text-neutral-900 font-sans selection:bg-[#f9fafb] selection:text-[#0a0a0a] antialiased flex flex-col">
+    <div className="relative bg-theme-bg text-theme-primary font-sans selection:bg-[#f9fafb] selection:text-theme-primary antialiased flex flex-col">
       {showLogin && <LoginModal />}
       
       <PageNavbar transparent={true} />
@@ -103,34 +104,31 @@ const LandingPage = () => {
         transition={{ duration: 0.7 }}
         className="max-w-lg"
       >
-        <span className="text-[#dd6668] font-sans tracking-wide uppercase
-                         text-sm font-semibold mb-4 block">
+        <span className="section-label mb-4 block">
           AI SALES INTELLIGENCE
         </span>
-        <h1 className="font-display text-[48px] lg:text-[64px] text-[#0a0a0a]
+        <h1 className="font-display text-[48px] lg:text-[64px] text-theme-primary
                        leading-[1.08] mb-6">
           Turn every objection<br />into a closed deal.
         </h1>
-        <p className="font-sans text-xl text-[#6b7280] leading-relaxed mb-10">
+        <p className="body-text text-xl mb-10">
           Auralis reads the room in real time — classifying objections,
           adapting to buyer personas, and knowing exactly when to bring
           in a human.
         </p>
         <div className="flex flex-row items-center gap-4">
-          <button
+          <Button
             onClick={() => navigate('/?login=true')}
-            className="bg-[#dd6668] text-white px-7 py-3.5 rounded-full
-                       font-sans font-medium text-sm hover:bg-[#c45557]
-                       transition-colors"
+            className="px-7 py-3.5 rounded-full"
           >
             Try it now
-          </button>
+          </Button>
           <button
             onClick={() =>
               document.getElementById('how-it-works')
                 ?.scrollIntoView({ behavior: 'smooth' })
             }
-            className="text-[#dd6668] font-sans font-medium text-sm
+            className="text-[#4F46E5] font-sans font-medium text-sm
                        underline underline-offset-4 hover:opacity-70
                        transition-opacity"
           >

@@ -9,7 +9,7 @@ import DashboardShell from '../components/layout/DashboardShell';
 
 const DashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('chat');
-  const [sessionId] = useState<string>(() => crypto.randomUUID());
+  const [sessionId, setSessionId] = useState<string>(() => crypto.randomUUID());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const role = useAuthStore((state) => state.role);
 
@@ -23,10 +23,14 @@ const DashboardPage: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleNewChat = () => {
+    setSessionId(crypto.randomUUID());
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'chat':
-        return <ChatPanel sessionId={sessionId} />;
+        return <ChatPanel key={sessionId} sessionId={sessionId} />;
       case 'analytics':
         return <AnalyticsDashboard />;
       case 'ab':
@@ -42,7 +46,7 @@ const DashboardPage: React.FC = () => {
     <DashboardShell
       activeTab={activeTab}
       setActiveTab={setActiveTab}
-      sessionId={sessionId}
+      onNewChat={handleNewChat}
       sidebarOpen={sidebarOpen}
       setSidebarOpen={setSidebarOpen}
       role={role}

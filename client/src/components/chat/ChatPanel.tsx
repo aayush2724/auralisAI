@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DiagnosticsPanel from './DiagnosticsPanel';
 import TypingIndicator from './TypingIndicator';
-import { Button } from '../ui/Button';
 import Card from '../ui/Card';
 import ChatBubble from '../ui/ChatBubble';
 import GlassPanel from '../ui/GlassPanel';
@@ -80,9 +79,8 @@ function AssistantMessageMeta({ message }: { message: Message }) {
   );
 }
 
-export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: string }) {
-  const [currentSessionId, setCurrentSessionId] = useState(initialSessionId);
-  const { messages, sendMessage, isLoading, lastResponse, clearMessages, wsError } = useChat(currentSessionId);
+export default function ChatPanel({ sessionId }: { sessionId: string }) {
+  const { messages, sendMessage, isLoading, lastResponse, wsError } = useChat(sessionId);
   const [input, setInput] = useState('');
   const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -118,11 +116,6 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
     }
   }, [transcript, isListening, baseInput]);
 
-  const handleNewSession = () => {
-    setCurrentSessionId(crypto.randomUUID());
-    clearMessages();
-  };
-
   const handleSubmit = () => {
     if (!input.trim() || isLoading) return;
     sendMessage(input.trim());
@@ -155,13 +148,7 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
   return (
     <div className="flex h-full w-full flex-row bg-theme-bg text-theme-primary">
       <div className="flex flex-col flex-1 h-full min-w-0 relative">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-theme-border bg-white/65 px-4 py-3 shadow-[0_10px_30px_rgba(16,32,51,0.08)] backdrop-blur-2xl sm:px-4">
-          <div className="flex items-center space-x-2 truncate min-w-0">
-            <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse shrink-0" aria-hidden="true" />
-            <span className="font-mono text-xs text-theme-muted font-medium truncate">
-              {currentSessionId}
-            </span>
-          </div>
+        <div className="sticky top-0 z-10 flex items-center justify-end border-b border-theme-border bg-white/65 px-4 py-3 shadow-[0_10px_30px_rgba(16,32,51,0.08)] backdrop-blur-2xl sm:px-4">
           <div className="flex items-center gap-2 shrink-0 ml-2">
             <Tooltip content={diagnosticsOpen ? 'Hide diagnostics' : 'Show diagnostics'}>
               <button
@@ -172,13 +159,6 @@ export default function ChatPanel({ sessionId: initialSessionId }: { sessionId: 
               {diagnosticsOpen ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />}
             </button>
             </Tooltip>
-            <Button
-              variant="secondary"
-              onClick={handleNewSession}
-              className="flex-shrink-0 rounded-full px-5 py-2.5"
-            >
-              New Session
-            </Button>
           </div>
         </div>
 

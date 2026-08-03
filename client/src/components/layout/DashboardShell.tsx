@@ -6,7 +6,7 @@ export default function DashboardShell({
   children,
   activeTab,
   setActiveTab,
-  sessionId,
+  onNewChat,
   sidebarOpen,
   setSidebarOpen,
   role,
@@ -14,7 +14,7 @@ export default function DashboardShell({
   children: ReactNode;
   activeTab: Tab;
   setActiveTab: (tab: Tab) => void;
-  sessionId: string;
+  onNewChat: () => void;
   sidebarOpen: boolean;
   setSidebarOpen: (value: boolean) => void;
   role: string | null;
@@ -26,7 +26,7 @@ export default function DashboardShell({
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          sessionId={sessionId}
+          onNewChat={onNewChat}
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
           role={role}

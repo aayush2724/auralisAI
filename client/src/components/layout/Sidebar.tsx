@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu } from 'lucide-react';
+import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu, MessageSquarePlus } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
 import IconCircle from '../ui/IconCircle';
@@ -10,7 +10,7 @@ export type Tab = 'chat' | 'analytics' | 'ab' | 'kb';
 interface SidebarProps {
   activeTab: Tab;
   setActiveTab: (tab: Tab) => void;
-  sessionId: string;
+  onNewChat: () => void;
   isOpen: boolean;
   onToggle: () => void;
   role: string | null;
@@ -23,7 +23,7 @@ const navItems = [
   { id: 'kb', label: 'Knowledge Base', icon: Database },
 ] as const;
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, isOpen, onToggle, role }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onNewChat, isOpen, onToggle, role }) => {
   const clearToken = useAuthStore((state) => state.clearToken);
 
   const handleLogout = () => {
@@ -74,11 +74,26 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
                 <span className="text-2xl font-semibold tracking-[-0.05em] text-theme-primary leading-none">Auralis</span>
                 <span className="mt-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-theme-muted">default tenant</span>
               </div>
-              <div className="mt-2 h-3 w-3 rounded-full bg-[#4f46e5] shadow-[0_0_18px_rgba(79,70,229,0.7)]" aria-hidden="true" />
             </div>
-            <div className="w-fit rounded-full border border-theme-border bg-white/50 px-3 py-1 text-[11px] font-medium text-theme-secondary shadow-sm">
-              Live session
-            </div>
+          </div>
+
+          <div className="px-2">
+            <button
+              onClick={() => {
+                onNewChat();
+                setActiveTab('chat');
+                if (window.innerWidth < 1024) onToggle();
+              }}
+              className="relative flex w-full items-center gap-3 rounded-[24px] border border-[#4f46e5]/20 bg-gradient-to-r from-[rgba(79,70,229,0.14)] to-[rgba(13,148,136,0.10)] px-3 py-3 text-left text-theme-primary shadow-sm hover:opacity-80 transition-all duration-200"
+            >
+              <IconCircle
+                icon={MessageSquarePlus}
+                variant="primary"
+                className="relative z-10 h-9 w-9"
+                iconClassName="text-[#4f46e5]"
+              />
+              <span className="relative z-10 text-sm font-semibold tracking-tight">New Chat</span>
+            </button>
           </div>
 
           <nav className="space-y-2" aria-label="Dashboard tabs">
@@ -118,12 +133,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, sessionId, i
         </div>
 
         <div className="space-y-4 border-t border-theme-border pt-4">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-theme-muted">Session</span>
-            <span className="rounded-full border border-theme-border bg-white/65 px-3 py-1 text-[11px] font-medium text-theme-primary shadow-sm">
-              {sessionId.slice(0, 8)}
-            </span>
-          </div>
           <Button
             variant="secondary"
             onClick={handleLogout}

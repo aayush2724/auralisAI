@@ -13,17 +13,17 @@ export default function Footer() {
   return (
     <footer id="footer" className="w-full flex flex-col">
       {/* CTA BAND */}
-      <div className="w-full bg-[#dd6668] py-24 px-6 flex flex-col items-center justify-center">
+      <div className="w-full bg-[#e8c2c3] py-24 px-6 flex flex-col items-center justify-center">
         <h2 className="font-display text-4xl md:text-5xl text-white text-center leading-tight mb-6">
           Ready to close more deals?
         </h2>
-        <p className="font-sans text-white/70 text-lg text-center max-w-xl mx-auto mb-10">
+        <p className="font-sans text-white/75 text-lg text-center max-w-xl mx-auto mb-10">
           Join sales teams already using Auralis to handle objections,
           read the room, and never miss a close.
         </p>
         <button
           onClick={() => navigate('/?login=true')}
-          className="bg-white text-[#dd6668] font-sans font-medium text-sm px-8 py-4 rounded-full hover:bg-[#0a0a0a] hover:text-white transition-colors duration-300"
+          className="bg-white text-[#c97f82] font-sans font-medium text-sm px-8 py-4 rounded-full hover:bg-[#0a0a0a] hover:text-white transition-colors duration-300"
         >
           Try it now
         </button>

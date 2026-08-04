@@ -188,95 +188,93 @@ const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
 
-        {/* Chat History - always shown when on chat tab */}
-        {activeTab === 'chat' && (
-          <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-theme-border/50">
-            <div className="px-5 pt-4 pb-2 shrink-0 flex items-center gap-2">
-              <Clock className="h-3.5 w-3.5 text-theme-muted" />
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-theme-muted">
-                Chat History
-              </span>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-4 scrollbar-thin scrollbar-thumb-theme-border scrollbar-track-transparent">
-              {sessions.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center px-4">
-                  <div className="h-10 w-10 rounded-full bg-theme-border/30 flex items-center justify-center mb-3">
-                    <MessageSquare className="h-4 w-4 text-theme-muted" />
-                  </div>
-                  <p className="text-xs font-medium text-theme-muted">No conversations yet</p>
-                  <p className="text-[10px] text-theme-muted/70 mt-1">Start a new chat to begin</p>
-                </div>
-              ) : (
-                groupedSessions.map((group) => (
-                  <div key={group.label}>
-                    <div className="px-2 mb-1.5">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-theme-muted/60">
-                        {group.label}
-                      </span>
-                    </div>
-                    <div className="space-y-0.5">
-                      {group.items.map((session) => {
-                        const isActive = currentSessionId === session.session_id;
-                        const title = session.company_name || 'New Conversation';
-                        const preview = session.preview || 'No messages yet';
-
-                        return (
-                          <motion.div
-                            key={session.session_id}
-                            initial={{ opacity: 0, x: -8 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.15 }}
-                            className={`group relative flex items-center rounded-xl transition-all duration-150 ${
-                              isActive
-                                ? 'bg-white/75 shadow-[0_4px_16px_rgba(79,70,229,0.08)] ring-1 ring-white/70'
-                                : 'hover:bg-white/45'
-                            }`}
-                          >
-                            <button
-                              onClick={() => {
-                                onSelectSession?.(session.session_id);
-                                if (window.innerWidth < 1024) onToggle();
-                              }}
-                              className="flex-1 min-w-0 px-3 py-2.5 text-left"
-                            >
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                {isActive && (
-                                  <span className="shrink-0 h-1.5 w-1.5 rounded-full bg-[#4f46e5]" />
-                                )}
-                                <span className={`truncate text-xs font-semibold ${isActive ? 'text-theme-primary' : 'text-theme-secondary'}`}>
-                                  {title}
-                                </span>
-                                {session.persona_label && (
-                                  <span className="shrink-0 rounded-full border border-theme-border/60 bg-white/80 px-1.5 py-0.5 text-[9px] font-medium text-theme-secondary">
-                                    {session.persona_label}
-                                  </span>
-                                )}
-                              </div>
-                              <p className="truncate text-[10px] text-theme-muted mt-0.5 leading-relaxed">
-                                {preview}
-                              </p>
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onDeleteSession?.(session.session_id);
-                              }}
-                              className="shrink-0 mr-2 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all duration-150 p-1.5 rounded-lg hover:bg-red-50"
-                              aria-label="Delete chat session"
-                            >
-                              <Trash2 className="h-3.5 w-3.5 text-theme-muted hover:text-red-500" />
-                            </button>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+        {/* Chat History - visible across dashboard tabs */}
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-theme-border/50">
+          <div className="px-5 pt-4 pb-2 shrink-0 flex items-center gap-2">
+            <Clock className="h-3.5 w-3.5 text-theme-muted" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-theme-muted">
+              Chat History
+            </span>
           </div>
-        )}
+
+          <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-4 scrollbar-thin scrollbar-thumb-theme-border scrollbar-track-transparent">
+            {sessions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+                <div className="h-10 w-10 rounded-full bg-theme-border/30 flex items-center justify-center mb-3">
+                  <MessageSquare className="h-4 w-4 text-theme-muted" />
+                </div>
+                <p className="text-xs font-medium text-theme-muted">No conversations yet</p>
+                <p className="text-[10px] text-theme-muted/70 mt-1">Start a new chat to begin</p>
+              </div>
+            ) : (
+              groupedSessions.map((group) => (
+                <div key={group.label}>
+                  <div className="px-2 mb-1.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-theme-muted/60">
+                      {group.label}
+                    </span>
+                  </div>
+                  <div className="space-y-0.5">
+                    {group.items.map((session) => {
+                      const isActive = currentSessionId === session.session_id;
+                      const title = session.company_name || 'New Conversation';
+                      const preview = session.preview || 'No messages yet';
+
+                      return (
+                        <motion.div
+                          key={session.session_id}
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className={`group relative flex items-center rounded-xl transition-all duration-150 ${
+                            isActive
+                              ? 'bg-white/75 shadow-[0_4px_16px_rgba(79,70,229,0.08)] ring-1 ring-white/70'
+                              : 'hover:bg-white/45'
+                          }`}
+                        >
+                          <button
+                            onClick={() => {
+                              onSelectSession?.(session.session_id);
+                              if (window.innerWidth < 1024) onToggle();
+                            }}
+                            className="flex-1 min-w-0 px-3 py-2.5 text-left"
+                          >
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              {isActive && (
+                                <span className="shrink-0 h-1.5 w-1.5 rounded-full bg-[#4f46e5]" />
+                              )}
+                              <span className={`truncate text-xs font-semibold ${isActive ? 'text-theme-primary' : 'text-theme-secondary'}`}>
+                                {title}
+                              </span>
+                              {session.persona_label && (
+                                <span className="shrink-0 rounded-full border border-theme-border/60 bg-white/80 px-1.5 py-0.5 text-[9px] font-medium text-theme-secondary">
+                                  {session.persona_label}
+                                </span>
+                              )}
+                            </div>
+                            <p className="truncate text-[10px] text-theme-muted mt-0.5 leading-relaxed">
+                              {preview}
+                            </p>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteSession?.(session.session_id);
+                            }}
+                            className="shrink-0 mr-2 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all duration-150 p-1.5 rounded-lg hover:bg-red-50"
+                            aria-label="Delete chat session"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-theme-muted hover:text-red-500" />
+                          </button>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
 
         {/* Footer */}
         <div className="shrink-0 border-t border-theme-border px-4 py-4">

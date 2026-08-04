@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { type Tab } from '../components/layout/Sidebar';
 import { useAuthStore } from '../store/authStore';
 import ChatPanel from '../components/chat/ChatPanel';
@@ -8,9 +9,19 @@ import DashboardShell from '../components/layout/DashboardShell';
 import { chatClient } from '../api/client';
 import { type ChatSessionPreview } from '../types/api';
 
+const ACTIVE_CHAT_SESSION_KEY = 'auralis_active_chat_session_id';
+const CHAT_SESSION_QUERY_KEY = 'session';
+
 const DashboardPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>('chat');
-  const [sessionId, setSessionId] = useState<string>(() => crypto.randomUUID());
+  const [sessionId, setSessionId] = useState<string>(() => {
+    const urlSessionId = searchParams.get(CHAT_SESSION_QUERY_KEY);
+    if (urlSessionId) return urlSessionId;
+
+    const savedSessionId = window.localStorage.getItem(ACTIVE_CHAT_SESSION_KEY);
+    return savedSessionId || crypto.randomUUID();
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sessions, setSessions] = useState<ChatSessionPreview[]>([]);
   const role = useAuthStore((state) => state.role);
@@ -45,6 +56,26 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    window.localStorage.setItem(ACTIVE_CHAT_SESSION_KEY, sessionId);
+  }, [sessionId]);
+
+  useEffect(() => {
+    const urlSessionId = searchParams.get(CHAT_SESSION_QUERY_KEY);
+    if (urlSessionId && urlSessionId !== sessionId) {
+      setSessionId(urlSessionId);
+      return;
+    }
+
+    if (!urlSessionId) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set(CHAT_SESSION_QUERY_KEY, sessionId);
+        return next;
+      }, { replace: true });
+    }
+  }, [searchParams, sessionId, setSearchParams]);
+
+  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
         setSidebarOpen(false);
@@ -57,10 +88,22 @@ const DashboardPage: React.FC = () => {
   const handleNewChat = () => {
     const newId = crypto.randomUUID();
     setSessionId(newId);
+    window.localStorage.setItem(ACTIVE_CHAT_SESSION_KEY, newId);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set(CHAT_SESSION_QUERY_KEY, newId);
+      return next;
+    }, { replace: true });
   };
 
   const handleSelectSession = (id: string) => {
     setSessionId(id);
+    window.localStorage.setItem(ACTIVE_CHAT_SESSION_KEY, id);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set(CHAT_SESSION_QUERY_KEY, id);
+      return next;
+    }, { replace: true });
   };
 
   const handleDeleteSession = async (id: string) => {

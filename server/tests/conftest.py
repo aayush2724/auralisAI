@@ -113,7 +113,7 @@ if os.getenv("USE_MOCK_LLM", "").lower() in ("1", "true", "yes"):
     # Patch the LLM classification entrypoint
     patch.object(LLMZeroShotClassifier, "__call__", fake_classify).start()
 
-    # 2. Patch Google Embeddings by replacing the class entirely where it is imported.
+    # 2. Patch Ollama Embeddings by replacing the class entirely where it is imported.
     # We inherit from LangChain's Embeddings ABC to pass internal isinstance() checks in FAISS,
     # which fixes the 'FakeEmbeddings object is not callable' error without relying on a specific
     # underlying Google SDK (google-generativeai vs google-genai) that might differ across Python versions.
@@ -121,7 +121,7 @@ if os.getenv("USE_MOCK_LLM", "").lower() in ("1", "true", "yes"):
 
     class FakeEmbeddings(Embeddings):
         def __init__(self, *args, **kwargs):
-            # Accept any init args that the real GoogleGenerativeAIEmbeddings would take
+            # Accept any init args that the real OllamaEmbeddings would take
             pass
 
         def embed_documents(self, texts: list[str]) -> list[list[float]]:
@@ -132,5 +132,5 @@ if os.getenv("USE_MOCK_LLM", "").lower() in ("1", "true", "yes"):
         def embed_query(self, text: str) -> list[float]:
             return [0.1 for _ in range(768)]
 
-    patch("src.rag.ingest.GoogleGenerativeAIEmbeddings", FakeEmbeddings).start()
-    patch("src.rag.retriever.GoogleGenerativeAIEmbeddings", FakeEmbeddings).start()
+    patch("src.rag.ingest.OllamaEmbeddings", FakeEmbeddings).start()
+    patch("src.rag.retriever.OllamaEmbeddings", FakeEmbeddings).start()

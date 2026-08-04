@@ -252,7 +252,9 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
         ORDER BY updated_at DESC
     """)
     async with _session_factory() as session:  # type: ignore[misc]
-        result = await session.execute(select_sql, {"owner_id": owner_id, "workspace_id": workspace_id})
+        result = await session.execute(
+            select_sql, {"owner_id": owner_id, "workspace_id": workspace_id}
+        )
         rows = result.fetchall()
 
     res = []
@@ -261,13 +263,15 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
         if row.messages_json and len(row.messages_json) > 0:
             # Get the first user message or any first message as preview
             preview = row.messages_json[0].get("content", "New Conversation")
-        res.append({
-            "session_id": row.session_id,
-            "company_name": row.company_name,
-            "persona_label": row.persona_label,
-            "updated_at": row.updated_at.isoformat() if row.updated_at else None,
-            "preview": preview,
-        })
+        res.append(
+            {
+                "session_id": row.session_id,
+                "company_name": row.company_name,
+                "persona_label": row.persona_label,
+                "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+                "preview": preview,
+            }
+        )
     return res
 
 

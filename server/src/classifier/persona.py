@@ -36,7 +36,7 @@ logger = logging.getLogger("auralis.classifier.persona")
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 
 # Minimum confidence below which we fall back to "Unknown"
 _UNKNOWN_THRESHOLD = 0.25

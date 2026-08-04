@@ -45,7 +45,7 @@ class CombinedClassificationOutput(BaseModel):
 class LLMZeroShotClassifier:
     def __init__(self):
         self.llm = ChatGoogleGenerativeAI(
-            model=os.environ.get("GEMINI_MODEL", "gemini-3.1-flash-lite"),
+            model=os.environ.get("GEMINI_MODEL", "gemini-2.5-flash"),
             temperature=0,
             google_api_key=os.getenv("GEMINI_API_KEY"),
         )

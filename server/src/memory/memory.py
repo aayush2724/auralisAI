@@ -373,7 +373,17 @@ class ConversationMemory:
                 )
                 if last_user and last_user.metadata.get("persona"):
                     facts["persona_label"] = last_user.metadata["persona"].get("label")
-            await save_session(self._session_id, facts, self._owner_id)
+            
+            messages_list = [
+                {
+                    "role": m.role,
+                    "content": m.content,
+                    "metadata": m.metadata,
+                    "turn": m.turn
+                }
+                for m in self._messages
+            ]
+            await save_session(self._session_id, facts, self._owner_id, messages=messages_list)
             logger.debug("Session persisted: %s", self._session_id)
         except SQLAlchemyError as exc:
             logger.warning(
@@ -411,11 +421,25 @@ class ConversationMemory:
                 instance._facts["objections_raised"] = (
                     stored.get("objections_raised") or []
                 )
+                
+                # Restore messages from database
+                db_messages = stored.get("messages") or []
+                instance._messages = [
+                    Message(
+                        role=m["role"],
+                        content=m["content"],
+                        metadata=m.get("metadata") or {},
+                        turn=m.get("turn") or (idx + 1)
+                    )
+                    for idx, m in enumerate(db_messages)
+                ]
+                
                 logger.info(
-                    "Loaded session %s from DB: company=%s tools=%s",
+                    "Loaded session %s from DB: company=%s tools=%s turns=%d",
                     session_id,
                     stored.get("company_name"),
                     stored.get("tools_mentioned"),
+                    len(instance._messages),
                 )
         except SQLAlchemyError as exc:
             logger.warning(

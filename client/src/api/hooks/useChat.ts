@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { chatRequest } from '../client';
+import { chatRequest, chatClient } from '../client';
 import type { ChatResponse, ChatRequest, Message } from '../../types/api';
 
 type WebSocketEvent =
@@ -41,6 +41,7 @@ export const useChat = (sessionId: string) => {
       sourceMessage: source,
     };
     setMessages((prev) => [...prev, assistantMessage]);
+    window.dispatchEvent(new Event('chat_updated'));
   }, []);
 
   const sendWithHttpFallback = useCallback(async (message: string) => {
@@ -124,7 +125,58 @@ export const useChat = (sessionId: string) => {
   }, [appendAssistantMessage, sendWithHttpFallback]);
 
   useEffect(() => {
+    let active = true;
+    const fetchHistory = async () => {
+      setIsLoading(true);
+      setWsError(null);
+      try {
+        const { data } = await chatClient.get<any[]>(`/chat/history/${sessionId}`);
+        if (!active) return;
+        
+        const mappedMessages: Message[] = data.map((msg) => {
+          const hasMeta = msg.metadata && (msg.metadata.persona || msg.metadata.objection);
+          return {
+            id: msg.id || crypto.randomUUID(),
+            role: msg.role === 'assistant' ? 'assistant' : 'user',
+            content: msg.content,
+            timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+            responseMeta: hasMeta ? {
+              response: msg.content,
+              session_id: sessionId,
+              objection_label: msg.metadata?.objection?.label || 'neutral',
+              confidence: msg.metadata?.objection?.confidence ?? 1.0,
+              sentiment: msg.metadata?.sentiment?.label || 'neutral',
+              persona: msg.metadata?.persona?.label || 'Unknown',
+              strategy: msg.metadata?.strategy || 'discovery_questions',
+              should_handoff: msg.metadata?.should_handoff || false,
+              memory_context: '',
+              retrieved_docs: [],
+              explanation: msg.metadata?.explanation || {
+                objection_reason: '',
+                persona_reason: '',
+                sentiment_reason: '',
+                strategy_reason: '',
+                trigger_phrases: [],
+              }
+            } : undefined
+          };
+        });
+        setMessages(mappedMessages);
+      } catch (err) {
+        if (active) {
+          setMessages([]);
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchHistory();
+
     return () => {
+      active = false;
       wsRef.current?.close();
       wsRef.current = null;
     };
@@ -138,6 +190,7 @@ export const useChat = (sessionId: string) => {
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, userMessage]);
+    window.dispatchEvent(new Event('chat_updated'));
     setIsLoading(true);
     setWsError(null);
     pendingSourceRef.current = message;

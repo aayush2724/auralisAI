@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, BarChart2, Database, LogOut, Menu, MessageSquarePlus } from 'lucide-react';
+import { MessageSquare, BarChart2, Database, LogOut, Menu, MessageSquarePlus, Trash2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
 import IconCircle from '../ui/IconCircle';
+import { type ChatSessionPreview } from '../../types/api';
 
 export type Tab = 'chat' | 'analytics' | 'kb';
 
@@ -14,6 +15,10 @@ interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   role: string | null;
+  currentSessionId?: string;
+  onSelectSession?: (sessionId: string) => void;
+  onDeleteSession?: (sessionId: string) => void;
+  sessions?: ChatSessionPreview[];
 }
 
 const navItems = [
@@ -22,7 +27,18 @@ const navItems = [
   { id: 'kb', label: 'Knowledge Base', icon: Database },
 ] as const;
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onNewChat, isOpen, onToggle, role }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  onNewChat,
+  isOpen,
+  onToggle,
+  role,
+  currentSessionId,
+  onSelectSession,
+  onDeleteSession,
+  sessions,
+}) => {
   const clearToken = useAuthStore((state) => state.clearToken);
 
   const handleLogout = () => {
@@ -66,8 +82,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onNewChat, i
         role="navigation"
         aria-label="Dashboard navigation"
       >
-        <div className="space-y-6">
-          <div className="space-y-4 px-2">
+        <div className="space-y-6 flex flex-col h-[calc(100vh-80px)]">
+          <div className="space-y-4 px-2 shrink-0">
             <div className="flex items-start gap-3">
               <div className="flex flex-col">
                 <span className="text-2xl font-semibold tracking-[-0.05em] text-theme-primary leading-none">Auralis</span>
@@ -76,7 +92,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onNewChat, i
             </div>
           </div>
 
-          <div className="px-2">
+          <div className="px-2 shrink-0">
             <button
               onClick={() => {
                 onNewChat();
@@ -95,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onNewChat, i
             </button>
           </div>
 
-          <nav className="space-y-2" aria-label="Dashboard tabs">
+          <nav className="space-y-2 shrink-0" aria-label="Dashboard tabs">
             {visibleItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -129,9 +145,64 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onNewChat, i
               );
             })}
           </nav>
+
+          {activeTab === 'chat' && sessions && sessions.length > 0 && (
+            <div className="flex-1 overflow-y-auto px-2 space-y-2 mt-2 border-t border-theme-border/50 pt-4 min-h-0">
+              <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-theme-muted px-2 mb-2">
+                Recent Chats
+              </div>
+              <div className="space-y-1">
+                {sessions.map((session) => {
+                  const isActive = currentSessionId === session.session_id;
+                  return (
+                    <div
+                      key={session.session_id}
+                      className={`group relative flex items-center justify-between rounded-xl px-3 py-2 text-left transition-all duration-200 ${
+                        isActive
+                          ? 'bg-white/75 text-theme-primary shadow-[0_4px_16px_rgba(79,70,229,0.08)] ring-1 ring-white/70'
+                          : 'text-theme-secondary hover:bg-white/45 hover:text-theme-primary'
+                      }`}
+                    >
+                      <button
+                        onClick={() => {
+                          onSelectSession?.(session.session_id);
+                          if (window.innerWidth < 1024) onToggle();
+                        }}
+                        className="flex-1 min-w-0 pr-6 text-left"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate text-xs font-semibold">
+                            {session.company_name || 'New Lead'}
+                          </span>
+                          {session.persona_label && (
+                            <span className="rounded-full border border-theme-border/60 bg-white/80 px-1.5 py-0.5 text-[9px] font-medium text-theme-secondary scale-90 origin-left">
+                              {session.persona_label}
+                            </span>
+                          )}
+                        </div>
+                        <p className="truncate text-[10px] text-theme-muted mt-0.5">
+                          {session.preview}
+                        </p>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteSession?.(session.session_id);
+                        }}
+                        className="absolute right-2 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity p-1 rounded-md hover:bg-white/80"
+                        aria-label="Delete chat session"
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-theme-muted hover:text-red-500" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="space-y-4 border-t border-theme-border pt-4">
+        <div className="space-y-4 border-t border-theme-border pt-4 shrink-0">
           <Button
             variant="secondary"
             onClick={handleLogout}

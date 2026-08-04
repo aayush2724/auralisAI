@@ -132,5 +132,4 @@ if os.getenv("USE_MOCK_LLM", "").lower() in ("1", "true", "yes"):
         def embed_query(self, text: str) -> list[float]:
             return [0.1 for _ in range(768)]
 
-    patch("src.rag.ingest.OllamaEmbeddings", FakeEmbeddings).start()
-    patch("src.rag.retriever.OllamaEmbeddings", FakeEmbeddings).start()
+    patch("src.rag.embeddings.get_embeddings", return_value=FakeEmbeddings()).start()

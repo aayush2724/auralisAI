@@ -1,9 +1,8 @@
-import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-import pytest
+from unittest.mock import patch
 
-from src.rag.ingest import _load_pdf, _load_csv, _load_md, ingest_directory
+from src.rag.ingest import _load_csv, _load_md, ingest_directory
+
+# TODO: Add test_load_pdf for full coverage of _load_pdf
 
 def test_load_md(tmp_path):
     md_file = tmp_path / "test.md"

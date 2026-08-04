@@ -28,17 +28,15 @@ from typing import Any
 import fitz  # PyMuPDF
 
 # pyrefly: ignore [missing-import]
-import pdfplumber
+import pandas as pd
 
 # pyrefly: ignore [missing-import]
-import pandas as pd
+import pdfplumber
 
 # pyrefly: ignore [missing-import]
 from langchain_community.vectorstores import FAISS
 
 # pyrefly: ignore [missing-import]
-from langchain_ollama import OllamaEmbeddings
-
 # pyrefly: ignore [missing-import]
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 

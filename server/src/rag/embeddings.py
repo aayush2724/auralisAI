@@ -1,5 +1,6 @@
 import os
 
+
 def get_embeddings():
     """
     Return the embeddings client to use for this environment.

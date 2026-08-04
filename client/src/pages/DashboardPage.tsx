@@ -70,19 +70,6 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'chat':
-        return <ChatPanel key={sessionId} sessionId={sessionId} />;
-      case 'analytics':
-        return <AnalyticsDashboard />;
-      case 'kb':
-        return <KnowledgeBasePanel />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <DashboardShell
       activeTab={activeTab}
@@ -96,8 +83,20 @@ const DashboardPage: React.FC = () => {
       onDeleteSession={handleDeleteSession}
       sessions={sessions}
     >
-      <div className="h-full overflow-hidden">
-        {renderContent()}
+      <div className="h-full overflow-hidden relative">
+        <div className={`h-full ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
+          <ChatPanel key={sessionId} sessionId={sessionId} />
+        </div>
+        {activeTab === 'analytics' && (
+          <div className="h-full overflow-y-auto">
+            <AnalyticsDashboard />
+          </div>
+        )}
+        {activeTab === 'kb' && (
+          <div className="h-full overflow-y-auto">
+            <KnowledgeBasePanel />
+          </div>
+        )}
       </div>
     </DashboardShell>
   );

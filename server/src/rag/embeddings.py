@@ -15,12 +15,14 @@ def get_embeddings():
     """
     if os.getenv("ENVIRONMENT", "development") == "production":
         from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
         return GoogleGenerativeAIEmbeddings(
             model=os.getenv("GEMINI_EMBED_MODEL", "models/text-embedding-004"),
             google_api_key=os.getenv("GEMINI_API_KEY"),
         )
 
     from langchain_ollama import OllamaEmbeddings
+
     return OllamaEmbeddings(
         model=os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
         base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),

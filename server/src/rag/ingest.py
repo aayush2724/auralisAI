@@ -74,7 +74,7 @@ def _load_pdf(path: Path) -> list[dict[str, Any]]:
                         "page": page_num + 1,
                     }
                 )
-                
+
     try:
         with pdfplumber.open(path) as pdf:
             for page_num, page in enumerate(pdf.pages):
@@ -84,20 +84,28 @@ def _load_pdf(path: Path) -> list[dict[str, Any]]:
                     header = table[0]
                     rows = table[1:]
                     md_lines = [
-                        "| " + " | ".join(str(c or "").replace('\n', ' ') for c in header) + " |",
+                        "| "
+                        + " | ".join(str(c or "").replace("\n", " ") for c in header)
+                        + " |",
                         "| " + " | ".join("---" for _ in header) + " |",
                     ]
                     for row in rows:
-                        md_lines.append("| " + " | ".join(str(c or "").replace('\n', ' ') for c in row) + " |")
-                    docs.append({
-                        "text": "\n".join(md_lines),
-                        "source_file": path.name,
-                        "doc_type": "pdf_table",
-                        "page": page_num + 1,
-                    })
+                        md_lines.append(
+                            "| "
+                            + " | ".join(str(c or "").replace("\n", " ") for c in row)
+                            + " |"
+                        )
+                    docs.append(
+                        {
+                            "text": "\n".join(md_lines),
+                            "source_file": path.name,
+                            "doc_type": "pdf_table",
+                            "page": page_num + 1,
+                        }
+                    )
     except Exception as e:
         logger.warning("Table extraction failed for %s: %s", path.name, e)
-        
+
     logger.info("  PDF  | %s | %d page/table chunk(s) extracted", path.name, len(docs))
     return docs
 
@@ -165,6 +173,7 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
     metadatas = [c["metadata"] for c in chunks]
 
     from src.rag.embeddings import get_embeddings
+
     embeddings = get_embeddings()
     logger.info("Loading embedding model: %s", type(embeddings).__name__)
 

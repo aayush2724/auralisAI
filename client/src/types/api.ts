@@ -89,3 +89,11 @@ export interface Message {
   responseMeta?: ChatResponse;
   sourceMessage?: string;
 }
+
+export interface ChatSessionPreview {
+  session_id: string;
+  company_name: string | null;
+  persona_label: string | null;
+  updated_at: string | null;
+  preview: string;
+}

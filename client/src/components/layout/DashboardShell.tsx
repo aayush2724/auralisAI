@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import Sidebar, { type Tab } from './Sidebar';
 import AmbientBackground from '../ui/AmbientBackground';
+import { type ChatSessionPreview } from '../../types/api';
 
 export default function DashboardShell({
   children,
@@ -10,6 +11,10 @@ export default function DashboardShell({
   sidebarOpen,
   setSidebarOpen,
   role,
+  currentSessionId,
+  onSelectSession,
+  onDeleteSession,
+  sessions,
 }: {
   children: ReactNode;
   activeTab: Tab;
@@ -18,6 +23,10 @@ export default function DashboardShell({
   sidebarOpen: boolean;
   setSidebarOpen: (value: boolean) => void;
   role: string | null;
+  currentSessionId?: string;
+  onSelectSession?: (sessionId: string) => void;
+  onDeleteSession?: (sessionId: string) => void;
+  sessions?: ChatSessionPreview[];
 }) {
   return (
     <div className="h-screen light-shell relative overflow-hidden bg-theme-bg text-theme-primary font-sans">
@@ -30,6 +39,10 @@ export default function DashboardShell({
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
           role={role}
+          currentSessionId={currentSessionId}
+          onSelectSession={onSelectSession}
+          onDeleteSession={onDeleteSession}
+          sessions={sessions}
         />
         <main className="flex h-screen flex-1 flex-col lg:ml-[300px] p-3 sm:p-4 lg:p-6">
           <div className="glass-panel h-[calc(100vh-1.5rem)] overflow-hidden rounded-[var(--radius-container)]">

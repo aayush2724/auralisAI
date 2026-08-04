@@ -61,7 +61,7 @@ from src.api.schemas import (
 )
 from src.classifier.shared_model import GeminiRateLimitError
 from src.graph.graph import run_graph
-from src.memory.db import load_session, save_session
+from src.memory.db import load_session, save_session, list_sessions, delete_session
 from src.memory.memory import ConversationMemory
 from src.utils.explainability import explain
 from src.utils.limiter import limiter
@@ -477,6 +477,74 @@ async def get_session_facts(
         raise
     except Exception:
         logger.exception("Error in GET /session/%s", session_id)
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred. Please try again or contact support.",
+        )
+
+
+@router.get(
+    "/chat/sessions",
+    summary="List all past chat sessions for the current user.",
+    description="Returns a list of all chat sessions created by the current user.",
+)
+async def get_chat_sessions(
+    current_user: User = require_roles("sales_rep", "admin"),
+) -> list[dict[str, Any]]:
+    try:
+        return await list_sessions(owner_id=current_user.id, workspace_id=current_user.workspace_id)
+    except Exception:
+        logger.exception("Error listing chat sessions for user %s", current_user.id)
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred. Please try again or contact support.",
+        )
+
+
+@router.get(
+    "/chat/history/{session_id}",
+    summary="Retrieve the chat message history for a given session.",
+    description="Returns the full list of messages for the given session_id if owned by the user.",
+)
+async def get_chat_history(
+    session_id: str,
+    current_user: User = require_roles("sales_rep", "admin"),
+) -> list[dict[str, Any]]:
+    try:
+        facts = await load_session(session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id)
+        if not facts:
+            raise HTTPException(status_code=404, detail="Session not found.")
+        return facts.get("messages") or []
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error fetching history for session %s", session_id)
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred. Please try again or contact support.",
+        )
+
+
+@router.delete(
+    "/chat/session/{session_id}",
+    summary="Delete a chat session.",
+    description="Deletes the specified chat session from the database.",
+)
+async def delete_chat_session(
+    session_id: str,
+    current_user: User = require_roles("sales_rep", "admin"),
+) -> dict[str, Any]:
+    try:
+        # Load first to verify permissions
+        await load_session(session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id)
+        await delete_session(session_id)
+        return {"status": "success", "message": f"Session {session_id} deleted successfully."}
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except Exception:
+        logger.exception("Error deleting session %s", session_id)
         raise HTTPException(
             status_code=500,
             detail="An internal error occurred. Please try again or contact support.",

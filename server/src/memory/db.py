@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS customer_sessions (
 
 ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS user_id VARCHAR(320);
 ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS workspace_id VARCHAR(64) DEFAULT 'default_tenant';
+ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS messages_json JSONB NOT NULL DEFAULT '[]';
 
 CREATE INDEX IF NOT EXISTS idx_customer_sessions_session_id
     ON customer_sessions (session_id);
@@ -135,6 +136,7 @@ async def save_session(
     facts_dict: dict[str, Any],
     owner_id: str | None = None,
     workspace_id: str = "default_tenant",
+    messages: list[dict[str, Any]] | None = None,
 ) -> None:
     """
     Upsert session facts into customer_sessions.
@@ -150,16 +152,17 @@ async def save_session(
     now = datetime.now(tz=UTC)
     objections_json = json.dumps(facts_dict.get("objections_raised", []))
     tools_json = json.dumps(facts_dict.get("tools_mentioned", []))
+    messages_json = json.dumps(messages or [])
 
     upsert_sql = text("""
         INSERT INTO customer_sessions
             (session_id, user_id, workspace_id, company_name, persona_label,
-             objections_json, tools_json, budget_signal,
+             objections_json, tools_json, budget_signal, messages_json,
              created_at, updated_at)
         VALUES
             (:session_id, :user_id, :workspace_id, :company_name, :persona_label,
              CAST(:objections_json AS jsonb), CAST(:tools_json AS jsonb),
-             :budget_signal, :now, :now)
+             :budget_signal, CAST(:messages_json AS jsonb), :now, :now)
         ON CONFLICT (session_id) DO UPDATE SET
             user_id         = COALESCE(customer_sessions.user_id, EXCLUDED.user_id),
             workspace_id    = EXCLUDED.workspace_id,
@@ -168,6 +171,7 @@ async def save_session(
             objections_json = EXCLUDED.objections_json,
             tools_json      = EXCLUDED.tools_json,
             budget_signal   = EXCLUDED.budget_signal,
+            messages_json   = EXCLUDED.messages_json,
             updated_at      = EXCLUDED.updated_at
     """)
 
@@ -180,6 +184,7 @@ async def save_session(
         "objections_json": objections_json,
         "tools_json": tools_json,
         "budget_signal": facts_dict.get("budget_signal"),
+        "messages_json": messages_json,
         "now": now,
     }
 
@@ -203,7 +208,7 @@ async def load_session(
     _get_engine()
 
     select_sql = text("""
-        SELECT user_id, workspace_id, company_name, persona_label, objections_json, tools_json, budget_signal
+        SELECT user_id, workspace_id, company_name, persona_label, objections_json, tools_json, budget_signal, messages_json
         FROM   customer_sessions
         WHERE  session_id = :session_id
         LIMIT  1
@@ -231,9 +236,39 @@ async def load_session(
         "objections_raised": row.objections_json or [],
         "tools_mentioned": row.tools_json or [],
         "budget_signal": row.budget_signal,
+        "messages": row.messages_json or [],
     }
     logger.debug("Session loaded: %s | facts=%s", session_id, facts)
     return facts
+
+
+async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]]:
+    """List all sessions belonging to owner_id and workspace_id."""
+    _get_engine()
+    select_sql = text("""
+        SELECT session_id, company_name, persona_label, updated_at, messages_json
+        FROM   customer_sessions
+        WHERE  user_id = :owner_id AND workspace_id = :workspace_id
+        ORDER BY updated_at DESC
+    """)
+    async with _session_factory() as session:  # type: ignore[misc]
+        result = await session.execute(select_sql, {"owner_id": owner_id, "workspace_id": workspace_id})
+        rows = result.fetchall()
+
+    res = []
+    for row in rows:
+        preview = "New Conversation"
+        if row.messages_json and len(row.messages_json) > 0:
+            # Get the first user message or any first message as preview
+            preview = row.messages_json[0].get("content", "New Conversation")
+        res.append({
+            "session_id": row.session_id,
+            "company_name": row.company_name,
+            "persona_label": row.persona_label,
+            "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+            "preview": preview,
+        })
+    return res
 
 
 async def delete_session(session_id: str) -> None:

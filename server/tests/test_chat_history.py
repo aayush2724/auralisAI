@@ -1,9 +1,16 @@
-import pytest
 import uuid
-from fastapi.testclient import TestClient
-from src.memory.db import init_db, save_session, load_session, list_sessions, delete_session
+
+import pytest
+
+from src.memory.db import (
+    delete_session,
+    init_db,
+    list_sessions,
+    load_session,
+    save_session,
+)
 from src.memory.memory import ConversationMemory
-from src.api.main import app
+
 
 @pytest.mark.asyncio
 async def test_db_chat_history():
@@ -20,15 +27,33 @@ async def test_db_chat_history():
     }
 
     messages = [
-        {"role": "user", "content": "Hello, we use Salesforce.", "metadata": {}, "turn": 1},
-        {"role": "assistant", "content": "I can help with Salesforce.", "metadata": {}, "turn": 2}
+        {
+            "role": "user",
+            "content": "Hello, we use Salesforce.",
+            "metadata": {},
+            "turn": 1,
+        },
+        {
+            "role": "assistant",
+            "content": "I can help with Salesforce.",
+            "metadata": {},
+            "turn": 2,
+        },
     ]
 
     # Test saving
-    await save_session(session_id, facts, owner_id=owner_id, workspace_id=workspace_id, messages=messages)
+    await save_session(
+        session_id,
+        facts,
+        owner_id=owner_id,
+        workspace_id=workspace_id,
+        messages=messages,
+    )
 
     # Test loading
-    loaded = await load_session(session_id, owner_id=owner_id, workspace_id=workspace_id)
+    loaded = await load_session(
+        session_id, owner_id=owner_id, workspace_id=workspace_id
+    )
     assert loaded is not None
     assert loaded["company_name"] == "TestCompany"
     assert loaded["tools_mentioned"] == ["Salesforce"]
@@ -49,5 +74,7 @@ async def test_db_chat_history():
 
     # Test deletion
     await delete_session(session_id)
-    loaded_after_delete = await load_session(session_id, owner_id=owner_id, workspace_id=workspace_id)
+    loaded_after_delete = await load_session(
+        session_id, owner_id=owner_id, workspace_id=workspace_id
+    )
     assert loaded_after_delete is None

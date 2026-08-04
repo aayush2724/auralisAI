@@ -38,6 +38,7 @@ import asyncio
 import logging
 import time
 from collections import deque
+from typing import Any
 
 from fastapi import (
     APIRouter,
@@ -61,7 +62,7 @@ from src.api.schemas import (
 )
 from src.classifier.shared_model import GeminiRateLimitError
 from src.graph.graph import run_graph
-from src.memory.db import load_session, save_session, list_sessions, delete_session
+from src.memory.db import delete_session, list_sessions, load_session, save_session
 from src.memory.memory import ConversationMemory
 from src.utils.explainability import explain
 from src.utils.limiter import limiter
@@ -492,7 +493,9 @@ async def get_chat_sessions(
     current_user: User = require_roles("sales_rep", "admin"),
 ) -> list[dict[str, Any]]:
     try:
-        return await list_sessions(owner_id=current_user.id, workspace_id=current_user.workspace_id)
+        return await list_sessions(
+            owner_id=current_user.id, workspace_id=current_user.workspace_id
+        )
     except Exception:
         logger.exception("Error listing chat sessions for user %s", current_user.id)
         raise HTTPException(
@@ -511,7 +514,9 @@ async def get_chat_history(
     current_user: User = require_roles("sales_rep", "admin"),
 ) -> list[dict[str, Any]]:
     try:
-        facts = await load_session(session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id)
+        facts = await load_session(
+            session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id
+        )
         if not facts:
             raise HTTPException(status_code=404, detail="Session not found.")
         return facts.get("messages") or []
@@ -538,9 +543,14 @@ async def delete_chat_session(
 ) -> dict[str, Any]:
     try:
         # Load first to verify permissions
-        await load_session(session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id)
+        await load_session(
+            session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id
+        )
         await delete_session(session_id)
-        return {"status": "success", "message": f"Session {session_id} deleted successfully."}
+        return {
+            "status": "success",
+            "message": f"Session {session_id} deleted successfully.",
+        }
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
     except Exception:

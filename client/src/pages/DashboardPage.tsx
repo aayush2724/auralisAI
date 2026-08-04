@@ -27,13 +27,20 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     fetchSessions();
 
+    // Refresh sessions list when a chat message is sent/received
     const handleChatUpdated = () => {
-      fetchSessions();
+      // Small delay to allow DB write to complete
+      setTimeout(fetchSessions, 800);
     };
 
     window.addEventListener('chat_updated', handleChatUpdated);
+
+    // Poll every 30 seconds for fresh data
+    const interval = setInterval(fetchSessions, 30_000);
+
     return () => {
       window.removeEventListener('chat_updated', handleChatUpdated);
+      clearInterval(interval);
     };
   }, []);
 
@@ -62,9 +69,9 @@ const DashboardPage: React.FC = () => {
       await chatClient.delete(`/chat/session/${id}`);
       if (sessionId === id) {
         handleNewChat();
-      } else {
-        fetchSessions();
       }
+      // Always refetch to update the list
+      fetchSessions();
     } catch (err) {
       console.error('Error deleting session:', err);
     }

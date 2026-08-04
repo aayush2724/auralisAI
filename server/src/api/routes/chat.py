@@ -110,7 +110,32 @@ async def _run_chat_turn(
     if persona_label:
         facts["persona_label"] = persona_label
 
-    await save_session(session_id, facts, owner_id, workspace_id)
+    # Build the full messages list including the assistant response for this turn
+    messages_list = [
+        {
+            "role": m.role,
+            "content": m.content,
+            "metadata": m.metadata,
+            "turn": m.turn,
+        }
+        for m in memory._messages
+    ]
+    # Append the assistant response (graph result) to the persisted messages
+    messages_list.append({
+        "role": "assistant",
+        "content": response_text,
+        "metadata": {
+            "objection": {"label": (state.get("objection") or {}).get("label", "neutral"),
+                          "confidence": float(state.get("confidence", 1.0))},
+            "sentiment": {"label": (state.get("sentiment") or {}).get("label", "neutral")},
+            "persona": {"label": persona_dict.get("label", "Unknown")},
+            "strategy": state.get("strategy", "discovery_questions"),
+            "should_handoff": bool(state.get("should_handoff", False)),
+        },
+        "turn": len(messages_list) + 1,
+    })
+
+    await save_session(session_id, facts, owner_id, workspace_id, messages=messages_list)
 
     objection_dict = state.get("objection") or {}
     sentiment_dict = state.get("sentiment") or {}

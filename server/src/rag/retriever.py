@@ -22,7 +22,7 @@ from typing import Any
 
 # pyrefly: ignore [missing-import]
 from langchain_community.vectorstores import FAISS
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
 
@@ -35,18 +35,17 @@ VECTORSTORE_PATH = Path(os.getenv("VECTORSTORE_PATH", "vectorstore"))
 
 # ─── Module-level singletons (lazy-loaded) ────────────────────────────────────
 
-_embeddings: GoogleGenerativeAIEmbeddings | None = None
+_embeddings: OllamaEmbeddings | None = None
 _vectorstore: FAISS | None = None
 
 
-def _get_embeddings() -> GoogleGenerativeAIEmbeddings:
+def _get_embeddings() -> OllamaEmbeddings:
     global _embeddings
     if _embeddings is None:
-        logger.info("Loading embedding model: %s", EMBEDDING_MODEL)
-        _embeddings = GoogleGenerativeAIEmbeddings(
-            model=EMBEDDING_MODEL,
-            google_api_key=os.getenv("GEMINI_API_KEY"),
-            output_dimensionality=768,
+        logger.info("Loading embedding model: nomic-embed-text via Ollama")
+        _embeddings = OllamaEmbeddings(
+            model=os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
+            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         )
     return _embeddings
 

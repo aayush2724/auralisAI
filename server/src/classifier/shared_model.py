@@ -331,15 +331,22 @@ class LocalTransformersClassifier:
             self._set_cache(cache_key, out)
             return out
 
+        # Use descriptions as the actual hypothesis text if provided, mapping back to short labels after
+        labels_to_query = descriptions if descriptions else candidate_labels
+        label_lookup = dict(zip(descriptions, candidate_labels)) if descriptions else None
+
         cache_key = hashlib.md5(
-            f"hf_single|{text}|{candidate_labels}".encode()
+            f"hf_single|{text}|{labels_to_query}".encode()
         ).hexdigest()
         cached_val = self._get_cache(cache_key)
         if cached_val:
             return cached_val
 
-        res = self.zero_shot_pipe(text, candidate_labels)
-        out = {"labels": [res["labels"][0]], "scores": [res["scores"][0]]}
+        res = self.zero_shot_pipe(text, labels_to_query)
+        winning = res["labels"][0]
+        final_label = label_lookup[winning] if label_lookup else winning
+
+        out = {"labels": [final_label], "scores": [res["scores"][0]]}
         self._set_cache(cache_key, out)
         return out
 
@@ -351,23 +358,31 @@ class LocalTransformersClassifier:
         persona_labels: list[str],
         persona_descriptions: list[str],
     ) -> dict[str, Any]:
+        obj_query_labels = objection_descriptions if objection_descriptions else objection_labels
+        obj_lookup = dict(zip(objection_descriptions, objection_labels)) if objection_descriptions else None
+        per_query_labels = persona_descriptions if persona_descriptions else persona_labels
+        per_lookup = dict(zip(persona_descriptions, persona_labels)) if persona_descriptions else None
+
         cache_key = hashlib.md5(
-            f"hf_combined|{text}|{objection_labels}|{persona_labels}".encode()
+            f"hf_combined|{text}|{obj_query_labels}|{per_query_labels}".encode()
         ).hexdigest()
         cached_val = self._get_cache(cache_key)
         if cached_val:
             return cached_val
 
-        obj_res = self.zero_shot_pipe(text, objection_labels)
-        per_res = self.zero_shot_pipe(text, persona_labels)
+        obj_res = self.zero_shot_pipe(text, obj_query_labels)
+        per_res = self.zero_shot_pipe(text, per_query_labels)
+
+        obj_winning = obj_res["labels"][0]
+        per_winning = per_res["labels"][0]
 
         out = {
             "objection": {
-                "label": obj_res["labels"][0],
+                "label": obj_lookup[obj_winning] if obj_lookup else obj_winning,
                 "confidence": obj_res["scores"][0],
             },
             "persona": {
-                "label": per_res["labels"][0],
+                "label": per_lookup[per_winning] if per_lookup else per_winning,
                 "confidence": per_res["scores"][0],
             },
         }

@@ -35,7 +35,7 @@ import pandas as pd
 from langchain_community.vectorstores import FAISS
 
 # pyrefly: ignore [missing-import]
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
 
 # pyrefly: ignore [missing-import]
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -140,11 +140,10 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
     texts = [c["text"] for c in chunks]
     metadatas = [c["metadata"] for c in chunks]
 
-    logger.info("Loading embedding model: %s", EMBEDDING_MODEL)
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model=EMBEDDING_MODEL,
-        google_api_key=os.getenv("GEMINI_API_KEY"),
-        output_dimensionality=768,
+    logger.info("Loading embedding model: nomic-embed-text via Ollama")
+    embeddings = OllamaEmbeddings(
+        model=os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
+        base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
     )
 
     index_file = vectorstore_path / "index.faiss"

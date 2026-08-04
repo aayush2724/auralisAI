@@ -3,6 +3,7 @@ langchain
 langchain-community
 langchain-google-genai~=4.2.6
 langchain-openai
+langchain-ollama
 langgraph
 torch
 transformers

@@ -333,7 +333,9 @@ class LocalTransformersClassifier:
 
         # Use descriptions as the actual hypothesis text if provided, mapping back to short labels after
         labels_to_query = descriptions if descriptions else candidate_labels
-        label_lookup = dict(zip(descriptions, candidate_labels)) if descriptions else None
+        label_lookup = (
+            dict(zip(descriptions, candidate_labels)) if descriptions else None
+        )
 
         cache_key = hashlib.md5(
             f"hf_single|{text}|{labels_to_query}".encode()
@@ -358,10 +360,22 @@ class LocalTransformersClassifier:
         persona_labels: list[str],
         persona_descriptions: list[str],
     ) -> dict[str, Any]:
-        obj_query_labels = objection_descriptions if objection_descriptions else objection_labels
-        obj_lookup = dict(zip(objection_descriptions, objection_labels)) if objection_descriptions else None
-        per_query_labels = persona_descriptions if persona_descriptions else persona_labels
-        per_lookup = dict(zip(persona_descriptions, persona_labels)) if persona_descriptions else None
+        obj_query_labels = (
+            objection_descriptions if objection_descriptions else objection_labels
+        )
+        obj_lookup = (
+            dict(zip(objection_descriptions, objection_labels))
+            if objection_descriptions
+            else None
+        )
+        per_query_labels = (
+            persona_descriptions if persona_descriptions else persona_labels
+        )
+        per_lookup = (
+            dict(zip(persona_descriptions, persona_labels))
+            if persona_descriptions
+            else None
+        )
 
         cache_key = hashlib.md5(
             f"hf_combined|{text}|{obj_query_labels}|{per_query_labels}".encode()

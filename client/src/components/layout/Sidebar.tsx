@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, BarChart2, FlaskConical, Database, LogOut, Menu, MessageSquarePlus } from 'lucide-react';
+import { MessageSquare, BarChart2, Database, LogOut, Menu, MessageSquarePlus } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
 import IconCircle from '../ui/IconCircle';
 
-export type Tab = 'chat' | 'analytics' | 'ab' | 'kb';
+export type Tab = 'chat' | 'analytics' | 'kb';
 
 interface SidebarProps {
   activeTab: Tab;
@@ -19,7 +19,6 @@ interface SidebarProps {
 const navItems = [
   { id: 'chat', label: 'Sales Chat', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics', icon: BarChart2 },
-  { id: 'ab', label: 'A/B Test', icon: FlaskConical },
   { id: 'kb', label: 'Knowledge Base', icon: Database },
 ] as const;
 

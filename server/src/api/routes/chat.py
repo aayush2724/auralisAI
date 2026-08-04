@@ -50,7 +50,6 @@ from fastapi import (
 )
 from pydantic import ValidationError
 
-from src.ab.ab_test import ABVariant, assign_variant, static_response
 from src.analytics.tracker import log_event
 from src.api.auth import User, get_current_user_from_token, require_roles
 from src.api.schemas import (
@@ -80,124 +79,66 @@ async def _run_chat_turn(
     user_email: str | None = None,
     workspace_id: str = "default_tenant",
 ) -> tuple[ChatResponse, dict]:
-    # ── Step 0: Determine A/B variant ──────────────────────────────────────────
-    variant = await assign_variant(session_id)
-
     # ── Step 1: Load or create ConversationMemory ─────────────────────────────
     memory = await ConversationMemory.from_session(session_id, owner_id)
 
-    if variant == ABVariant.STATIC:
-        # ── STATIC branch: return canned pitch, skip the graph ────────────────
-        response_text = static_response(message)
-        do_handoff = False
+    # ── Run the full graph pipeline ───────────────────────────────────────────
+    state = run_graph(message, memory)
 
-        # Build a minimal state dict for logging
-        state = {
-            "user_input": message,
-            "response": response_text,
-            "confidence": 0.0,
-            "objection": {"label": "neutral", "confidence": 0.0, "triggers": []},
-            "sentiment": {"label": "neutral", "score": 0.0, "tone_instruction": ""},
-            "persona": {"label": "Unknown", "pitch_angle": ""},
-            "strategy": "static_pitch",
-            "citations": "",
-            "should_handoff": False,
-            "handoff_trigger": None,
-            "handoff_message": "",
-            "retrieved_docs": [],
-            "variant": "STATIC",
-        }
-
-        memory.add(role="user", content=message)
-        memory.add(role="assistant", content=response_text)
-
-        facts = memory.get_facts()
-        await save_session(session_id, facts, owner_id, workspace_id)
-
-        explanation = ExplanationResponse(
-            objection_reason="A/B test: STATIC variant — graph skipped.",
-            persona_reason="A/B test: STATIC variant — graph skipped.",
-            sentiment_reason="A/B test: STATIC variant — graph skipped.",
-            strategy_reason="A/B test: STATIC variant — fixed pitch returned.",
-            trigger_phrases=[],
-            confidence_note="N/A for STATIC variant.",
-            handoff_reason=None,
-        )
-
-        response = ChatResponse(
-            response=response_text,
-            objection_label="neutral",
-            confidence=0.0,
-            sentiment="neutral",
-            persona="Unknown",
-            strategy="static_pitch",
-            citations="",
-            should_handoff=False,
-            handoff_trigger=None,
-            explanation=explanation,
-            retrieved_docs=[],
-            session_id=session_id,
-            memory_context=memory.get_context_string(),
-        )
+    # When handoff triggered, use the handoff_message as the response.
+    do_handoff = bool(state.get("should_handoff", False))
+    if do_handoff:
+        response_text = state.get("handoff_message") or state.get("response", "")
     else:
-        # ── ADAPTIVE branch: run the full graph pipeline ───────────────────────
-        state = run_graph(message, memory)
-        state["variant"] = "ADAPTIVE"
+        response_text = state.get("response", "")
 
-        # When handoff triggered, use the handoff_message as the response.
-        do_handoff = bool(state.get("should_handoff", False))
-        if do_handoff:
-            response_text = state.get("handoff_message") or state.get("response", "")
-        else:
-            response_text = state.get("response", "")
+    exp_dict = explain(state)
+    explanation = ExplanationResponse(
+        objection_reason=exp_dict["objection_reason"],
+        persona_reason=exp_dict["persona_reason"],
+        sentiment_reason=exp_dict["sentiment_reason"],
+        strategy_reason=exp_dict["strategy_reason"],
+        trigger_phrases=exp_dict["trigger_phrases"],
+        confidence_note=exp_dict["confidence_note"],
+        handoff_reason=exp_dict["handoff_reason"],
+    )
 
-        exp_dict = explain(state)
-        explanation = ExplanationResponse(
-            objection_reason=exp_dict["objection_reason"],
-            persona_reason=exp_dict["persona_reason"],
-            sentiment_reason=exp_dict["sentiment_reason"],
-            strategy_reason=exp_dict["strategy_reason"],
-            trigger_phrases=exp_dict["trigger_phrases"],
-            confidence_note=exp_dict["confidence_note"],
-            handoff_reason=exp_dict["handoff_reason"],
+    facts = memory.get_facts()
+    persona_dict = state.get("persona") or {}
+    persona_label = persona_dict.get("label")
+    if persona_label:
+        facts["persona_label"] = persona_label
+
+    await save_session(session_id, facts, owner_id, workspace_id)
+
+    objection_dict = state.get("objection") or {}
+    sentiment_dict = state.get("sentiment") or {}
+
+    retrieved_docs = [
+        RetrievedDoc(
+            text=d.get("text", ""),
+            source_file=d.get("source_file", ""),
+            chunk_index=d.get("chunk_index", -1),
+            score=d.get("score", 0.0),
         )
+        for d in (state.get("retrieved_docs") or [])
+    ]
 
-        facts = memory.get_facts()
-        persona_dict = state.get("persona") or {}
-        persona_label = persona_dict.get("label")
-        if persona_label:
-            facts["persona_label"] = persona_label
-
-        await save_session(session_id, facts, owner_id, workspace_id)
-
-        objection_dict = state.get("objection") or {}
-        sentiment_dict = state.get("sentiment") or {}
-
-        retrieved_docs = [
-            RetrievedDoc(
-                text=d.get("text", ""),
-                source_file=d.get("source_file", ""),
-                chunk_index=d.get("chunk_index", -1),
-                score=d.get("score", 0.0),
-            )
-            for d in (state.get("retrieved_docs") or [])
-        ]
-
-        response = ChatResponse(
-            response=response_text,
-            objection_label=objection_dict.get("label", "neutral"),
-            confidence=float(state.get("confidence", 1.0)),
-            sentiment=sentiment_dict.get("label", "neutral"),
-            persona=persona_dict.get("label", "Unknown"),
-            strategy=state.get("strategy", "discovery_questions"),
-            citations=state.get("citations", ""),
-            should_handoff=do_handoff,
-            handoff_trigger=state.get("handoff_trigger"),
-            explanation=explanation,
-            retrieved_docs=retrieved_docs,
-            session_id=session_id,
-            memory_context=memory.get_context_string(),
-        )
+    response = ChatResponse(
+        response=response_text,
+        objection_label=objection_dict.get("label", "neutral"),
+        confidence=float(state.get("confidence", 1.0)),
+        sentiment=sentiment_dict.get("label", "neutral"),
+        persona=persona_dict.get("label", "Unknown"),
+        strategy=state.get("strategy", "discovery_questions"),
+        citations=state.get("citations", ""),
+        should_handoff=do_handoff,
+        handoff_trigger=state.get("handoff_trigger"),
+        explanation=explanation,
+        retrieved_docs=retrieved_docs,
+        session_id=session_id,
+        memory_context=memory.get_context_string(),
+    )
 
     asyncio.create_task(
         log_event(

@@ -3,7 +3,6 @@ import { type Tab } from '../components/layout/Sidebar';
 import { useAuthStore } from '../store/authStore';
 import ChatPanel from '../components/chat/ChatPanel';
 import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';
-import ABTestPanel from '../components/ab/ABTestPanel';
 import KnowledgeBasePanel from '../components/kb/KnowledgeBasePanel';
 import DashboardShell from '../components/layout/DashboardShell';
 
@@ -33,8 +32,6 @@ const DashboardPage: React.FC = () => {
         return <ChatPanel key={sessionId} sessionId={sessionId} />;
       case 'analytics':
         return <AnalyticsDashboard />;
-      case 'ab':
-        return <ABTestPanel />;
       case 'kb':
         return <KnowledgeBasePanel />;
       default:

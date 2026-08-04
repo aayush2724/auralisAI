@@ -36,7 +36,6 @@ from slowapi.errors import RateLimitExceeded
 
 from src.analytics.tracker import init_analytics_db
 from src.api.auth import init_users_db, seed_admin, seed_demo_user
-from src.api.routes.ab import router as ab_router
 from src.api.routes.analytics import router as analytics_router
 from src.api.routes.auth import router as auth_router
 from src.api.routes.chat import router as chat_router
@@ -235,7 +234,6 @@ app.include_router(auth_router)
 
 # Protected — role guards are declared per-endpoint in the route handlers
 app.include_router(chat_router, tags=["Conversation & Memory"])
-app.include_router(ab_router, tags=["A/B Testing"])
 app.include_router(kb_router, prefix="/kb", tags=["Knowledge Base"])
 app.include_router(analytics_router)
 

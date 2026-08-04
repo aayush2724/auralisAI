@@ -192,10 +192,8 @@ class TestPostChatEndpoint:
     @patch("src.api.routes.chat.explain")
     @patch("src.api.routes.chat.save_session", new_callable=AsyncMock)
     @patch("src.api.routes.chat.log_event", new_callable=AsyncMock)
-    @patch("src.api.routes.chat.assign_variant", new_callable=AsyncMock)
     def test_chat_returns_valid_shape(
         self,
-        mock_variant,
         mock_log_event,
         mock_save,
         mock_explain,
@@ -204,7 +202,6 @@ class TestPostChatEndpoint:
         get_auth_token: str,
     ):
         """POST /chat returns a ChatResponse with all expected fields."""
-        mock_variant.return_value = "ADAPTIVE"
 
         mock_mem = MagicMock()
         mock_mem.get_context_string.return_value = "Customer context: tools=HubSpot."
@@ -242,10 +239,8 @@ class TestPostChatEndpoint:
     @patch("src.api.routes.chat.explain")
     @patch("src.api.routes.chat.save_session", new_callable=AsyncMock)
     @patch("src.api.routes.chat.log_event", new_callable=AsyncMock)
-    @patch("src.api.routes.chat.assign_variant", new_callable=AsyncMock)
     def test_handoff_in_response(
         self,
-        mock_variant,
         mock_log_event,
         mock_save,
         mock_explain,
@@ -254,7 +249,6 @@ class TestPostChatEndpoint:
         get_auth_token: str,
     ):
         """When should_handoff=True, response text equals handoff_message."""
-        mock_variant.return_value = "ADAPTIVE"
 
         mock_mem = MagicMock()
         mock_mem.get_context_string.return_value = ""

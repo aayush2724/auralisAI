@@ -23,7 +23,7 @@ from src.rag.retriever import _reset_cache, format_citations, retrieve
 
 @pytest.fixture(autouse=True)
 def mock_embeddings():
-    with patch("src.rag.retriever._get_embeddings") as mock:
+    with patch("src.rag.embeddings.get_embeddings") as mock:
         mock.return_value = FakeEmbeddings(size=768)
         yield mock, _reset_cache
 

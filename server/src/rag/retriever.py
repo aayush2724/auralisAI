@@ -22,7 +22,6 @@ from typing import Any
 
 # pyrefly: ignore [missing-import]
 from langchain_community.vectorstores import FAISS
-from langchain_ollama import OllamaEmbeddings
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
 
@@ -35,18 +34,16 @@ VECTORSTORE_PATH = Path(os.getenv("VECTORSTORE_PATH", "vectorstore"))
 
 # ─── Module-level singletons (lazy-loaded) ────────────────────────────────────
 
-_embeddings: OllamaEmbeddings | None = None
+_embeddings: Any | None = None
 _vectorstore: FAISS | None = None
 
 
-def _get_embeddings() -> OllamaEmbeddings:
+def _get_embeddings() -> Any:
     global _embeddings
     if _embeddings is None:
-        logger.info("Loading embedding model: nomic-embed-text via Ollama")
-        _embeddings = OllamaEmbeddings(
-            model=os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
-            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-        )
+        from src.rag.embeddings import get_embeddings
+        _embeddings = get_embeddings()
+        logger.info("Loading embedding model: %s", type(_embeddings).__name__)
     return _embeddings
 
 
@@ -62,6 +59,23 @@ def _get_vectorstore(vectorstore_path: Path | None = None) -> FAISS:
                 f"FAISS index not found at {index_file}. "
                 "Run `python -m src.rag.ingest --dir data/` first."
             )
+            
+        import json
+        meta_file = vs_path / "metadata.json"
+        if meta_file.exists():
+            try:
+                meta = json.loads(meta_file.read_text())
+                built_with = meta.get("embedding_model")
+                current = type(_get_embeddings()).__name__
+                if built_with and built_with != current:
+                    logger.warning(
+                        "Embedding backend mismatch! Index built with %s but querying with %s. "
+                        "Search results will be invalid. Please rebuild the index.",
+                        built_with, current
+                    )
+            except Exception as e:
+                logger.warning("Failed to read metadata.json for safety check: %s", e)
+                
         logger.info("Loading FAISS index from %s", vs_path)
         _vectorstore = FAISS.load_local(
             str(vs_path),

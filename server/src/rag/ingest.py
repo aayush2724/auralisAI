@@ -25,8 +25,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-# pyrefly: ignore [missing-import]
 import fitz  # PyMuPDF
+
+# pyrefly: ignore [missing-import]
+import pdfplumber
 
 # pyrefly: ignore [missing-import]
 import pandas as pd
@@ -60,7 +62,7 @@ CHUNK_OVERLAP = 24  # ~96 characters
 
 
 def _load_pdf(path: Path) -> list[dict[str, Any]]:
-    """Extract text pages from a PDF using PyMuPDF."""
+    """Extract text pages from a PDF using PyMuPDF and tables using pdfplumber."""
     docs: list[dict[str, Any]] = []
     with fitz.open(str(path)) as pdf:
         for page_num, page in enumerate(pdf):
@@ -74,7 +76,31 @@ def _load_pdf(path: Path) -> list[dict[str, Any]]:
                         "page": page_num + 1,
                     }
                 )
-    logger.info("  PDF  | %s | %d page(s) extracted", path.name, len(docs))
+                
+    try:
+        with pdfplumber.open(path) as pdf:
+            for page_num, page in enumerate(pdf.pages):
+                for table in page.extract_tables():
+                    if not table or len(table) < 2:
+                        continue
+                    header = table[0]
+                    rows = table[1:]
+                    md_lines = [
+                        "| " + " | ".join(str(c or "").replace('\n', ' ') for c in header) + " |",
+                        "| " + " | ".join("---" for _ in header) + " |",
+                    ]
+                    for row in rows:
+                        md_lines.append("| " + " | ".join(str(c or "").replace('\n', ' ') for c in row) + " |")
+                    docs.append({
+                        "text": "\n".join(md_lines),
+                        "source_file": path.name,
+                        "doc_type": "pdf_table",
+                        "page": page_num + 1,
+                    })
+    except Exception as e:
+        logger.warning("Table extraction failed for %s: %s", path.name, e)
+        
+    logger.info("  PDF  | %s | %d page/table chunk(s) extracted", path.name, len(docs))
     return docs
 
 
@@ -140,11 +166,9 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
     texts = [c["text"] for c in chunks]
     metadatas = [c["metadata"] for c in chunks]
 
-    logger.info("Loading embedding model: nomic-embed-text via Ollama")
-    embeddings = OllamaEmbeddings(
-        model=os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    )
+    from src.rag.embeddings import get_embeddings
+    embeddings = get_embeddings()
+    logger.info("Loading embedding model: %s", type(embeddings).__name__)
 
     index_file = vectorstore_path / "index.faiss"
 
@@ -188,6 +212,7 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
                 "total_documents": len(unique_sources),
                 "total_chunks": total_chunks,
                 "sources": list(unique_sources),
+                "embedding_model": type(embeddings).__name__,
             },
             f,
         )

@@ -21,18 +21,18 @@ import logging
 import os
 from datetime import timedelta
 
-from fastapi.responses import RedirectResponse
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, Response, status
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.api.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
-    build_google_authorize_url,
-    create_user,
     authenticate_user,
+    build_google_authorize_url,
     create_access_token,
-    get_user_by_email,
+    create_user,
     exchange_google_code,
+    get_user_by_email,
 )
 from src.api.schemas import SignupRequest, TokenResponse, UserResponse
 from src.utils.limiter import limiter
@@ -55,7 +55,9 @@ async def signup_with_email(
     request: Request,
     payload: SignupRequest = Body(...),
 ) -> UserResponse:
-    user = await create_user(email=payload.email.strip().lower(), password=payload.password)
+    user = await create_user(
+        email=payload.email.strip().lower(), password=payload.password
+    )
     return UserResponse(id=user.id, email=user.email, role=user.role)
 
 
@@ -118,14 +120,18 @@ async def login_for_access_token(
 )
 async def google_oauth_start() -> Response:
     authorize_url = build_google_authorize_url(state="auralis-google")
-    return RedirectResponse(authorize_url, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
+    return RedirectResponse(
+        authorize_url, status_code=status.HTTP_307_TEMPORARY_REDIRECT
+    )
 
 
 @router.get(
     "/google/callback",
     summary="Google OAuth callback endpoint.",
 )
-async def google_oauth_callback(code: str | None = None, state: str | None = None) -> Response:
+async def google_oauth_callback(
+    code: str | None = None, state: str | None = None
+) -> Response:
     if not code:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

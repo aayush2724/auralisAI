@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Mic, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin, useSignup } from '../../api/hooks/useAuth';
+import { API_BASE } from '../../api/client';
 import { Button } from './Button';
 import { TextInput } from './Input';
 import Card from './Card';
@@ -54,7 +55,8 @@ const LoginModal = () => {
   };
 
   const googleSignup = () => {
-    window.location.href = '/api/auth/google/start';
+    const baseUrl = API_BASE.replace(/\/$/, '');
+    window.location.href = `${baseUrl}/auth/google/start`;
   };
 
   return (

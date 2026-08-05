@@ -59,8 +59,13 @@ def extract_text_from_image(image_bytes: bytes) -> str:
     """
     Extract text from an image using Tesseract OCR.
     """
+    if len(image_bytes) > 8 * 1024 * 1024:
+        raise RuntimeError("Image too large — max 8MB")
+
     try:
         image = Image.open(io.BytesIO(image_bytes))
+
+        image.thumbnail((2000, 2000), Image.LANCZOS)
 
         # Ensure image is in a mode compatible with Tesseract
         if image.mode not in ("L", "RGB"):

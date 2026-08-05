@@ -13,6 +13,7 @@ GET /kb/stats
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -166,7 +167,7 @@ async def kb_extract_image(
 
         try:
             content = await upload_file.read()
-            text = extract_text_from_image(content)
+            text = await asyncio.to_thread(extract_text_from_image, content)
             if text:
                 url = upload_image_to_cloudinary(
                     content, upload_file.filename or "image"

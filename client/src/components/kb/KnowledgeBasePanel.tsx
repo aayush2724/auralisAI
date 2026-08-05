@@ -9,6 +9,7 @@ import SectionHeader from '../ui/SectionHeader';
 import MetricCard from '../ui/MetricCard';
 import GlassPanel from '../ui/GlassPanel';
 import { Button } from '../ui/Button';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 
 const Toast = ({ message, onClose }: { message: string, onClose: () => void }) => {
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function KnowledgeBasePanel() {
   const ingestMutation = useIngestFiles();
   const resetMutation = useResetKB();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   const docCount = useCountUp(stats?.total_documents || 0, 1200, true);
   const chunkCount = useCountUp(stats?.total_chunks || 0, 1200, true);
@@ -54,18 +56,22 @@ export default function KnowledgeBasePanel() {
     });
   };
 
-  const handleReset = async () => {
-    if (window.confirm("This will delete all knowledge base content. Are you sure?")) {
-      resetMutation.mutate(undefined, {
-        onSuccess: () => {
-          setToastMessage("Knowledge Base has been reset successfully.");
-          refetch();
-        },
-        onError: () => {
-          setToastMessage("Failed to reset Knowledge Base.");
-        }
-      });
-    }
+  const executeReset = async () => {
+    resetMutation.mutate(undefined, {
+      onSuccess: () => {
+        setToastMessage("Knowledge Base has been reset successfully.");
+        setIsResetConfirmOpen(false);
+        refetch();
+      },
+      onError: () => {
+        setToastMessage("Failed to reset Knowledge Base.");
+        setIsResetConfirmOpen(false);
+      }
+    });
+  };
+
+  const handleReset = () => {
+    setIsResetConfirmOpen(true);
   };
 
   return (
@@ -144,6 +150,17 @@ export default function KnowledgeBasePanel() {
           )}
         </GlassPanel>
       </div>
+
+      <ConfirmDialog
+        open={isResetConfirmOpen}
+        title="Delete Knowledge Base"
+        description="Are you sure you want to delete all knowledge base content? This will permanently remove all ingested files and embeddings."
+        confirmText="Delete"
+        variant="danger"
+        loading={resetMutation.isPending}
+        onConfirm={executeReset}
+        onCancel={() => setIsResetConfirmOpen(false)}
+      />
 
       <AnimatePresence>
         {toastMessage && (

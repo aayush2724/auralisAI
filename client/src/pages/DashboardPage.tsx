@@ -6,6 +6,7 @@ import ChatPanel from '../components/chat/ChatPanel';
 import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';
 import KnowledgeBasePanel from '../components/kb/KnowledgeBasePanel';
 import DashboardShell from '../components/layout/DashboardShell';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { chatClient } from '../api/client';
 import { type ChatSessionPreview } from '../types/api';
 
@@ -23,11 +24,15 @@ const DashboardPage: React.FC = () => {
     return savedSessionId || null;
   });
   
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sessions, setSessions] = useState<ChatSessionPreview[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
-  const role = useAuthStore((state) => state.role);
+  
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const isInitialLoad = useRef(true);
+  const role = useAuthStore((state) => state.role);
 
   const fetchSessions = async () => {
     try {
@@ -97,7 +102,7 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
-        setSidebarOpen(false);
+        setSidebarOpen(true);
       }
     };
     window.addEventListener('resize', handleResize);
@@ -125,16 +130,27 @@ const DashboardPage: React.FC = () => {
     }, { replace: true });
   };
 
-  const handleDeleteSession = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this chat session?')) return;
+  const handleDeleteSession = (id: string) => {
+    setSessionToDelete(id);
+    setDeleteError(null);
+  };
+
+  const executeDeleteSession = async () => {
+    if (!sessionToDelete) return;
+    setIsDeleting(true);
+    setDeleteError(null);
     try {
-      await chatClient.delete(`/chat/session/${id}`);
-      if (sessionId === id) {
+      await chatClient.delete(`/chat/session/${sessionToDelete}`);
+      if (sessionId === sessionToDelete) {
         handleNewChat();
       }
       fetchSessions();
+      setSessionToDelete(null);
     } catch (err) {
       console.error('Error deleting session:', err);
+      setDeleteError('Failed to delete the conversation. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -149,28 +165,45 @@ const DashboardPage: React.FC = () => {
 
   if (isInitializing || !sessionId) {
     return (
-      <DashboardShell
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onNewChat={handleNewChat}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        role={role}
-        currentSessionId={sessionId || undefined}
-        onSelectSession={handleSelectSession}
-        onDeleteSession={handleDeleteSession}
-        onRenameSession={handleRenameSession}
-        sessions={sessions}
-      >
-        <div className="flex h-full items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4f46e5] border-t-transparent" />
-        </div>
-      </DashboardShell>
+      <>
+        <DashboardShell
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onNewChat={handleNewChat}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          role={role}
+          currentSessionId={sessionId || undefined}
+          onSelectSession={handleSelectSession}
+          onDeleteSession={handleDeleteSession}
+          onRenameSession={handleRenameSession}
+          sessions={sessions}
+        >
+          <div className="flex h-full items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4f46e5] border-t-transparent" />
+          </div>
+        </DashboardShell>
+        
+        <ConfirmDialog
+          open={!!sessionToDelete}
+          title="Delete Conversation"
+          description={deleteError || "Are you sure you want to delete this conversation? This action cannot be undone."}
+          confirmText="Delete"
+          variant="danger"
+          loading={isDeleting}
+          onConfirm={executeDeleteSession}
+          onCancel={() => {
+            setSessionToDelete(null);
+            setDeleteError(null);
+          }}
+        />
+      </>
     );
   }
 
   return (
-    <DashboardShell
+    <>
+      <DashboardShell
       activeTab={activeTab}
       setActiveTab={setActiveTab}
       onNewChat={handleNewChat}
@@ -201,6 +234,21 @@ const DashboardPage: React.FC = () => {
         )}
       </div>
     </DashboardShell>
+
+    <ConfirmDialog
+      open={!!sessionToDelete}
+      title="Delete Conversation"
+      description={deleteError || "Are you sure you want to delete this conversation? This action cannot be undone."}
+      confirmText="Delete"
+      variant="danger"
+      loading={isDeleting}
+      onConfirm={executeDeleteSession}
+      onCancel={() => {
+        setSessionToDelete(null);
+        setDeleteError(null);
+      }}
+    />
+  </>
   );
 };
 

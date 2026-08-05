@@ -269,10 +269,14 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
                 first_content = first_user.get("content", "")
                 title = first_content[:60] + ("..." if len(first_content) > 60 else "")
             # Use last user message as preview
-            last_user = next((m for m in reversed(msgs) if m.get("role") == "user"), None)
+            last_user = next(
+                (m for m in reversed(msgs) if m.get("role") == "user"), None
+            )
             if last_user:
                 last_content = last_user.get("content", "")
-                preview = last_content[:120] + ("..." if len(last_content) > 120 else "")
+                preview = last_content[:120] + (
+                    "..." if len(last_content) > 120 else ""
+                )
         res.append(
             {
                 "session_id": row.session_id,

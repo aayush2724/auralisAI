@@ -245,7 +245,13 @@ async def chat(
             for m in memory._messages
         ]
 
-        await save_session(session_id, facts, current_user.id, current_user.workspace_id, messages=messages_list)
+        await save_session(
+            session_id,
+            facts,
+            current_user.id,
+            current_user.workspace_id,
+            messages=messages_list,
+        )
 
         # ── Log handoff event if triggered ────────────────────────────────────
         if response.should_handoff:
@@ -376,13 +382,13 @@ async def chat_websocket(websocket: WebSocket) -> None:
                     user_email=user.email,
                     workspace_id=user.workspace_id,
                 )
-                
+
                 facts = memory.get_facts()
                 persona_dict = state.get("persona") or {}
                 persona_label = persona_dict.get("label")
                 if persona_label:
                     facts["persona_label"] = persona_label
-        
+
                 messages_list = [
                     {
                         "role": m.role,
@@ -392,8 +398,14 @@ async def chat_websocket(websocket: WebSocket) -> None:
                     }
                     for m in memory._messages
                 ]
-        
-                await save_session(session_id, facts, user.id, user.workspace_id, messages=messages_list)
+
+                await save_session(
+                    session_id,
+                    facts,
+                    user.id,
+                    user.workspace_id,
+                    messages=messages_list,
+                )
             except PermissionError as e:
                 await websocket.send_json(
                     {

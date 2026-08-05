@@ -165,7 +165,17 @@ export default function ChatPanel({ sessionId }: { sessionId: string }) {
         <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-4 lg:px-6">
           <div className="mx-auto flex min-h-full max-w-5xl flex-col justify-center gap-6">
             <AnimatePresence mode="wait">
-              {messages.length === 0 ? (
+              {isLoading && messages.length === 0 ? (
+                <motion.div
+                  key="loading-state"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col items-center justify-center py-32"
+                >
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4f46e5] border-t-transparent" />
+                </motion.div>
+              ) : messages.length === 0 ? (
                 <motion.div
                   key="empty-state"
                   initial={{ opacity: 0, scale: 0.95 }}

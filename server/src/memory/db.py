@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS customer_sessions (
 ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS user_id VARCHAR(320);
 ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS workspace_id VARCHAR(64) DEFAULT 'default_tenant';
 ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS messages_json JSONB NOT NULL DEFAULT '[]';
+ALTER TABLE customer_sessions ADD COLUMN IF NOT EXISTS title VARCHAR(255);
 
 CREATE INDEX IF NOT EXISTS idx_customer_sessions_session_id
     ON customer_sessions (session_id);
@@ -246,7 +247,7 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
     """List all sessions belonging to owner_id and workspace_id."""
     _get_engine()
     select_sql = text("""
-        SELECT session_id, company_name, persona_label, updated_at, messages_json
+        SELECT session_id, company_name, persona_label, updated_at, messages_json, title as custom_title
         FROM   customer_sessions
         WHERE  user_id = :owner_id AND workspace_id = :workspace_id
         ORDER BY updated_at DESC
@@ -259,15 +260,19 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
 
     res = []
     for row in rows:
-        title = row.company_name
+        custom_title = row.custom_title
+        company_title = row.company_name
         preview = "No messages yet"
+        auto_title = None
+
         if row.messages_json and len(row.messages_json) > 0:
             msgs = row.messages_json
-            # Use first user message as the conversation title if no company name
+            # Use first user message as the conversation title fallback
             first_user = next((m for m in msgs if m.get("role") == "user"), None)
-            if first_user and not title:
+            if first_user:
                 first_content = first_user.get("content", "")
-                title = first_content[:60] + ("..." if len(first_content) > 60 else "")
+                auto_title = first_content[:40] + ("..." if len(first_content) > 40 else "")
+
             # Use last user message as preview
             last_user = next(
                 (m for m in reversed(msgs) if m.get("role") == "user"), None
@@ -277,10 +282,13 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
                 preview = last_content[:120] + (
                     "..." if len(last_content) > 120 else ""
                 )
+                
+        final_title = custom_title or auto_title or company_title or "New Chat"
+        
         res.append(
             {
                 "session_id": row.session_id,
-                "company_name": title,
+                "company_name": final_title,
                 "persona_label": row.persona_label,
                 "updated_at": row.updated_at.isoformat() if row.updated_at else None,
                 "preview": preview,
@@ -296,3 +304,16 @@ async def delete_session(session_id: str) -> None:
     async with _session_factory() as session, session.begin():  # type: ignore[misc]
         await session.execute(delete_sql, {"sid": session_id})
     logger.debug("Session deleted: %s", session_id)
+
+
+async def rename_session(session_id: str, new_title: str) -> None:
+    """Update the custom title for a given session."""
+    _get_engine()
+    update_sql = text("""
+        UPDATE customer_sessions
+        SET title = :title, updated_at = NOW()
+        WHERE session_id = :session_id
+    """)
+    async with _session_factory() as session, session.begin():  # type: ignore[misc]
+        await session.execute(update_sql, {"session_id": session_id, "title": new_title})
+    logger.info("Session renamed: %s to %s", session_id, new_title)

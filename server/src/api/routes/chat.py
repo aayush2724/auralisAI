@@ -49,7 +49,7 @@ from fastapi import (
     WebSocketDisconnect,
     status,
 )
-from pydantic import ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from src.analytics.tracker import log_event
 from src.api.auth import User, get_current_user_from_token, require_roles
@@ -599,9 +599,50 @@ async def delete_chat_session(
         }
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
+    except HTTPException:
+        raise
     except Exception:
         logger.exception("Error deleting session %s", session_id)
         raise HTTPException(
             status_code=500,
             detail="An internal error occurred. Please try again or contact support.",
         )
+
+
+class RenameSessionRequest(BaseModel):
+    title: str = Field(..., max_length=255)
+
+
+@router.put(
+    "/chat/session/{session_id}",
+    summary="Rename a chat session.",
+    description="Updates the custom title for a given chat session.",
+)
+async def rename_chat_session(
+    session_id: str,
+    request: RenameSessionRequest,
+    current_user: User = require_roles("sales_rep", "admin"),
+) -> dict[str, Any]:
+    try:
+        from src.memory.db import rename_session
+        
+        # Load first to verify permissions
+        await load_session(
+            session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id
+        )
+        await rename_session(session_id, request.title)
+        return {
+            "status": "success",
+            "message": f"Session {session_id} renamed successfully.",
+        }
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error renaming session %s", session_id)
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred. Please try again or contact support.",
+        )
+

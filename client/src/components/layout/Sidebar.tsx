@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, BarChart2, Database, LogOut, Menu, MessageSquarePlus, Trash2, Clock } from 'lucide-react';
+import { MessageSquare, BarChart2, Database, LogOut, Menu, MessageSquarePlus, Trash2, Clock, Search, Edit2, Check, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
 import IconCircle from '../ui/IconCircle';
@@ -18,6 +18,7 @@ interface SidebarProps {
   currentSessionId?: string;
   onSelectSession?: (sessionId: string) => void;
   onDeleteSession?: (sessionId: string) => void;
+  onRenameSession?: (sessionId: string, newTitle: string) => void;
   sessions?: ChatSessionPreview[];
 }
 
@@ -68,6 +69,114 @@ function groupSessionsByDate(sessions: ChatSessionPreview[]): { label: string; i
   return groups.filter((g) => g.items.length > 0);
 }
 
+const SessionItem: React.FC<{
+  session: ChatSessionPreview;
+  isActive: boolean;
+  onSelect: () => void;
+  onDelete: () => void;
+  onRename?: (id: string, newTitle: string) => void;
+}> = ({ session, isActive, onSelect, onDelete, onRename }) => {
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameInput, setRenameInput] = useState(session.company_name || '');
+
+  const title = session.company_name || 'New Conversation';
+  const preview = session.preview || 'No messages yet';
+
+  const handleRenameSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
+    e.preventDefault();
+    if (renameInput.trim() && renameInput.trim() !== title && onRename) {
+      onRename(session.session_id, renameInput.trim());
+    }
+    setIsRenaming(false);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.15 }}
+      className={`group relative flex items-center rounded-xl transition-all duration-150 ${
+        isActive
+          ? 'bg-white/75 shadow-[0_4px_16px_rgba(79,70,229,0.08)] ring-1 ring-white/70'
+          : 'hover:bg-white/45'
+      }`}
+    >
+      {isRenaming ? (
+        <div className="flex-1 min-w-0 px-3 py-2.5">
+          <form className="flex items-center gap-1.5" onSubmit={handleRenameSubmit}>
+            <input
+              autoFocus
+              className="flex-1 bg-white/50 border border-theme-border rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-theme-primary"
+              value={renameInput}
+              onChange={(e) => setRenameInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setIsRenaming(false);
+                if (e.key === 'Enter') handleRenameSubmit(e);
+              }}
+              onBlur={() => setIsRenaming(false)}
+            />
+            <button type="submit" className="text-green-600 hover:bg-green-50 p-1 rounded">
+              <Check className="h-3 w-3" />
+            </button>
+            <button type="button" onClick={() => setIsRenaming(false)} className="text-red-500 hover:bg-red-50 p-1 rounded">
+              <X className="h-3 w-3" />
+            </button>
+          </form>
+        </div>
+      ) : (
+        <button
+          onClick={onSelect}
+          className="flex-1 min-w-0 px-3 py-2.5 text-left"
+        >
+          <div className="flex items-center gap-1.5 min-w-0">
+            {isActive && (
+              <span className="shrink-0 h-1.5 w-1.5 rounded-full bg-[#4f46e5]" />
+            )}
+            <span className={`truncate text-xs font-semibold ${isActive ? 'text-theme-primary' : 'text-theme-secondary'}`}>
+              {title}
+            </span>
+            {session.persona_label && (
+              <span className="shrink-0 rounded-full border border-theme-border/60 bg-white/80 px-1.5 py-0.5 text-[9px] font-medium text-theme-secondary">
+                {session.persona_label}
+              </span>
+            )}
+          </div>
+          <p className="truncate text-[10px] text-theme-muted mt-0.5 leading-relaxed">
+            {preview}
+          </p>
+        </button>
+      )}
+
+      {!isRenaming && (
+        <div className="shrink-0 mr-2 opacity-0 group-hover:opacity-100 flex items-center transition-all duration-150">
+          {onRename && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsRenaming(true);
+              }}
+              className="p-1.5 rounded-lg hover:bg-theme-border/30 hover:text-theme-primary transition-all duration-150"
+              aria-label="Rename chat session"
+            >
+              <Edit2 className="h-3.5 w-3.5 text-theme-muted hover:text-theme-primary" />
+            </button>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500 transition-all duration-150"
+            aria-label="Delete chat session"
+          >
+            <Trash2 className="h-3.5 w-3.5 text-theme-muted hover:text-red-500" />
+          </button>
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
 const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
@@ -78,9 +187,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   currentSessionId,
   onSelectSession,
   onDeleteSession,
+  onRenameSession,
   sessions = [],
 }) => {
   const clearToken = useAuthStore((state) => state.clearToken);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = () => {
     clearToken();
@@ -94,7 +205,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const visibleItems = role === 'admin' ? navItems : navItems.filter((item) => item.id === 'chat');
 
-  const groupedSessions = useMemo(() => groupSessionsByDate(sessions), [sessions]);
+  const filteredSessions = useMemo(() => {
+    if (!searchQuery.trim()) return sessions;
+    const query = searchQuery.toLowerCase();
+    return sessions.filter((s) => 
+      (s.company_name?.toLowerCase() || '').includes(query) ||
+      (s.preview?.toLowerCase() || '').includes(query)
+    );
+  }, [sessions, searchQuery]);
+
+  const groupedSessions = useMemo(() => groupSessionsByDate(filteredSessions), [filteredSessions]);
 
   return (
     <>
@@ -190,11 +310,23 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Chat History - visible across dashboard tabs */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col border-t border-theme-border/50">
-          <div className="px-5 pt-4 pb-2 shrink-0 flex items-center gap-2">
-            <Clock className="h-3.5 w-3.5 text-theme-muted" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-theme-muted">
-              Chat History
-            </span>
+          <div className="px-4 pt-4 pb-2 shrink-0 flex flex-col gap-3">
+            <div className="flex items-center gap-2 px-1">
+              <Clock className="h-3.5 w-3.5 text-theme-muted" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-theme-muted">
+                Chat History
+              </span>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-theme-muted/70" />
+              <input
+                type="text"
+                placeholder="Search chats..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-theme-border/20 border border-theme-border/40 rounded-lg pl-8 pr-3 py-1.5 text-xs text-theme-primary placeholder-theme-muted focus:outline-none focus:ring-1 focus:ring-[#4f46e5]"
+              />
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-4 scrollbar-thin scrollbar-thumb-theme-border scrollbar-track-transparent">
@@ -217,56 +349,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <div className="space-y-0.5">
                     {group.items.map((session) => {
                       const isActive = currentSessionId === session.session_id;
-                      const title = session.company_name || 'New Conversation';
-                      const preview = session.preview || 'No messages yet';
 
                       return (
-                        <motion.div
+                        <SessionItem
                           key={session.session_id}
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.15 }}
-                          className={`group relative flex items-center rounded-xl transition-all duration-150 ${
-                            isActive
-                              ? 'bg-white/75 shadow-[0_4px_16px_rgba(79,70,229,0.08)] ring-1 ring-white/70'
-                              : 'hover:bg-white/45'
-                          }`}
-                        >
-                          <button
-                            onClick={() => {
-                              onSelectSession?.(session.session_id);
-                              if (window.innerWidth < 1024) onToggle();
-                            }}
-                            className="flex-1 min-w-0 px-3 py-2.5 text-left"
-                          >
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              {isActive && (
-                                <span className="shrink-0 h-1.5 w-1.5 rounded-full bg-[#4f46e5]" />
-                              )}
-                              <span className={`truncate text-xs font-semibold ${isActive ? 'text-theme-primary' : 'text-theme-secondary'}`}>
-                                {title}
-                              </span>
-                              {session.persona_label && (
-                                <span className="shrink-0 rounded-full border border-theme-border/60 bg-white/80 px-1.5 py-0.5 text-[9px] font-medium text-theme-secondary">
-                                  {session.persona_label}
-                                </span>
-                              )}
-                            </div>
-                            <p className="truncate text-[10px] text-theme-muted mt-0.5 leading-relaxed">
-                              {preview}
-                            </p>
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDeleteSession?.(session.session_id);
-                            }}
-                            className="shrink-0 mr-2 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all duration-150 p-1.5 rounded-lg hover:bg-red-50"
-                            aria-label="Delete chat session"
-                          >
-                            <Trash2 className="h-3.5 w-3.5 text-theme-muted hover:text-red-500" />
-                          </button>
-                        </motion.div>
+                          session={session}
+                          isActive={isActive}
+                          onSelect={() => {
+                            onSelectSession?.(session.session_id);
+                            if (window.innerWidth < 1024) onToggle();
+                          }}
+                          onDelete={() => onDeleteSession?.(session.session_id)}
+                          onRename={onRenameSession}
+                        />
                       );
                     })}
                   </div>

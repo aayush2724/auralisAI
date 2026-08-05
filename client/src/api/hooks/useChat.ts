@@ -126,9 +126,15 @@ export const useChat = (sessionId: string) => {
 
   useEffect(() => {
     let active = true;
+    
+    // Immediately clear state for the new session
+    setMessages([]);
+    setLastResponse(null);
+    setWsError(null);
+    setIsLoading(true);
+    pendingSourceRef.current = null;
+
     const fetchHistory = async () => {
-      setIsLoading(true);
-      setWsError(null);
       try {
         const { data } = await chatClient.get<any[]>(`/chat/history/${sessionId}`);
         if (!active) return;

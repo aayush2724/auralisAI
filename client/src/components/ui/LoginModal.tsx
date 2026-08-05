@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Mic, Sparkles } from 'lucide-react';
+import { Loader2, Mic } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin, useSignup } from '../../api/hooks/useAuth';
-import { API_BASE } from '../../api/client';
 import { Button } from './Button';
 import { TextInput } from './Input';
 import Card from './Card';
@@ -54,11 +53,6 @@ const LoginModal = () => {
     );
   };
 
-  const googleSignup = () => {
-    const baseUrl = API_BASE.replace(/\/$/, '');
-    window.location.href = `${baseUrl}/auth/google/start`;
-  };
-
   return (
     <AnimatePresence>
       <motion.div
@@ -82,7 +76,7 @@ const LoginModal = () => {
               </h2>
               <p className="text-sm text-theme-secondary mt-1">
                 {mode === 'signup'
-                  ? 'Sign up with email or continue with Google.'
+                  ? 'Create an account with email and password.'
                   : 'Log in with the account you already created.'}
               </p>
             </div>
@@ -110,12 +104,8 @@ const LoginModal = () => {
 
             {mode === 'signup' && (
               <div className="space-y-3 mb-6">
-                <Button type="button" variant="secondary" className="w-full" onClick={googleSignup}>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Continue with Google</span>
-                </Button>
                 <div className="relative py-1 text-center text-xs uppercase tracking-[0.3em] text-theme-secondary">
-                  <span className="bg-white px-3">or sign up with email</span>
+                  <span className="bg-white px-3">Sign up with email</span>
                   <div className="absolute left-0 right-0 top-1/2 -z-10 h-px bg-slate-200" />
                 </div>
               </div>

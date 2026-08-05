@@ -32,13 +32,9 @@ import os
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Literal
-from urllib.parse import urlencode
 
-import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from google.auth.transport import requests as google_requests
-from google.oauth2 import id_token as google_id_token
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy import text
@@ -61,10 +57,6 @@ _ADMIN_PASSWORD: str | None = os.getenv("ADMIN_PASSWORD")
 # Public demo user with sales_rep role
 _DEMO_EMAIL: str | None = os.getenv("DEMO_EMAIL")
 _DEMO_PASSWORD: str | None = os.getenv("DEMO_PASSWORD")
-
-_GOOGLE_CLIENT_ID: str | None = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
-_GOOGLE_CLIENT_SECRET: str | None = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
-_GOOGLE_REDIRECT_URI: str | None = os.getenv("GOOGLE_OAUTH_REDIRECT_URI")
 _FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:4000")
 
 if not JWT_SECRET_KEY:
@@ -281,67 +273,6 @@ async def authenticate_user(email: str, password: str) -> User | None:
         role=row["role"],
         workspace_id=row.get("workspace_id", "default_tenant"),
     )
-
-
-def build_google_authorize_url(state: str) -> str:
-    if not _GOOGLE_CLIENT_ID or not _GOOGLE_REDIRECT_URI:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Google OAuth is not configured.",
-        )
-
-    query = urlencode(
-        {
-            "client_id": _GOOGLE_CLIENT_ID,
-            "redirect_uri": _GOOGLE_REDIRECT_URI,
-            "response_type": "code",
-            "scope": "openid email profile",
-            "access_type": "offline",
-            "prompt": "consent",
-            "state": state,
-        }
-    )
-    return f"https://accounts.google.com/o/oauth2/v2/auth?{query}"
-
-
-def _frontend_auth_redirect(token: str) -> str:
-    return f"{_FRONTEND_URL.rstrip('/')}/?token={token}"
-
-
-async def exchange_google_code(code: str) -> dict:
-    if not _GOOGLE_CLIENT_ID or not _GOOGLE_CLIENT_SECRET or not _GOOGLE_REDIRECT_URI:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Google OAuth is not configured.",
-        )
-
-    async with httpx.AsyncClient(timeout=20) as client:
-        token_response = await client.post(
-            "https://oauth2.googleapis.com/token",
-            data={
-                "code": code,
-                "client_id": _GOOGLE_CLIENT_ID,
-                "client_secret": _GOOGLE_CLIENT_SECRET,
-                "redirect_uri": _GOOGLE_REDIRECT_URI,
-                "grant_type": "authorization_code",
-            },
-        )
-        token_response.raise_for_status()
-        token_payload = token_response.json()
-
-    id_token = token_payload.get("id_token")
-    if not id_token:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Google OAuth response did not include an identity token.",
-        )
-
-    claims = google_id_token.verify_oauth2_token(
-        id_token,
-        google_requests.Request(),
-        _GOOGLE_CLIENT_ID,
-    )
-    return claims
 
 
 # ─── JWT helpers ──────────────────────────────────────────────────────────────

@@ -118,12 +118,8 @@ export default function ChatPanel({ sessionId }: { sessionId: string }) {
   }, [messages, isLoading]);
 
   useEffect(() => {
-    if (isListening) {
-      setBaseInput(input);
-    } else {
-      setBaseInput(input);
-    }
-  }, [isListening]);
+    setBaseInput(input);
+  }, [input, isListening]);
 
   useEffect(() => {
     if (isListening && transcript) {

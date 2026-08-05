@@ -80,13 +80,21 @@ async def lifespan(app: FastAPI):
         raise RuntimeError("Missing GEMINI_API_KEY")
 
     if not shutil.which("tesseract"):
-        logger.critical("Tesseract OCR is not installed or not in PATH! Required for image ingestion.")
+        logger.critical(
+            "Tesseract OCR is not installed or not in PATH! Required for image ingestion."
+        )
         raise RuntimeError("Missing Tesseract OCR")
 
-    cloudinary_vars = ["CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"]
+    cloudinary_vars = [
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_KEY",
+        "CLOUDINARY_API_SECRET",
+    ]
     missing_vars = [var for var in cloudinary_vars if not os.getenv(var)]
     if missing_vars:
-        logger.critical(f"Missing Cloudinary configuration in .env: {', '.join(missing_vars)}")
+        logger.critical(
+            f"Missing Cloudinary configuration in .env: {', '.join(missing_vars)}"
+        )
         raise RuntimeError("Missing Cloudinary configuration")
 
     try:

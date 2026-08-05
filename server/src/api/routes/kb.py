@@ -30,6 +30,10 @@ from src.api.schemas import (
     KBIngestResponse,
     KBStatsResponse,
 )
+from src.services.image_processor import (
+    extract_text_from_image,
+    upload_image_to_cloudinary,
+)
 
 logger = logging.getLogger("auralis.api.kb")
 router = APIRouter()
@@ -140,48 +144,56 @@ async def kb_ingest(
             detail="An internal error occurred. Please try again or contact support.",
         )
 
+
 # ─── POST /kb/extract-image ──────────────────────────────────────────────────
+
 
 @router.post(
     "/extract-image",
     response_model=list[ImageExtractionResult],
     summary="Upload image(s) to Cloudinary and extract OCR text for preview.",
-    description="Accepts image files, uploads to Cloudinary, runs Tesseract OCR, and returns the text."
+    description="Accepts image files, uploads to Cloudinary, runs Tesseract OCR, and returns the text.",
 )
 async def kb_extract_image(
     files: list[UploadFile] = File(...),
     current_user: User = require_roles("admin"),
 ) -> list[ImageExtractionResult]:
-    from src.services.image_processor import extract_text_from_image, upload_image_to_cloudinary
-
     results = []
     for upload_file in files:
         ext = Path(upload_file.filename or "").suffix.lower()
         if ext not in {".png", ".jpg", ".jpeg", ".webp"}:
             continue
-            
+
         try:
             content = await upload_file.read()
             text = extract_text_from_image(content)
             if text:
-                url = upload_image_to_cloudinary(content, upload_file.filename or "image")
-                results.append(ImageExtractionResult(
-                    filename=upload_file.filename or "image",
-                    cloudinary_url=url,
-                    extracted_text=text
-                ))
+                url = upload_image_to_cloudinary(
+                    content, upload_file.filename or "image"
+                )
+                results.append(
+                    ImageExtractionResult(
+                        filename=upload_file.filename or "image",
+                        cloudinary_url=url,
+                        extracted_text=text,
+                    )
+                )
             else:
                 logger.warning(f"No text extracted from {upload_file.filename}")
         except Exception:
             logger.exception(f"Failed to process image {upload_file.filename}")
-            
+
     if not results:
-        raise HTTPException(status_code=400, detail="No readable text could be extracted from the provided images.")
-        
+        raise HTTPException(
+            status_code=400,
+            detail="No readable text could be extracted from the provided images.",
+        )
+
     return results
 
 
 # ─── POST /kb/ingest-image ───────────────────────────────────────────────────
+
 
 @router.post(
     "/ingest-image",
@@ -194,15 +206,16 @@ async def kb_ingest_image(
 ) -> KBIngestResponse:
     if not req.images:
         raise HTTPException(status_code=400, detail="No images provided to ingest.")
-        
+
     try:
         from src.rag.ingest import ingest_extracted_images
-        
+
         chunks_added = ingest_extracted_images([img.dict() for img in req.images])
-        
+
         from src.rag.kb_store import save_kb_to_postgres
+
         await save_kb_to_postgres(VECTORSTORE_PATH)
-        
+
         return KBIngestResponse(
             files_processed=len(req.images),
             chunks_added=chunks_added,
@@ -211,7 +224,9 @@ async def kb_ingest_image(
         )
     except Exception:
         logger.exception("Image ingestion failed")
-        raise HTTPException(status_code=500, detail="Internal error during image ingestion.")
+        raise HTTPException(
+            status_code=500, detail="Internal error during image ingestion."
+        )
 
 
 # ─── GET /kb/stats ───────────────────────────────────────────────────────────

@@ -149,6 +149,33 @@ async def kb_ingest(
 # ─── POST /kb/extract-image ──────────────────────────────────────────────────
 
 
+async def _process_single_image(
+    upload_file: UploadFile,
+) -> ImageExtractionResult | None:
+    ext = Path(upload_file.filename or "").suffix.lower()
+    if ext not in {".png", ".jpg", ".jpeg", ".webp"}:
+        return None
+
+    try:
+        content = await upload_file.read()
+        text = await asyncio.to_thread(extract_text_from_image, content)
+        if text:
+            url = await asyncio.to_thread(
+                upload_image_to_cloudinary, content, upload_file.filename or "image"
+            )
+            return ImageExtractionResult(
+                filename=upload_file.filename or "image",
+                cloudinary_url=url,
+                extracted_text=text,
+            )
+        else:
+            logger.warning(f"No text extracted from {upload_file.filename}")
+            return None
+    except Exception:
+        logger.exception(f"Failed to process image {upload_file.filename}")
+        return None
+
+
 @router.post(
     "/extract-image",
     response_model=list[ImageExtractionResult],
@@ -159,30 +186,8 @@ async def kb_extract_image(
     files: list[UploadFile] = File(...),
     current_user: User = require_roles("admin"),
 ) -> list[ImageExtractionResult]:
-    results = []
-    for upload_file in files:
-        ext = Path(upload_file.filename or "").suffix.lower()
-        if ext not in {".png", ".jpg", ".jpeg", ".webp"}:
-            continue
-
-        try:
-            content = await upload_file.read()
-            text = await asyncio.to_thread(extract_text_from_image, content)
-            if text:
-                url = upload_image_to_cloudinary(
-                    content, upload_file.filename or "image"
-                )
-                results.append(
-                    ImageExtractionResult(
-                        filename=upload_file.filename or "image",
-                        cloudinary_url=url,
-                        extracted_text=text,
-                    )
-                )
-            else:
-                logger.warning(f"No text extracted from {upload_file.filename}")
-        except Exception:
-            logger.exception(f"Failed to process image {upload_file.filename}")
+    raw_results = await asyncio.gather(*(_process_single_image(f) for f in files))
+    results = [r for r in raw_results if r is not None]
 
     if not results:
         raise HTTPException(

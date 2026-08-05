@@ -42,6 +42,9 @@ services:
       - DATABASE_URL=postgresql+asyncpg://auralis:${POSTGRES_PASSWORD}@postgres:5432/auralis
       - REDIS_URL=redis://redis:6379/0
       - POSTGRES_HOST=postgres
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     ports:
       - "8001:8000"
     depends_on:

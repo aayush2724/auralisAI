@@ -14,6 +14,7 @@ export default function DashboardShell({
   currentSessionId,
   onSelectSession,
   onDeleteSession,
+  onRenameSession,
   sessions,
 }: {
   children: ReactNode;
@@ -26,6 +27,7 @@ export default function DashboardShell({
   currentSessionId?: string;
   onSelectSession?: (sessionId: string) => void;
   onDeleteSession?: (sessionId: string) => void;
+  onRenameSession?: (sessionId: string, newTitle: string) => void;
   sessions?: ChatSessionPreview[];
 }) {
   return (
@@ -42,6 +44,7 @@ export default function DashboardShell({
           currentSessionId={currentSessionId}
           onSelectSession={onSelectSession}
           onDeleteSession={onDeleteSession}
+          onRenameSession={onRenameSession}
           sessions={sessions}
         />
         <main className="flex h-screen flex-1 flex-col lg:ml-[300px] p-3 sm:p-4 lg:p-6">

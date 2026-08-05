@@ -20,13 +20,13 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.api.auth import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
     authenticate_user,
     create_access_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
     create_user,
 )
 from src.api.schemas import SignupRequest, TokenResponse, UserResponse
@@ -50,7 +50,9 @@ async def signup_with_email(
     request: Request,
     payload: SignupRequest = Body(...),
 ) -> UserResponse:
-    user = await create_user(email=payload.email.strip().lower(), password=payload.password)
+    user = await create_user(
+        email=payload.email.strip().lower(), password=payload.password
+    )
     return UserResponse(id=user.id, email=user.email, role=user.role)
 
 

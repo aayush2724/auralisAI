@@ -1,6 +1,6 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, FileSpreadsheet, FileCode, X, Loader2, Check, CloudUpload } from 'lucide-react';
+import { FileText, FileSpreadsheet, FileCode, X, Loader2, Check, CloudUpload, Image as ImageIcon } from 'lucide-react';
 import type { KBIngestResponse } from '../../types/api';
 import { Button } from '../ui/Button';
 import IconCircle from '../ui/IconCircle';
@@ -36,7 +36,7 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const newFiles = Array.from(e.dataTransfer.files).filter(file => {
         const ext = file.name.toLowerCase().split('.').pop();
-        return ['pdf', 'csv', 'md'].includes(ext || '');
+        return ['pdf', 'csv', 'md', 'png', 'jpg', 'jpeg', 'webp'].includes(ext || '');
       });
       setFiles(prev => [...prev, ...newFiles]);
     }
@@ -64,10 +64,12 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
   };
 
   const getFileIcon = (filename: string) => {
-    const ext = filename.toLowerCase().split('.').pop();
-    if (ext === 'csv') return <FileSpreadsheet className="w-5 h-5 text-[#4F46E5]" />;
-    if (ext === 'md') return <FileCode className="w-5 h-5 text-[#94A3B8]" />;
-    return <FileText className="w-5 h-5 text-[#4F46E5]" />;
+    const ext = filename.split('.').pop()?.toLowerCase();
+    if (ext === 'pdf') return <FileText className="w-5 h-5 text-red-500" />;
+    if (ext === 'csv') return <FileSpreadsheet className="w-5 h-5 text-green-500" />;
+    if (ext === 'md') return <FileCode className="w-5 h-5 text-blue-500" />;
+    if (['png', 'jpg', 'jpeg', 'webp'].includes(ext || '')) return <ImageIcon className="w-5 h-5 text-indigo-500" />;
+    return <FileText className="w-5 h-5 text-theme-muted" />;
   };
 
   const formatSize = (bytes: number) => {

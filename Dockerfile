@@ -2,7 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app/server
 
-RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y gcc tesseract-ocr && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY server/requirements.txt .
 RUN pip install --default-timeout=1000 --no-cache-dir -r requirements.txt hf_transfer

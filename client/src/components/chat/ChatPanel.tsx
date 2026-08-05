@@ -89,21 +89,37 @@ export default function ChatPanel({ sessionId }: { sessionId: string }) {
   const { isListening, transcript, supported, toggleListening } = useSpeechRecognition();
   const [baseInput, setBaseInput] = useState('');
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isUserScrolledUp = useRef(false);
+  const prevMessagesLength = useRef(0);
+
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    
+    // If we are within 150px of the bottom, we are considered "at bottom"
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 150;
+    isUserScrolledUp.current = !isAtBottom;
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    const isNewMessage = messages.length > prevMessagesLength.current;
+    
+    // Auto-scroll if a new message was added OR if user is already at the bottom
+    if (isNewMessage || !isUserScrolledUp.current) {
+      scrollToBottom();
+    }
+    
+    prevMessagesLength.current = messages.length;
   }, [messages, isLoading]);
 
   useEffect(() => {
-    if (isListening) {
-      setBaseInput(input);
-    } else {
-      setBaseInput(input);
-    }
-  }, [isListening]);
+    setBaseInput(input);
+  }, [input, isListening]);
 
   useEffect(() => {
     if (isListening && transcript) {
@@ -146,9 +162,10 @@ export default function ChatPanel({ sessionId }: { sessionId: string }) {
   };
 
   return (
-    <div className="flex h-full w-full flex-row bg-theme-bg text-theme-primary">
-      <div className="flex flex-col flex-1 h-full min-w-0 relative">
-        <div className="sticky top-0 z-10 flex items-center justify-end border-b border-theme-border bg-white/65 px-4 py-3 shadow-[0_10px_30px_rgba(16,32,51,0.08)] backdrop-blur-2xl sm:px-4">
+    <div className="flex h-full w-full flex-row bg-theme-bg text-theme-primary overflow-hidden">
+      <div className="flex flex-col flex-1 h-full min-w-0 relative overflow-hidden">
+        {/* Header - flex-none */}
+        <div className="flex-none z-10 flex items-center justify-end border-b border-theme-border bg-white/65 px-4 py-3 shadow-[0_10px_30px_rgba(16,32,51,0.08)] backdrop-blur-2xl sm:px-4">
           <div className="flex items-center gap-2 shrink-0 ml-2">
             <Tooltip content={diagnosticsOpen ? 'Hide diagnostics' : 'Show diagnostics'}>
               <button
@@ -162,10 +179,25 @@ export default function ChatPanel({ sessionId }: { sessionId: string }) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-4 lg:px-6">
-          <div className="mx-auto flex min-h-full max-w-5xl flex-col justify-center gap-6">
+        {/* Scrollable messages area - flex-1 */}
+        <div 
+          className="flex-1 overflow-y-auto px-4 py-6 sm:px-4 lg:px-6"
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+        >
+          <div className="mx-auto flex min-h-full max-w-5xl flex-col justify-end gap-6">
             <AnimatePresence mode="wait">
-              {messages.length === 0 ? (
+              {isLoading && messages.length === 0 ? (
+                <motion.div
+                  key="loading-state"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col items-center justify-center py-32"
+                >
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4f46e5] border-t-transparent" />
+                </motion.div>
+              ) : messages.length === 0 ? (
                 <motion.div
                   key="empty-state"
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -278,12 +310,12 @@ export default function ChatPanel({ sessionId }: { sessionId: string }) {
               )}
             </AnimatePresence>
             {isLoading && <TypingIndicator />}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="h-4" /> {/* Spacer to ensure last message isn't tight against the input */}
           </div>
         </div>
 
-        {/* Gradient-border chat input bar */}
-        <div className="absolute bottom-0 inset-x-0 z-20 bg-transparent p-3 sm:p-4">
+        {/* Sticky Input Bar - flex-none */}
+        <div className="flex-none bg-theme-bg/90 backdrop-blur-xl p-3 sm:p-4 border-t border-theme-border/50">
           <div className="mx-auto max-w-4xl relative">
             {wsError && (
               <div className="absolute -top-10 left-1/2 w-[min(92vw,42rem)] -translate-x-1/2 rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs font-medium text-amber-700 shadow-sm backdrop-blur-xl">

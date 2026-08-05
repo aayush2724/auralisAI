@@ -22,6 +22,7 @@ Auto-generated OpenAPI docs (Feature 14)
 from __future__ import annotations
 
 import os
+import shutil
 import time
 from contextlib import asynccontextmanager
 
@@ -77,6 +78,24 @@ async def lifespan(app: FastAPI):
             "GEMINI_API_KEY is missing or set to default. "
             "The API will start, but LLM-dependent routes may fail until it is configured."
         )
+
+    if not shutil.which("tesseract"):
+        logger.critical(
+            "Tesseract OCR is not installed or not in PATH! Required for image ingestion."
+        )
+        raise RuntimeError("Missing Tesseract OCR")
+
+    cloudinary_vars = [
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_KEY",
+        "CLOUDINARY_API_SECRET",
+    ]
+    missing_vars = [var for var in cloudinary_vars if not os.getenv(var)]
+    if missing_vars:
+        logger.critical(
+            f"Missing Cloudinary configuration in .env: {', '.join(missing_vars)}"
+        )
+        raise RuntimeError("Missing Cloudinary configuration")
 
     try:
         await init_db()

@@ -35,7 +35,6 @@ Public API
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import re
 from dataclasses import dataclass, field
@@ -269,7 +268,6 @@ class ConversationMemory:
 
         if role == "user":
             self._update_facts(msg)
-            self._schedule_persist()
 
         logger.debug("Memory | turn=%d role=%s | facts=%s", turn, role, self._facts)
 
@@ -341,56 +339,6 @@ class ConversationMemory:
             "objections_raised": [],
         }
         logger.debug("Memory cleared (session_id=%s).", self._session_id)
-
-    # ── Async persistence (Feature 10) ────────────────────────────────────────
-
-    def _schedule_persist(self) -> None:
-        """
-        Fire-and-forget: schedule _persist() as an asyncio background task.
-        Silently skips if no session_id is set or no event loop is running.
-        """
-        if not self._session_id:
-            return
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(self._persist())
-        except RuntimeError:
-            # No running event loop (e.g. sync test context) — skip silently.
-            logger.debug("No event loop running — skipping DB persist.")
-
-    async def _persist(self) -> None:
-        """Async write of current facts to PostgreSQL via db.save_session()."""
-        if not self._session_id:
-            return
-        try:
-            from src.memory.db import save_session  # late import avoids circular dep
-
-            facts = self.get_facts()
-            # Persist detected persona if available in latest user message
-            if self._messages:
-                last_user = next(
-                    (m for m in reversed(self._messages) if m.role == "user"), None
-                )
-                if last_user and last_user.metadata.get("persona"):
-                    facts["persona_label"] = last_user.metadata["persona"].get("label")
-
-            messages_list = [
-                {
-                    "role": m.role,
-                    "content": m.content,
-                    "metadata": m.metadata,
-                    "turn": m.turn,
-                }
-                for m in self._messages
-            ]
-            await save_session(
-                self._session_id, facts, self._owner_id, messages=messages_list
-            )
-            logger.debug("Session persisted: %s", self._session_id)
-        except SQLAlchemyError as exc:
-            logger.warning(
-                "DB persist failed for session %s: %s", self._session_id, exc
-            )
 
     @classmethod
     async def from_session(

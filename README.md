@@ -238,6 +238,11 @@ cp .env.example .env
 # Open .env and set the required keys:
 #   GEMINI_API_KEY=your_key_here
 #   JWT_SECRET_KEY=a_long_random_secret_at_least_32_chars
+#
+# For Image OCR Support (Cloudinary):
+#   CLOUDINARY_CLOUD_NAME=your_cloud_name
+#   CLOUDINARY_API_KEY=your_api_key
+#   CLOUDINARY_API_SECRET=your_api_secret
 
 # ── Step 3: Start the full stack ─────────────────────────────────
 docker compose up --build

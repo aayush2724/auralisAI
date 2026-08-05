@@ -93,7 +93,18 @@ export interface Message {
 export interface ChatSessionPreview {
   session_id: string;
   company_name: string | null;
+  title?: string | null;
   persona_label: string | null;
   updated_at: string | null;
   preview: string;
+}
+
+export interface ImageExtractionResult {
+  filename: string;
+  cloudinary_url: string;
+  extracted_text: string;
+}
+
+export interface ImageIngestRequest {
+  images: ImageExtractionResult[];
 }

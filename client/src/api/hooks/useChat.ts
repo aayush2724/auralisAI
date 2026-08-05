@@ -126,9 +126,15 @@ export const useChat = (sessionId: string) => {
 
   useEffect(() => {
     let active = true;
+    
+    // Immediately clear state for the new session
+    setMessages([]);
+    setLastResponse(null);
+    setWsError(null);
+    setIsLoading(true);
+    pendingSourceRef.current = null;
+
     const fetchHistory = async () => {
-      setIsLoading(true);
-      setWsError(null);
       try {
         const { data } = await chatClient.get<any[]>(`/chat/history/${sessionId}`);
         if (!active) return;
@@ -164,7 +170,16 @@ export const useChat = (sessionId: string) => {
         setMessages(mappedMessages);
       } catch (err) {
         if (active) {
-          setMessages([]);
+          const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+          if (status === 404) {
+            // Genuinely new/empty session — expected, no error needed
+            setMessages([]);
+          } else {
+            // Unexpected failure — log it so this class of bug isn't invisible again
+            console.error('Failed to load chat history for session', sessionId, err);
+            setWsError('Could not load previous messages for this session.');
+            setMessages([]);
+          }
         }
       } finally {
         if (active) {

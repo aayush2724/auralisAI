@@ -49,7 +49,7 @@ from fastapi import (
     WebSocketDisconnect,
     status,
 )
-from pydantic import ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from src.analytics.tracker import log_event
 from src.api.auth import User, get_current_user_from_token, require_roles
@@ -79,7 +79,7 @@ async def _run_chat_turn(
     owner_id: str | None = None,
     user_email: str | None = None,
     workspace_id: str = "default_tenant",
-) -> tuple[ChatResponse, dict]:
+) -> tuple[ChatResponse, dict, ConversationMemory]:
     # ── Step 1: Load or create ConversationMemory ─────────────────────────────
     memory = await ConversationMemory.from_session(session_id, owner_id)
 
@@ -109,33 +109,6 @@ async def _run_chat_turn(
     persona_label = persona_dict.get("label")
     if persona_label:
         facts["persona_label"] = persona_label
-
-    # Build the full messages list including the assistant response for this turn
-    messages_list = [
-        {
-            "role": m.role,
-            "content": m.content,
-            "metadata": m.metadata,
-            "turn": m.turn,
-        }
-        for m in memory._messages
-    ]
-    # Append the assistant response (graph result) to the persisted messages
-    messages_list.append({
-        "role": "assistant",
-        "content": response_text,
-        "metadata": {
-            "objection": {"label": (state.get("objection") or {}).get("label", "neutral"),
-                          "confidence": float(state.get("confidence", 1.0))},
-            "sentiment": {"label": (state.get("sentiment") or {}).get("label", "neutral")},
-            "persona": {"label": persona_dict.get("label", "Unknown")},
-            "strategy": state.get("strategy", "discovery_questions"),
-            "should_handoff": bool(state.get("should_handoff", False)),
-        },
-        "turn": len(messages_list) + 1,
-    })
-
-    await save_session(session_id, facts, owner_id, workspace_id, messages=messages_list)
 
     objection_dict = state.get("objection") or {}
     sentiment_dict = state.get("sentiment") or {}
@@ -181,7 +154,7 @@ async def _run_chat_turn(
                 user_email=user_email,
             )
         )
-    return response, state
+    return response, state, memory
 
 
 def _extract_ws_token(websocket: WebSocket) -> str | None:
@@ -248,12 +221,36 @@ async def chat(
     )
 
     try:
-        response, state = await _run_chat_turn(
+        response, state, memory = await _run_chat_turn(
             session_id=session_id,
             message=message,
             owner_id=current_user.id,
             user_email=current_user.email,
             workspace_id=current_user.workspace_id,
+        )
+
+        facts = memory.get_facts()
+        persona_dict = state.get("persona") or {}
+        persona_label = persona_dict.get("label")
+        if persona_label:
+            facts["persona_label"] = persona_label
+
+        messages_list = [
+            {
+                "role": m.role,
+                "content": m.content,
+                "metadata": m.metadata,
+                "turn": m.turn,
+            }
+            for m in memory._messages
+        ]
+
+        await save_session(
+            session_id,
+            facts,
+            current_user.id,
+            current_user.workspace_id,
+            messages=messages_list,
         )
 
         # ── Log handoff event if triggered ────────────────────────────────────
@@ -378,12 +375,36 @@ async def chat_websocket(websocket: WebSocket) -> None:
 
             start_time = time.perf_counter()
             try:
-                response, state = await _run_chat_turn(
+                response, state, memory = await _run_chat_turn(
                     session_id=session_id,
                     message=message,
                     owner_id=user.id,
                     user_email=user.email,
                     workspace_id=user.workspace_id,
+                )
+
+                facts = memory.get_facts()
+                persona_dict = state.get("persona") or {}
+                persona_label = persona_dict.get("label")
+                if persona_label:
+                    facts["persona_label"] = persona_label
+
+                messages_list = [
+                    {
+                        "role": m.role,
+                        "content": m.content,
+                        "metadata": m.metadata,
+                        "turn": m.turn,
+                    }
+                    for m in memory._messages
+                ]
+
+                await save_session(
+                    session_id,
+                    facts,
+                    user.id,
+                    user.workspace_id,
+                    messages=messages_list,
                 )
             except PermissionError as e:
                 await websocket.send_json(
@@ -578,8 +599,48 @@ async def delete_chat_session(
         }
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
+    except HTTPException:
+        raise
     except Exception:
         logger.exception("Error deleting session %s", session_id)
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred. Please try again or contact support.",
+        )
+
+
+class RenameSessionRequest(BaseModel):
+    title: str = Field(..., max_length=255)
+
+
+@router.put(
+    "/chat/session/{session_id}",
+    summary="Rename a chat session.",
+    description="Updates the custom title for a given chat session.",
+)
+async def rename_chat_session(
+    session_id: str,
+    request: RenameSessionRequest,
+    current_user: User = require_roles("sales_rep", "admin"),
+) -> dict[str, Any]:
+    try:
+        from src.memory.db import rename_session
+
+        # Load first to verify permissions
+        await load_session(
+            session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id
+        )
+        await rename_session(session_id, request.title)
+        return {
+            "status": "success",
+            "message": f"Session {session_id} renamed successfully.",
+        }
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error renaming session %s", session_id)
         raise HTTPException(
             status_code=500,
             detail="An internal error occurred. Please try again or contact support.",

@@ -35,15 +35,7 @@ export function useSpeechRecognition() {
     };
 
     recognition.onend = () => {
-      if (isListening) {
-         try {
-           recognition.start();
-         } catch (e) {
-           setIsListening(false);
-         }
-      } else {
-         setIsListening(false);
-      }
+      setIsListening(false);
     };
 
     recognitionRef.current = recognition;
@@ -62,7 +54,8 @@ export function useSpeechRecognition() {
       if (isListening) {
         try {
           recognitionRef.current.start();
-        } catch (e) {
+        } catch (error) {
+          console.error('Speech recognition restart failed:', error);
           setIsListening(false);
         }
       }
@@ -75,8 +68,8 @@ export function useSpeechRecognition() {
     try {
       recognitionRef.current.start();
       setIsListening(true);
-    } catch (e) {
-      console.error('Error starting speech recognition:', e);
+    } catch (error) {
+      console.error('Error starting speech recognition:', error);
     }
   }, [supported]);
 
@@ -85,8 +78,8 @@ export function useSpeechRecognition() {
     setIsListening(false);
     try {
       recognitionRef.current.stop();
-    } catch (e) {
-      console.error('Error stopping speech recognition:', e);
+    } catch (error) {
+      console.error('Error stopping speech recognition:', error);
     }
   }, [supported]);
 

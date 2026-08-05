@@ -7,11 +7,13 @@ import PublicShell from '../components/layout/PublicShell';
 import HowItWorks from '../components/landing/HowItWorks';
 import RobotFeatures from '../components/landing/RobotFeatures';
 import Footer from '../components/layout/Footer';
+import { useAuthStore } from '../store/authStore';
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const showLogin = searchParams.get('login') === 'true';
+  const token = searchParams.get('token');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const prevX = useRef<number | null>(null);
@@ -54,6 +56,12 @@ const LandingPage = () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    useAuthStore.getState().setToken(token);
+    navigate('/dashboard', { replace: true });
+  }, [navigate, token]);
 
   // Hook 2: Mobile autoplay
   useEffect(() => {

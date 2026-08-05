@@ -39,6 +39,7 @@ httpx
 structlog
 prometheus-client
 prometheus-fastapi-instrumentator
+google-auth
 ruff==0.8.0
 black==26.5.1
 pdfplumber==0.11.10

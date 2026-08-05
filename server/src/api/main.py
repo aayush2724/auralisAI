@@ -73,10 +73,10 @@ async def lifespan(app: FastAPI):
 
     gemini_key = os.getenv("GEMINI_API_KEY")
     if not gemini_key or gemini_key.startswith("your_"):
-        logger.critical(
-            "GEMINI_API_KEY is missing or set to default! Please configure it in .env."
+        logger.warning(
+            "GEMINI_API_KEY is missing or set to default. "
+            "The API will start, but LLM-dependent routes may fail until it is configured."
         )
-        raise RuntimeError("Missing GEMINI_API_KEY")
 
     try:
         await init_db()

@@ -75,7 +75,7 @@ Use these seeded credentials to explore the live demo (or locally after `docker 
 | **Email** | `admin@auralis.ai` |
 | **Password** | `9ZQ-3KFmhX39yt68EMMcomtd2tg` |
 
->⚠️ **Note:** The backend runs on a free-tier instance that spins down after inactivity — your first login attempt may fail or hang while it wakes up. If this happens, simply refresh the page and try logging in again once or twice; subsequent requests will be fast.
+>⚠️ **Note:** The backend runs on a free-tier instance that spins down after inactivity — your first email/password login attempt may fail or hang while it wakes up. If this happens, simply refresh the page and try logging in again once or twice; subsequent requests will be fast.
 > This account has `sales_rep` access — enough to try the full chat pipeline. Admin-level features (knowledge base management, session lookup, analytics dashboard) require elevated access not exposed publicly.
 
 ### 🧪 Panel Evaluation Prompts (Sample Hackathon Questions)
@@ -291,7 +291,6 @@ cp .env.example .env
 | Variable | Required | Description |
 |---|---|---|
 | `GEMINI_API_KEY` | ✅ | Google Gemini API key for LLM inference |
-| `OPENAI_API_KEY` | ⬜ | Optional fallback — set `LLM_MODEL=gpt-4o` |
 | `JWT_SECRET_KEY` | ✅ | Random secret ≥ 32 chars for token signing |
 | `DATABASE_URL` | ✅ | PostgreSQL connection string (asyncpg format) |
 | `REDIS_URL` | ✅ | Redis connection string |
@@ -303,6 +302,9 @@ cp .env.example .env
 | `ADMIN_PASSWORD` | ⬜ | Password for the seeded admin account (set your own) |
 | `DEMO_EMAIL` | ⬜ | Seeded demo account email |
 | `DEMO_PASSWORD` | ⬜ | Password for the public demo sales_rep account |
+| `GOOGLE_OAUTH_CLIENT_ID` | ⬜ | Removed. Email/password login is the only supported auth flow. |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | ⬜ | Removed. Email/password login is the only supported auth flow. |
+| `GOOGLE_OAUTH_REDIRECT_URI` | ⬜ | Removed. Email/password login is the only supported auth flow. |
 | `VITE_API_URL` | ✅ | Frontend API base URL (`/api` in dev) |
 
 ---

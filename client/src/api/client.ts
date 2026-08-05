@@ -5,7 +5,7 @@ export const queryClient = new QueryClient();
 
 // In development, use relative '/api' so Vite proxy handles it and prevents CORS preflights.
 // In production, use VITE_API_URL to point directly to the deployed backend.
-const API_BASE = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || '/api');
+export const API_BASE = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || '/api');
 
 const client = axios.create({
   baseURL: API_BASE,

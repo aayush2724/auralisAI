@@ -57,6 +57,7 @@ _ADMIN_PASSWORD: str | None = os.getenv("ADMIN_PASSWORD")
 # Public demo user with sales_rep role
 _DEMO_EMAIL: str | None = os.getenv("DEMO_EMAIL")
 _DEMO_PASSWORD: str | None = os.getenv("DEMO_PASSWORD")
+_FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:4000")
 
 if not JWT_SECRET_KEY:
     logger.critical("SECURITY ERROR: JWT_SECRET_KEY environment variable is missing.")
@@ -212,6 +213,47 @@ async def get_user_by_email(email: str) -> dict | None:
         "hashed_password": row.hashed_password,
         "role": row.role,
     }
+
+
+async def create_user(email: str, password: str, role: str = "viewer") -> User:
+    existing = await get_user_by_email(email)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An account with this email already exists.",
+        )
+
+    if role not in _VALID_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid role.",
+        )
+
+    engine = _get_engine()
+    hashed = hash_password(password)
+    sql = text("""
+        INSERT INTO users (email, hashed_password, role)
+        VALUES (:email, :hashed_password, :role)
+        RETURNING id::text, email, role
+    """)
+    async with engine.begin() as conn:
+        result = await conn.execute(
+            sql, {"email": email, "hashed_password": hashed, "role": role}
+        )
+        row = result.fetchone()
+
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create user.",
+        )
+
+    return User(
+        id=row.id,
+        email=row.email,
+        role=row.role,
+        workspace_id="default_tenant",
+    )
 
 
 async def authenticate_user(email: str, password: str) -> User | None:

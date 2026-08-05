@@ -20,19 +20,38 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.api.auth import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
     authenticate_user,
     create_access_token,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    create_user,
 )
-from src.api.schemas import TokenResponse
+from src.api.schemas import SignupRequest, TokenResponse, UserResponse
 from src.utils.limiter import limiter
 
 logger = logging.getLogger("auralis.api.auth")
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+@router.post(
+    "/signup",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create an email/password account.",
+    responses={
+        409: {"description": "An account with this email already exists."},
+    },
+)
+@limiter.limit("5/minute")
+async def signup_with_email(
+    request: Request,
+    payload: SignupRequest = Body(...),
+) -> UserResponse:
+    user = await create_user(email=payload.email.strip().lower(), password=payload.password)
+    return UserResponse(id=user.id, email=user.email, role=user.role)
 
 
 @router.post(

@@ -340,7 +340,6 @@ class ConversationMemory:
         }
         logger.debug("Memory cleared (session_id=%s).", self._session_id)
 
-
     @classmethod
     async def from_session(
         cls, session_id: str, owner_id: str | None = None

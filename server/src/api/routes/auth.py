@@ -18,21 +18,16 @@ The JWT payload contains:
 from __future__ import annotations
 
 import logging
-import os
 from datetime import timedelta
 
-from fastapi.responses import RedirectResponse
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.api.auth import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    build_google_authorize_url,
-    create_user,
     authenticate_user,
     create_access_token,
-    get_user_by_email,
-    exchange_google_code,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    create_user,
 )
 from src.api.schemas import SignupRequest, TokenResponse, UserResponse
 from src.utils.limiter import limiter
@@ -110,62 +105,3 @@ async def login_for_access_token(
 
     logger.info("Issued token for %s (role=%s)", user.email, user.role)
     return TokenResponse(access_token=token, token_type="bearer")
-
-
-@router.get(
-    "/google/start",
-    summary="Begin Google OAuth sign-in or sign-up.",
-)
-async def google_oauth_start() -> Response:
-    authorize_url = build_google_authorize_url(state="auralis-google")
-    return RedirectResponse(authorize_url, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
-
-
-@router.get(
-    "/google/callback",
-    summary="Google OAuth callback endpoint.",
-)
-async def google_oauth_callback(code: str | None = None, state: str | None = None) -> Response:
-    if not code:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Missing Google OAuth code.",
-        )
-
-    claims = await exchange_google_code(code)
-    email = (claims.get("email") or "").strip().lower()
-    email_verified = bool(claims.get("email_verified"))
-
-    if not email or not email_verified:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Google account email is not verified.",
-        )
-
-    existing = await get_user_by_email(email)
-    if existing is None:
-        user = await create_user(email=email, password=f"google:{claims.get('sub')}")
-    else:
-        from src.api.auth import User
-
-        user = User(
-            id=existing["id"],
-            email=existing["email"],
-            role=existing["role"],
-            workspace_id="default_tenant",
-        )
-
-    token = create_access_token(
-        data={
-            "sub": user.id,
-            "email": user.email,
-            "role": user.role,
-            "workspace_id": user.workspace_id,
-        },
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-    )
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:4000").rstrip("/")
-    return RedirectResponse(
-        url=f"{frontend_url}/?token={token}",
-        status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-    )

@@ -255,6 +255,17 @@ class DashboardResponse(BaseModel):
 # ─── Knowledge Base ───────────────────────────────────────────────────────────
 
 
+class ImageExtractionResult(BaseModel):
+    """Result of extracting text from a single image via OCR."""
+    filename: str = Field(description="Original filename.")
+    cloudinary_url: str = Field(description="URL of the image hosted on Cloudinary.")
+    extracted_text: str = Field(description="Text extracted via Tesseract OCR.")
+
+class ImageIngestRequest(BaseModel):
+    """Payload for POST /kb/ingest-image."""
+    images: list[ImageExtractionResult] = Field(description="List of extracted images to ingest.")
+
+
 class KBIngestResponse(BaseModel):
     """Response for POST /kb/ingest."""
 

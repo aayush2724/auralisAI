@@ -284,6 +284,48 @@ def ingest_directory(
     return len(chunks)
 
 
+def ingest_extracted_images(
+    images_data: list[dict[str, Any]], vectorstore_path: str | Path | None = None
+) -> int:
+    """
+    Ingest a list of extracted image data.
+    
+    Each dict should contain:
+      - filename: original image filename
+      - cloudinary_url: hosted image URL
+      - extracted_text: OCR text
+      
+    Returns the number of chunks ingested.
+    """
+    vs_path = Path(vectorstore_path) if vectorstore_path else VECTORSTORE_PATH
+
+    raw_docs: list[dict[str, Any]] = []
+    
+    for img in images_data:
+        text = img.get("extracted_text", "").strip()
+        if not text:
+            continue
+            
+        raw_docs.append({
+            "text": text,
+            "source_file": img.get("filename", "unknown_image"),
+            "doc_type": "image",
+            "cloudinary_url": img.get("cloudinary_url", ""),
+            "ocr_engine": "tesseract"
+        })
+
+    if not raw_docs:
+        logger.warning("No valid text found in the provided images.")
+        return 0
+
+    logger.info("Chunking %d image document(s)…", len(raw_docs))
+    chunks = _chunk_documents(raw_docs)
+    logger.info("Total chunks from images: %d", len(chunks))
+
+    _embed_and_persist(chunks, vs_path)
+    return len(chunks)
+
+
 # ─── CLI entry point ──────────────────────────────────────────────────────────
 
 

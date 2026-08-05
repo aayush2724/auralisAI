@@ -98,3 +98,13 @@ export interface ChatSessionPreview {
   updated_at: string | null;
   preview: string;
 }
+
+export interface ImageExtractionResult {
+  filename: string;
+  cloudinary_url: string;
+  extracted_text: string;
+}
+
+export interface ImageIngestRequest {
+  images: ImageExtractionResult[];
+}

@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import client from '../client';
-import type { KBStats, KBIngestResponse } from '../../types/api';
+import type { KBStats, KBIngestResponse, ImageExtractionResult, ImageIngestRequest } from '../../types/api';
 
 export const useKBStats = () => {
   return useQuery({
@@ -20,6 +20,28 @@ export const useIngestFiles = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
+      return data;
+    },
+  });
+};
+
+export const useExtractImage = () => {
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const { data } = await client.post<ImageExtractionResult[]>('/kb/extract-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return data;
+    },
+  });
+};
+
+export const useIngestImage = () => {
+  return useMutation({
+    mutationFn: async (req: ImageIngestRequest) => {
+      const { data } = await client.post<KBIngestResponse>('/kb/ingest-image', req);
       return data;
     },
   });

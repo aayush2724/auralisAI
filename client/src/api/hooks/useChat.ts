@@ -164,7 +164,16 @@ export const useChat = (sessionId: string) => {
         setMessages(mappedMessages);
       } catch (err) {
         if (active) {
-          setMessages([]);
+          const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+          if (status === 404) {
+            // Genuinely new/empty session — expected, no error needed
+            setMessages([]);
+          } else {
+            // Unexpected failure — log it so this class of bug isn't invisible again
+            console.error('Failed to load chat history for session', sessionId, err);
+            setWsError('Could not load previous messages for this session.');
+            setMessages([]);
+          }
         }
       } finally {
         if (active) {

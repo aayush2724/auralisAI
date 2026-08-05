@@ -113,7 +113,7 @@ def _extract_text_gemini(image_bytes: bytes) -> str:
         )
 
         llm = ChatGoogleGenerativeAI(
-            model=os.environ.get("GEMINI_MODEL", "gemini-2.5-flash"),
+            model=os.environ.get("GEMINI_OCR_MODEL", "gemini-2.5-flash-lite"),
             google_api_key=os.getenv("GEMINI_API_KEY"),
         )
         response = llm.invoke([message])

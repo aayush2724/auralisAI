@@ -290,7 +290,8 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
         res.append(
             {
                 "session_id": row.session_id,
-                "company_name": final_title,
+                "company_name": company_title,
+                "title": final_title,
                 "persona_label": row.persona_label,
                 "updated_at": row.updated_at.isoformat() if row.updated_at else None,
                 "preview": preview,

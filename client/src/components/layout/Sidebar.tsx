@@ -77,9 +77,9 @@ const SessionItem: React.FC<{
   onRename?: (id: string, newTitle: string) => void;
 }> = ({ session, isActive, onSelect, onDelete, onRename }) => {
   const [isRenaming, setIsRenaming] = useState(false);
-  const [renameInput, setRenameInput] = useState(session.company_name || '');
+  const [renameInput, setRenameInput] = useState(session.title || session.company_name || '');
 
-  const title = session.company_name || 'New Conversation';
+  const title = session.title || session.company_name || 'New Conversation';
   const preview = session.preview || 'No messages yet';
 
   const handleRenameSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
@@ -209,6 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     if (!searchQuery.trim()) return sessions;
     const query = searchQuery.toLowerCase();
     return sessions.filter((s) => 
+      (s.title?.toLowerCase() || '').includes(query) ||
       (s.company_name?.toLowerCase() || '').includes(query) ||
       (s.preview?.toLowerCase() || '').includes(query)
     );

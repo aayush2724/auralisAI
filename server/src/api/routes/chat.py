@@ -625,7 +625,7 @@ async def rename_chat_session(
 ) -> dict[str, Any]:
     try:
         from src.memory.db import rename_session
-        
+
         # Load first to verify permissions
         await load_session(
             session_id, owner_id=current_user.id, workspace_id=current_user.workspace_id
@@ -645,4 +645,3 @@ async def rename_chat_session(
             status_code=500,
             detail="An internal error occurred. Please try again or contact support.",
         )
-

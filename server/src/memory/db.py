@@ -271,7 +271,9 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
             first_user = next((m for m in msgs if m.get("role") == "user"), None)
             if first_user:
                 first_content = first_user.get("content", "")
-                auto_title = first_content[:40] + ("..." if len(first_content) > 40 else "")
+                auto_title = first_content[:40] + (
+                    "..." if len(first_content) > 40 else ""
+                )
 
             # Use last user message as preview
             last_user = next(
@@ -282,9 +284,9 @@ async def list_sessions(owner_id: str, workspace_id: str) -> list[dict[str, Any]
                 preview = last_content[:120] + (
                     "..." if len(last_content) > 120 else ""
                 )
-                
+
         final_title = custom_title or auto_title or company_title or "New Chat"
-        
+
         res.append(
             {
                 "session_id": row.session_id,
@@ -315,5 +317,7 @@ async def rename_session(session_id: str, new_title: str) -> None:
         WHERE session_id = :session_id
     """)
     async with _session_factory() as session, session.begin():  # type: ignore[misc]
-        await session.execute(update_sql, {"session_id": session_id, "title": new_title})
+        await session.execute(
+            update_sql, {"session_id": session_id, "title": new_title}
+        )
     logger.info("Session renamed: %s to %s", session_id, new_title)

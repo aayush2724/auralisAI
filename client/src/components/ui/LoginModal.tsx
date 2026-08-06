@@ -102,14 +102,6 @@ const LoginModal = () => {
               </button>
             </div>
 
-            {mode === 'signup' && (
-              <div className="space-y-3 mb-6">
-                <div className="relative py-1 text-center text-xs uppercase tracking-[0.3em] text-theme-secondary">
-                  <span className="bg-white px-3">Sign up with email</span>
-                  <div className="absolute left-0 right-0 top-1/2 -z-10 h-px bg-slate-200" />
-                </div>
-              </div>
-            )}
 
             <form onSubmit={mode === 'signup' ? handleSignup : handleLogin} className="space-y-4">
               <TextInput

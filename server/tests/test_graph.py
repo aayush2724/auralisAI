@@ -230,34 +230,15 @@ class TestGenerateNode:
 
     @patch("src.graph.graph._get_llm")
     def test_response_populated(self, mock_get_llm):
-        mock_get_llm.return_value.invoke.return_value = self._mock_llm_response()
+        mock_get_llm.return_value.stream.return_value = [self._mock_llm_response()]
         state = _base_state()
         result = generate_node(state)
         assert "response" in result
         assert len(result["response"]) > 0
 
     @patch("src.graph.graph._get_llm")
-    def test_citations_appended_if_not_in_response(self, mock_get_llm):
-        mock_get_llm.return_value.invoke.return_value = self._mock_llm_response(
-            "Here is the response without any citation markers."
-        )
-        state = _base_state(citations="[1] Source A (file.pdf, chunk 0)")
-        result = generate_node(state)
-        assert "[1] Source A" in result["response"]
-
-    @patch("src.graph.graph._get_llm")
-    def test_no_duplicate_citations(self, mock_get_llm):
-        citations = "[1] Source A (file.pdf, chunk 0)"
-        mock_get_llm.return_value.invoke.return_value = self._mock_llm_response(
-            f"Response already includes: {citations}"
-        )
-        state = _base_state(citations=citations)
-        result = generate_node(state)
-        assert result["response"].count("[1] Source A") == 1
-
-    @patch("src.graph.graph._get_llm")
     def test_empty_docs_handled(self, mock_get_llm):
-        mock_get_llm.return_value.invoke.return_value = self._mock_llm_response()
+        mock_get_llm.return_value.stream.return_value = [self._mock_llm_response()]
         state = _base_state(retrieved_docs=[], citations="")
         result = generate_node(state)
         assert "response" in result
@@ -350,7 +331,9 @@ class TestRunGraph:
         mocks = [p.start() for p in patches]
         mocks[0].return_value.classify_combined.return_value = _mock_combined()
         llm_mock = mocks[-1]
-        llm_mock.return_value.invoke.return_value = MagicMock(content="Test response.")
+        llm_mock.return_value.stream.return_value = [
+            MagicMock(content="Test response.")
+        ]
 
         try:
             mem = ConversationMemory()
@@ -367,7 +350,9 @@ class TestRunGraph:
         patches = self._patch_all()
         mocks = [p.start() for p in patches]
         mocks[0].return_value.classify_combined.return_value = _mock_combined()
-        mocks[-1].return_value.invoke.return_value = MagicMock(content="Response text.")
+        mocks[-1].return_value.stream.return_value = [
+            MagicMock(content="Response text.")
+        ]
 
         try:
             mem = ConversationMemory()

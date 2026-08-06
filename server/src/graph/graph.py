@@ -134,6 +134,7 @@ class GraphState(TypedDict, total=False):
     memory_context: str
     strategy: str
     response: str
+    # This reflects objection-classifier confidence only, computed before generation — it does NOT measure factual grounding of the generated response. A high value here can co-occur with a fabricated claim.
     confidence: float
     should_handoff: bool
     handoff_trigger: str | None
@@ -423,7 +424,12 @@ Communication rules for unknown persona:
 _SHARED_GUIDELINES = """\
 
 Shared guidelines (apply always):
-- Never fabricate statistics; cite only information from the retrieved context.
+- No unauthorized commitments: Never state that you (the assistant) will personally take a future action — e.g. "I'll send you...", "I'll connect you with...", "I'll follow up within X minutes" — unless that action is executed via an actual tool call in this same turn. If a next step requires a human or a system action, say so plainly and route it (e.g. "a rep can send that over") instead of promising to do it yourself.
+  * Violating: "I'll get an engineer to look at this right now."
+  * Compliant: "I can have our engineering team review this."
+- No fabricated social proof or usage statistics: Never state claims about what "most users," "most customers," or "most engineering teams" do, prefer, or believe unless that exact claim appears in the retrieved citations for this turn. If no such data exists in context, don't invent it — answer without the stat or say the data isn't available.
+  * Violating: "Most enterprise customers prefer our API." (if not in context)
+  * Compliant: "Our enterprise API is designed to support custom workflows."
 - Match the tone instruction provided in the strategy prompt exactly.
 - Respond to the actual objection — don't pivot without acknowledging their concern.
 """
@@ -449,7 +455,6 @@ def generate_node(state: GraphState) -> dict[str, Any]:
     """
     from src.strategies.router import get_strategy_prompt
 
-    citations = state.get("citations") or ""
     persona_label = (state.get("persona") or {}).get("label", "Unknown")
 
     logger.info(
@@ -497,10 +502,6 @@ def generate_node(state: GraphState) -> dict[str, Any]:
         return {
             "response": "I'm having trouble generating a response right now — could you try rephrasing that, or give me a moment and try again?"
         }
-
-    # Append citations block if the strategy prompt didn't embed them
-    if citations and citations not in response_text:
-        response_text = response_text.rstrip() + f"\n\n---\n**Sources**\n{citations}"
 
     logger.info("[generate_node] response length=%d chars", len(response_text))
     return {"response": response_text}

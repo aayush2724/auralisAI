@@ -20,9 +20,11 @@ Run with:
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 
-from src.graph.graph import GraphState
+from src.graph.graph import GraphState, _get_system_prompt, generate_node
 from src.strategies import (
     buying_signal_strategy,
     competitor_strategy,
@@ -327,3 +329,26 @@ class TestRouter:
             state = _make_state(label)
             prompt = get_strategy_prompt(state)
             _assert_required_injections(prompt)
+
+
+# ─── Guardrails and formatting tests ──────────────────────────────────────────
+
+
+class TestGuardrails:
+    def test_system_prompt_contains_guardrails(self):
+        prompt = _get_system_prompt("Unknown")
+        assert "No unauthorized commitments:" in prompt
+        assert "No fabricated social proof" in prompt
+
+    @patch("src.graph.graph._get_llm")
+    def test_generate_node_no_citations_in_response(self, mock_get_llm):
+        mock_msg = MagicMock()
+        mock_msg.content = "Here is the response without citations."
+        mock_get_llm.return_value.stream.return_value = [mock_msg]
+
+        state = _make_state(citations="[1] Source A (cases.pdf, chunk 0)")
+        result = generate_node(state)
+
+        response_text = result["response"]
+        assert "**Sources**" not in response_text
+        assert "cases.pdf, chunk" not in response_text

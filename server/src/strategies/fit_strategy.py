@@ -74,9 +74,10 @@ You are handling a FIT objection. Follow this exact structure:
    - Only reference a roadmap timeline or workaround if it is explicitly stated in the retrieved context ({citations}) — never state a specific quarter (Q1/Q2/Q3/Q4) or specific feature name that isn't grounded in the retrieved material.
 
 5. **Scoped Demo Offer**
+   - Close with a tailored demo proposal scoped to their exact use case. Do not add any other questions.
    - "Can I show you a 20-minute demo scoped entirely to [their use case]?"
 
-### Source Citations (Feature 11)
+### Retrieved Context (internal — for grounding only, do not repeat or list this in your response)
 {citations}
 
 Write the complete sales response now, following the structure above.

@@ -72,7 +72,7 @@ You are handling a TIMING objection. Follow this exact structure:
    - Agree a specific follow-up date/trigger.
    - "Shall I reach out when your Q[N] budget planning begins?"
 
-### Source Citations (Feature 11)
+### Retrieved Context (internal — for grounding only, do not repeat or list this in your response)
 {citations}
 
 Write the complete sales response now, following the structure above.

@@ -125,9 +125,12 @@ def retrieve(
 
     vs = _get_vectorstore(vectorstore_path)
 
-    # FAISS similarity_search_with_score returns (Document, score) pairs.
-    # Langchain FAISS uses L2 distance by default; lower = closer.
-    results_with_scores = vs.similarity_search_with_score(query, k=top_k)
+    # Use MMR (Maximal Marginal Relevance) to increase diversity and prevent 
+    # redundant chunks from crowding out other relevant context.
+    embedding = vs.embeddings.embed_query(query)
+    results_with_scores = vs.max_marginal_relevance_search_with_score_by_vector(
+        embedding, k=top_k, fetch_k=20, lambda_mult=0.5
+    )
 
     output: list[dict[str, Any]] = []
     for doc, score in results_with_scores:

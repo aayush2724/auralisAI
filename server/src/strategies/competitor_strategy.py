@@ -76,7 +76,7 @@ Follow this exact structure — NEVER badmouth the competitor:
 5. **Soft Close**
    - "What would a fair evaluation look like for your team?"
 
-### Source Citations (Feature 11)
+### Retrieved Context (internal — for grounding only, do not repeat or list this in your response)
 {citations}
 
 Write the complete sales response now, following the structure above.

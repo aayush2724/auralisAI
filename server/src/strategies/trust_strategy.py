@@ -74,7 +74,7 @@ You are handling a TRUST objection. Follow this exact structure:
 5. **Verification Invitation**
    - Invite them to check G2/Capterra reviews or analyst reports.
 
-### Source Citations (Feature 11)
+### Retrieved Context (internal — for grounding only, do not repeat or list this in your response)
 {citations}
 
 Write the complete sales response now, following the structure above.

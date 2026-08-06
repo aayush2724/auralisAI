@@ -1,0 +1,16 @@
+Integration Name,Category,Status,Available On,Launch Date,Setup Time
+Snowflake,Data Warehouse,General Availability,Scale Growth Momentum Scale,2023-11-01,15 minutes
+BigQuery,Data Warehouse,General Availability,Scale Growth Momentum Scale,2023-11-01,15 minutes
+Databricks,Data Warehouse,General Availability,Scale Momentum Scale,2024-02-14,30 minutes
+Salesforce,CRM,General Availability,All Plans,2023-06-01,10 minutes
+HubSpot,CRM,General Availability,All Plans,2023-06-01,10 minutes
+Segment,CDP,General Availability,All Plans,2023-01-15,5 minutes
+Amplitude Import,Migration Tool,General Availability,Scale Momentum Scale,2024-05-01,1-2 business days
+Mixpanel Import,Migration Tool,General Availability,Scale Momentum Scale,2024-05-01,1-2 business days
+Slack,Notifications,General Availability,All Plans,2023-03-01,2 minutes
+PagerDuty,Alerting,General Availability,Momentum Scale,2024-08-01,10 minutes
+Zapier,Automation,Beta,All Plans,2025-01-10,5 minutes
+Braze,Marketing Automation,Beta,Scale Momentum Scale,2025-04-01,20 minutes
+Iterable,Marketing Automation,Waitlist,Momentum Scale,Not yet launched,Not yet launched
+Looker,BI Tool,General Availability,Momentum Scale,2024-09-01,15 minutes
+Tableau,BI Tool,General Availability,Momentum Scale,2024-09-01,15 minutes

@@ -68,7 +68,7 @@ You are handling a PRICE objection. Follow this exact structure:
    - Example: "If we could show a 3× return within 6 months, would that
      change how you're thinking about the investment?"
 
-### Source Citations (Feature 11)
+### Retrieved Context (internal — for grounding only, do not repeat or list this in your response)
 {citations}
 
 Write the complete sales response now, following the structure above.

@@ -245,7 +245,44 @@ async def kb_ingest_image(
         )
 
 
-# ─── GET /kb/stats ────────────────────────────────────────────────────────�[...]
+# ─── GET /kb/diagnostic/retrieval ──────────────────────────────────────────────
+
+
+@router.get(
+    "/diagnostic/retrieval",
+    summary="Temporary diagnostic endpoint for retrieval",
+    description="Returns the full text of chunks for specific diagnostic queries.",
+)
+async def kb_diagnostic_retrieval() -> dict:
+    from src.rag.retriever import retrieve
+
+    queries = [
+        "is the 85% time-to-insight stat audited or self-reported",
+        "how long does onboarding take from signed contract to going live",
+        "Databricks integration setup time and plan availability",
+    ]
+    results = {}
+    for q in queries:
+        try:
+            docs = retrieve(q)
+            results[q] = []
+            for doc in docs:
+                text = doc["text"]
+                results[q].append(
+                    {
+                        "source": doc.get("source_file"),
+                        "chunk_idx": doc.get("chunk_index"),
+                        "length": len(text),
+                        "after_400": text[400:] if len(text) > 400 else "",
+                        "text": text,
+                    }
+                )
+        except Exception as e:
+            results[q] = {"error": str(e)}
+    return results
+
+
+# ─── GET /kb/stats ────────────────────────────────────────────────────────[...]
 
 
 @router.get(

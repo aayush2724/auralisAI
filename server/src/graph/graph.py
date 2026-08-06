@@ -250,12 +250,12 @@ def retrieve_node(state: GraphState) -> dict[str, Any]:
     _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT = {"price", "trust", "timing", "competitor"}
 
     try:
-        raw_docs = retrieve(user_input, top_k=5)
+        raw_docs = retrieve(user_input, top_k=5, audience="external")
 
         if obj_label in _OBJECTION_LABELS_FOR_QUERY_ENRICHMENT:
             enriched_query = f"{user_input} {obj_label} objection handling"
             logger.info("[retrieve_node] enriched_query='%s'", enriched_query[:100])
-            enriched_docs = retrieve(enriched_query, top_k=5)
+            enriched_docs = retrieve(enriched_query, top_k=5, audience="external")
         else:
             enriched_docs = []
 
@@ -429,6 +429,7 @@ Shared guidelines (apply always):
 - No fabricated social proof or usage statistics: Never state claims about what "most users," "most customers," or "most engineering teams" do, prefer, or believe unless that exact claim appears in the retrieved citations for this turn. If no such data exists in context, don't invent it — answer without the stat or say the data isn't available.
   * Violating: "Most enterprise customers prefer our API." (if not in context)
   * Compliant: "Our enterprise API is designed to support custom workflows."
+- No leakage of internal-only info: Do not mention internal roadmap dates, beta partner names, internal operational metrics, or any facts marked as "internal only", "confidential", or not meant for public release, even if the user explicitly asks for them. If asked, politely state that you cannot share that information.
 - Match the tone instruction provided in the strategy prompt exactly.
 - Respond to the actual objection — don't pivot without acknowledging their concern.
 - Ask at most ONE question in your entire response. Do not ask a question early and another at the end — pick the single most important question and ask only that.

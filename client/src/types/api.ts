@@ -68,6 +68,7 @@ export interface KBIngestResponse {
   chunks_added: number;
   upload_dir: string;
   index_updated: boolean;
+  files_overridden?: string[];
 }
 
 export interface KBStats {
@@ -107,4 +108,5 @@ export interface ImageExtractionResult {
 
 export interface ImageIngestRequest {
   images: ImageExtractionResult[];
+  audience?: "internal" | "external";
 }

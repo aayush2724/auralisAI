@@ -175,7 +175,9 @@ class TestRetrieveNode:
         state = _base_state()
         retrieve_node(state)
         call_args = mock_ret.call_args[0][0]  # first positional arg = query string
+        kwargs = mock_ret.call_args[1]
         assert "price" in call_args.lower()
+        assert kwargs.get("audience") == "external"
 
 
 # ─── strategy_node ────────────────────────────────────────────────────────────

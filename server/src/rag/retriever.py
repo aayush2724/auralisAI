@@ -102,6 +102,7 @@ def retrieve(
     query: str,
     top_k: int = 5,
     vectorstore_path: Path | None = None,
+    audience: str | None = None,
 ) -> list[dict[str, Any]]:
     """
     Retrieve the *top_k* most relevant chunks for *query*.
@@ -111,6 +112,7 @@ def retrieve(
     query           : natural-language search string
     top_k           : number of results to return (default 5)
     vectorstore_path: override for FAISS path (mainly used in tests)
+    audience        : If "external", filter out any chunks marked as "internal"
 
     Returns
     -------
@@ -128,13 +130,18 @@ def retrieve(
     # Use MMR (Maximal Marginal Relevance) to increase diversity and prevent
     # redundant chunks from crowding out other relevant context.
     embedding = vs.embeddings.embed_query(query)
+    # fetch more chunks to allow post-filtering
+    fetch_k = top_k * 3
     results_with_scores = vs.max_marginal_relevance_search_with_score_by_vector(
-        embedding, k=top_k, fetch_k=20, lambda_mult=0.5
+        embedding, k=fetch_k, fetch_k=20, lambda_mult=0.5
     )
 
     output: list[dict[str, Any]] = []
     for doc, score in results_with_scores:
         meta = doc.metadata or {}
+        if audience == "external" and meta.get("audience", "internal") == "internal":
+            continue
+
         output.append(
             {
                 "text": doc.page_content,
@@ -143,6 +150,8 @@ def retrieve(
                 "score": float(score),
             }
         )
+        if len(output) >= top_k:
+            break
 
     logger.debug("retrieve('%s') → %d result(s)", query[:60], len(output))
     return output

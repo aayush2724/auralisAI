@@ -15,7 +15,7 @@ import type { ImageExtractionResult } from '../../types/api';
 
 const Toast = ({ message, onClose }: { message: string, onClose: () => void }) => {
   useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
+    const timer = setTimeout(onClose, 4000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -42,6 +42,7 @@ export default function KnowledgeBasePanel() {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [previewResults, setPreviewResults] = useState<ImageExtractionResult[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [lastSelectedAudience, setLastSelectedAudience] = useState<"internal" | "external">("internal");
 
   const docCount = useCountUp(stats?.total_documents || 0, 1200, true);
   const chunkCount = useCountUp(stats?.total_chunks || 0, 1200, true);
@@ -52,7 +53,8 @@ export default function KnowledgeBasePanel() {
     }
   }, [ingestMutation.isSuccess, ingestImageMutation.isSuccess, refetch]);
 
-  const handleIngest = async (files: File[]) => {
+  const handleIngest = async (files: File[], audience: "internal" | "external") => {
+    setLastSelectedAudience(audience);
     const images = files.filter(f => ['png', 'jpg', 'jpeg', 'webp'].includes(f.name.split('.').pop()?.toLowerCase() || ''));
     const standardFiles = files.filter(f => !['png', 'jpg', 'jpeg', 'webp'].includes(f.name.split('.').pop()?.toLowerCase() || ''));
 
@@ -60,11 +62,19 @@ export default function KnowledgeBasePanel() {
     if (standardFiles.length > 0) {
       const formData = new FormData();
       standardFiles.forEach(file => formData.append('files', file));
+      formData.append('audience', audience);
       
       ingestMutation.mutate(formData, {
         onSuccess: (data) => {
-          setToastMessage(`Success: ${data.chunks_added} chunks added from documents.`);
+          let msg = `Success: ${data.chunks_added} chunks added from documents.`;
+          if (data.files_overridden && data.files_overridden.length > 0) {
+            msg += ` Note: ${data.files_overridden.join(', ')} auto-tagged as internal.`;
+          }
+          setToastMessage(msg);
         },
+        onError: () => {
+          setToastMessage("Failed to ingest files. Please try again.");
+        }
       });
     }
 
@@ -86,9 +96,13 @@ export default function KnowledgeBasePanel() {
   };
 
   const handleAcceptImages = () => {
-    ingestImageMutation.mutate({ images: previewResults }, {
+    ingestImageMutation.mutate({ images: previewResults, audience: lastSelectedAudience }, {
       onSuccess: (data) => {
-        setToastMessage(`Success: ${data.chunks_added} chunks added from images.`);
+        let msg = `Success: ${data.chunks_added} chunks added from images.`;
+        if (data.files_overridden && data.files_overridden.length > 0) {
+          msg += ` Note: ${data.files_overridden.join(', ')} auto-tagged as internal.`;
+        }
+        setToastMessage(msg);
         setIsPreviewOpen(false);
         setPreviewResults([]);
       },

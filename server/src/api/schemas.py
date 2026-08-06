@@ -276,6 +276,10 @@ class ImageIngestRequest(BaseModel):
     images: list[ImageExtractionResult] = Field(
         description="List of extracted images to ingest."
     )
+    audience: str = Field(
+        default="internal",
+        description="Audience tag for these images: 'internal' or 'external'."
+    )
 
 
 class KBIngestResponse(BaseModel):
@@ -289,6 +293,10 @@ class KBIngestResponse(BaseModel):
         description="Path to the directory where uploaded files were saved."
     )
     index_updated: bool = Field(description="True if the FAISS index was updated.")
+    files_overridden: list[str] = Field(
+        default_factory=list,
+        description="List of files that were automatically tagged as internal due to content markers, overriding the requested external audience."
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -298,6 +306,7 @@ class KBIngestResponse(BaseModel):
                     "chunks_added": 47,
                     "upload_dir": "data/uploads/20240625T120000Z",
                     "index_updated": True,
+                    "files_overridden": [],
                 }
             ]
         }

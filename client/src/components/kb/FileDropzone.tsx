@@ -7,7 +7,7 @@ import IconCircle from '../ui/IconCircle';
 import UploadPanel from '../ui/UploadPanel';
 
 interface FileDropzoneProps {
-  onIngest: (files: File[]) => void;
+  onIngest: (files: File[], audience: "internal" | "external") => void;
   isIngesting: boolean;
   isSuccess: boolean;
   error: string | null;
@@ -16,6 +16,7 @@ interface FileDropzoneProps {
 
 export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, successData }: FileDropzoneProps) {
   const [files, setFiles] = useState<File[]>([]);
+  const [audience, setAudience] = useState<"internal" | "external" | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,8 +57,8 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
   };
 
   const handleIngestClick = () => {
-    if (files.length > 0) {
-      onIngest(files);
+    if (files.length > 0 && audience) {
+      onIngest(files, audience);
       // Optional: empty files list if we want it to clear on ingest
       // setFiles([]); 
     }
@@ -117,9 +118,34 @@ export default function FileDropzone({ onIngest, isIngesting, isSuccess, error, 
               Or click anywhere in this area to browse your computer
             </p>
 
+            <div className="mb-6 flex gap-4 text-left justify-center w-full max-w-md mx-auto" onClick={(e) => e.stopPropagation()}>
+              <label className="flex items-center gap-2 cursor-pointer border p-3 rounded-xl bg-white/50 hover:bg-white/80 transition-colors flex-1">
+                <input 
+                  type="radio" 
+                  name="audience" 
+                  value="internal"
+                  checked={audience === "internal"}
+                  onChange={() => setAudience("internal")}
+                  className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm font-medium text-theme-primary">Internal Only</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer border p-3 rounded-xl bg-white/50 hover:bg-white/80 transition-colors flex-1">
+                <input 
+                  type="radio" 
+                  name="audience" 
+                  value="external"
+                  checked={audience === "external"}
+                  onChange={() => setAudience("external")}
+                  className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm font-medium text-theme-primary">Safe for Prospects</span>
+              </label>
+            </div>
+
             <Button
               onClick={(e) => { e.stopPropagation(); handleIngestClick(); }}
-              disabled={files.length === 0 || isIngesting}
+              disabled={files.length === 0 || isIngesting || !audience}
               variant={isSuccess ? 'secondary' : 'primary'}
               className="z-20 rounded-full px-10 py-3.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >

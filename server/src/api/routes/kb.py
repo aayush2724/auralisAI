@@ -20,9 +20,9 @@ import os
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from src.api.auth import User, require_roles
 from src.api.schemas import (
@@ -68,6 +68,7 @@ ALLOWED_EXTENSIONS = {".pdf", ".csv", ".md"}
 )
 async def kb_ingest(
     files: list[UploadFile] = File(..., description="PDF, CSV, or MD files to ingest."),
+    audience: Literal["internal", "external"] = Form("internal", description="Target audience for these files."),
     current_user: User = require_roles("admin"),
 ) -> KBIngestResponse:
     logger.info(
@@ -121,7 +122,7 @@ async def kb_ingest(
     try:
         from src.rag.ingest import ingest_directory
 
-        chunks_added = ingest_directory(str(upload_dir), str(VECTORSTORE_PATH))
+        chunks_added, files_overridden = ingest_directory(str(upload_dir), str(VECTORSTORE_PATH), audience)
 
         from src.rag.kb_store import save_kb_to_postgres
 
@@ -136,6 +137,7 @@ async def kb_ingest(
             chunks_added=chunks_added,
             upload_dir=str(upload_dir),
             index_updated=True,
+            files_overridden=files_overridden,
         )
     except Exception:
         # Broad exception caught because ingest_directory wraps multiple third-party loaders and operations
@@ -216,7 +218,7 @@ async def kb_ingest_image(
     try:
         from src.rag.ingest import ingest_extracted_images
 
-        chunks_added = ingest_extracted_images([img.dict() for img in req.images])
+        chunks_added, files_overridden = ingest_extracted_images([img.dict() for img in req.images], audience=req.audience)
 
         from src.rag.kb_store import save_kb_to_postgres
 
@@ -227,6 +229,7 @@ async def kb_ingest_image(
             chunks_added=chunks_added,
             upload_dir="cloudinary",
             index_updated=True,
+            files_overridden=files_overridden,
         )
     except Exception:
         logger.exception("Image ingestion failed")
@@ -237,31 +240,6 @@ async def kb_ingest_image(
 
 # ─── GET /kb/stats ───────────────────────────────────────────────────────────
 
-
-@router.get(
-    "/debug/chunks",
-    summary="Temporary debug endpoint to dump chunks.",
-    description="Returns all stored chunks for kb-demo-reference-sheet without auth.",
-)
-async def kb_debug_chunks() -> list[dict[str, Any]]:
-    try:
-        from src.rag.retriever import _get_vectorstore
-
-        vs = _get_vectorstore()
-        chunks = []
-        for doc_id, doc in vs.docstore._dict.items():
-            if "kb-demo-reference-sheet" in str(doc.metadata.get("source_file", "")):
-                chunks.append(
-                    {
-                        "chunk_id": doc_id,
-                        "metadata": doc.metadata,
-                        "content": doc.page_content,
-                    }
-                )
-        return chunks
-    except Exception as e:
-        logger.exception("Debug chunks failed")
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get(
@@ -377,3 +355,48 @@ async def kb_reset(
             status_code=500,
             detail="An internal error occurred during reset. Please try again or contact support.",
         )
+
+# ─── PATCH /kb/documents/{source_file}/audience ──────────────────────────────
+
+from pydantic import BaseModel
+class ReTagRequest(BaseModel):
+    audience: Literal["internal", "external"]
+
+@router.patch(
+    "/documents/{source_file}/audience",
+    summary="Re-tag the audience for a specific document.",
+    description="Updates the audience metadata field for all chunks matching the source_file.",
+)
+async def kb_retag_document(
+    source_file: str,
+    req: ReTagRequest,
+    current_user: User = require_roles("admin"),
+) -> dict:
+    from src.rag.retriever import _get_vectorstore
+    from src.rag.kb_store import save_kb_to_postgres
+
+    index_file = VECTORSTORE_PATH / "index.faiss"
+    if not index_file.exists():
+        raise HTTPException(status_code=404, detail="Vectorstore not found.")
+
+    try:
+        vs = _get_vectorstore()
+        updated_chunks = 0
+        for doc_id, doc in vs.docstore._dict.items():
+            if doc.metadata.get("source_file") == source_file:
+                doc.metadata["audience"] = req.audience
+                updated_chunks += 1
+        
+        if updated_chunks == 0:
+            raise HTTPException(status_code=404, detail=f"No chunks found for {source_file}")
+
+        # Save local and to PG
+        vs.save_local(str(VECTORSTORE_PATH))
+        await save_kb_to_postgres(VECTORSTORE_PATH)
+
+        return {"status": "ok", "chunks_updated": updated_chunks, "new_audience": req.audience}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Failed to re-tag document")
+        raise HTTPException(status_code=500, detail="Internal error during re-tagging.")

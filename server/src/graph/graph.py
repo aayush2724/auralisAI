@@ -44,8 +44,13 @@ from src.classifier.persona import (
     PERSONAS,
     PersonaResult,
 )
-from src.classifier.sentiment import SentimentResult, analyze
-from src.classifier.shared_model import get_zeroshot_pipeline
+from src.classifier.sentiment import (
+    SentimentResult,
+    analyze,
+)
+from src.classifier.shared_model import (
+    get_zeroshot_pipeline,
+)
 from src.handoff.handoff import evaluate_handoff
 from src.memory.memory import ConversationMemory
 from src.rag.retriever import format_citations, retrieve

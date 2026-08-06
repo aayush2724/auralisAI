@@ -11,7 +11,7 @@ from pathlib import Path
 
 from sqlalchemy import text
 
-from src.memory.db import _get_engine, _session_factory
+from src.memory import db
 
 logger = logging.getLogger("auralis.rag.kb_store")
 
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS kb_vectorstore (
 
 async def init_kb_db() -> None:
     """Create the kb_vectorstore table if it does not already exist."""
-    engine = _get_engine()
+    engine = db._get_engine()
     async with engine.begin() as conn:
         await conn.execute(text(_CREATE_KB_TABLE_SQL))
     logger.info("kb_vectorstore table initialised.")
@@ -55,6 +55,7 @@ def deserialize_faiss_dir(data: bytes, vectorstore_path: Path) -> None:
 
 async def save_kb_to_postgres(vectorstore_path: Path) -> None:
     """Read local FAISS dir, zip it, and persist to Postgres."""
+    db._get_engine()
     if not vectorstore_path.exists() or not any(vectorstore_path.iterdir()):
         logger.warning("No files in %s to save to Postgres.", vectorstore_path)
         return
@@ -67,7 +68,7 @@ async def save_kb_to_postgres(vectorstore_path: Path) -> None:
             index_data = EXCLUDED.index_data,
             updated_at = EXCLUDED.updated_at
     """)
-    async with _session_factory() as session, session.begin():
+    async with db._session_factory() as session, session.begin():
         await session.execute(upsert_sql, {"data": data})
     logger.info("Saved FAISS index to Postgres (%d bytes).", len(data))
 
@@ -75,10 +76,10 @@ async def save_kb_to_postgres(vectorstore_path: Path) -> None:
 async def load_kb_from_postgres_on_startup(vectorstore_path: Path) -> None:
     """On startup, load the zipped FAISS index from Postgres and extract it locally."""
     # Ensure engine is initialised
-    _get_engine()
+    db._get_engine()
 
     select_sql = text("SELECT index_data FROM kb_vectorstore WHERE id = 1")
-    async with _session_factory() as session:
+    async with db._session_factory() as session:
         result = await session.execute(select_sql)
         row = result.fetchone()
 
@@ -92,6 +93,7 @@ async def load_kb_from_postgres_on_startup(vectorstore_path: Path) -> None:
 
 
 async def delete_kb_from_postgres() -> None:
+    db._get_engine()
     delete_sql = text("DELETE FROM kb_vectorstore WHERE id = 1")
-    async with _session_factory() as session, session.begin():
+    async with db._session_factory() as session, session.begin():
         await session.execute(delete_sql)

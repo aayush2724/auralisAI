@@ -125,7 +125,7 @@ def retrieve(
 
     vs = _get_vectorstore(vectorstore_path)
 
-    # Use MMR (Maximal Marginal Relevance) to increase diversity and prevent 
+    # Use MMR (Maximal Marginal Relevance) to increase diversity and prevent
     # redundant chunks from crowding out other relevant context.
     embedding = vs.embeddings.embed_query(query)
     results_with_scores = vs.max_marginal_relevance_search_with_score_by_vector(

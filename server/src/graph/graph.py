@@ -46,11 +46,15 @@ from src.classifier.persona import (
 )
 from src.classifier.sentiment import (
     _CANDIDATE_LABELS as SENTIMENT_LABELS,
+)
+from src.classifier.sentiment import (
     _DESCRIPTIONS as SENTIMENT_DESCRIPTIONS,
+)
+from src.classifier.sentiment import (
     _TONE_INSTRUCTIONS,
     SentimentResult,
 )
-from src.classifier.shared_model import get_zeroshot_pipeline, GeminiRateLimitError
+from src.classifier.shared_model import GeminiRateLimitError, get_zeroshot_pipeline
 from src.handoff.handoff import evaluate_handoff
 from src.memory.memory import ConversationMemory
 from src.rag.retriever import format_citations, retrieve

@@ -78,7 +78,9 @@ def built_vectorstore(tmp_dirs, sample_md):
     """Ingest the sample markdown and return the vectorstore path."""
     data_dir, vs_dir = tmp_dirs
     _reset_cache()
-    n_chunks, _ = ingest_directory(data_dir, vectorstore_path=vs_dir, audience="internal")
+    n_chunks, _ = ingest_directory(
+        data_dir, vectorstore_path=vs_dir, audience="internal"
+    )
     assert n_chunks >= 1, "Ingestion should produce at least one chunk"
     return vs_dir
 
@@ -105,9 +107,11 @@ class TestRetrieve:
             "price objection handling",
             top_k=3,
             vectorstore_path=built_vectorstore,
-            audience="external"
+            audience="external",
         )
-        assert len(results) == 0, "Expected zero results because all chunks are internal and we filtered for external"
+        assert (
+            len(results) == 0
+        ), "Expected zero results because all chunks are internal and we filtered for external"
 
     def test_result_schema(self, built_vectorstore):
         """Each result must contain the required keys."""

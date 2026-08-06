@@ -69,7 +69,9 @@ ALLOWED_EXTENSIONS = {".pdf", ".csv", ".md"}
 )
 async def kb_ingest(
     files: list[UploadFile] = File(..., description="PDF, CSV, or MD files to ingest."),
-    audience: Literal["internal", "external"] = Form("internal", description="Target audience for these files."),
+    audience: Literal["internal", "external"] = Form(
+        "internal", description="Target audience for these files."
+    ),
     current_user: User = require_roles("admin"),
 ) -> KBIngestResponse:
     logger.info(
@@ -123,7 +125,9 @@ async def kb_ingest(
     try:
         from src.rag.ingest import ingest_directory
 
-        chunks_added, files_overridden = ingest_directory(str(upload_dir), str(VECTORSTORE_PATH), audience)
+        chunks_added, files_overridden = ingest_directory(
+            str(upload_dir), str(VECTORSTORE_PATH), audience
+        )
 
         from src.rag.kb_store import save_kb_to_postgres
 
@@ -219,7 +223,9 @@ async def kb_ingest_image(
     try:
         from src.rag.ingest import ingest_extracted_images
 
-        chunks_added, files_overridden = ingest_extracted_images([img.dict() for img in req.images], audience=req.audience)
+        chunks_added, files_overridden = ingest_extracted_images(
+            [img.dict() for img in req.images], audience=req.audience
+        )
 
         from src.rag.kb_store import save_kb_to_postgres
 
@@ -240,7 +246,6 @@ async def kb_ingest_image(
 
 
 # ─── GET /kb/stats ────────────────────────────────────────────────────────�[...]
-
 
 
 @router.get(
@@ -357,11 +362,13 @@ async def kb_reset(
             detail="An internal error occurred during reset. Please try again or contact support.",
         )
 
+
 # ─── PATCH /kb/documents/{source_file}/audience ──────────────────────────────
 
 
 class ReTagRequest(BaseModel):
     audience: Literal["internal", "external"]
+
 
 @router.patch(
     "/documents/{source_file}/audience",
@@ -387,15 +394,21 @@ async def kb_retag_document(
             if doc.metadata.get("source_file") == source_file:
                 doc.metadata["audience"] = req.audience
                 updated_chunks += 1
-        
+
         if updated_chunks == 0:
-            raise HTTPException(status_code=404, detail=f"No chunks found for {source_file}")
+            raise HTTPException(
+                status_code=404, detail=f"No chunks found for {source_file}"
+            )
 
         # Save local and to PG
         vs.save_local(str(VECTORSTORE_PATH))
         await save_kb_to_postgres(VECTORSTORE_PATH)
 
-        return {"status": "ok", "chunks_updated": updated_chunks, "new_audience": req.audience}
+        return {
+            "status": "ok",
+            "chunks_updated": updated_chunks,
+            "new_audience": req.audience,
+        }
     except HTTPException:
         raise
     except Exception:

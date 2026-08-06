@@ -278,7 +278,7 @@ class ImageIngestRequest(BaseModel):
     )
     audience: str = Field(
         default="internal",
-        description="Audience tag for these images: 'internal' or 'external'."
+        description="Audience tag for these images: 'internal' or 'external'.",
     )
 
 
@@ -295,7 +295,7 @@ class KBIngestResponse(BaseModel):
     index_updated: bool = Field(description="True if the FAISS index was updated.")
     files_overridden: list[str] = Field(
         default_factory=list,
-        description="List of files that were automatically tagged as internal due to content markers, overriding the requested external audience."
+        description="List of files that were automatically tagged as internal due to content markers, overriding the requested external audience.",
     )
 
     model_config = {

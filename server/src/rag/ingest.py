@@ -56,7 +56,13 @@ VECTORSTORE_PATH = Path(os.getenv("VECTORSTORE_PATH", "vectorstore"))
 CHUNK_SIZE = 128  # tokens (~512 characters) — smaller chunks for better topic separation on short docs
 CHUNK_OVERLAP = 24  # ~96 characters
 
-_INTERNAL_MARKERS = ["do not forward externally", "internal only", "confidential", "distributed to sales"]
+_INTERNAL_MARKERS = [
+    "do not forward externally",
+    "internal only",
+    "confidential",
+    "distributed to sales",
+]
+
 
 def _check_override(text: str, requested_audience: str) -> tuple[str, bool]:
     if requested_audience != "external":
@@ -67,10 +73,13 @@ def _check_override(text: str, requested_audience: str) -> tuple[str, bool]:
             return "internal", True
     return requested_audience, False
 
+
 # ─── Document loaders ─────────────────────────────────────────────────────────
 
 
-def _load_pdf(path: Path, audience: str = "internal") -> tuple[list[dict[str, Any]], bool]:
+def _load_pdf(
+    path: Path, audience: str = "internal"
+) -> tuple[list[dict[str, Any]], bool]:
     """Extract text pages from a PDF using PyMuPDF and tables using pdfplumber."""
     docs: list[dict[str, Any]] = []
     file_overridden = False
@@ -111,7 +120,7 @@ def _load_pdf(path: Path, audience: str = "internal") -> tuple[list[dict[str, An
                             + " | ".join(str(c or "").replace("\n", " ") for c in row)
                             + " |"
                         )
-                    
+
                     text = "\n".join(md_lines)
                     final_audience, overridden = _check_override(text, audience)
                     if overridden:
@@ -132,7 +141,9 @@ def _load_pdf(path: Path, audience: str = "internal") -> tuple[list[dict[str, An
     return docs, file_overridden
 
 
-def _load_csv(path: Path, audience: str = "internal") -> tuple[list[dict[str, Any]], bool]:
+def _load_csv(
+    path: Path, audience: str = "internal"
+) -> tuple[list[dict[str, Any]], bool]:
     """Concatenate all string columns of a CSV row into a single text block."""
     df = pd.read_csv(path)
     docs: list[dict[str, Any]] = []
@@ -156,14 +167,23 @@ def _load_csv(path: Path, audience: str = "internal") -> tuple[list[dict[str, An
     return docs, file_overridden
 
 
-def _load_md(path: Path, audience: str = "internal") -> tuple[list[dict[str, Any]], bool]:
+def _load_md(
+    path: Path, audience: str = "internal"
+) -> tuple[list[dict[str, Any]], bool]:
     """Read a Markdown file as a single document block."""
     text = path.read_text(encoding="utf-8").strip()
     if not text:
         return [], False
     final_audience, overridden = _check_override(text, audience)
     logger.info("  MD   | %s | loaded", path.name)
-    return [{"text": text, "source_file": path.name, "doc_type": "md", "audience": final_audience}], overridden
+    return [
+        {
+            "text": text,
+            "source_file": path.name,
+            "doc_type": "md",
+            "audience": final_audience,
+        }
+    ], overridden
 
 
 # ─── Chunking ─────────────────────────────────────────────────────────────────
@@ -259,7 +279,9 @@ def _embed_and_persist(chunks: list[dict[str, Any]], vectorstore_path: Path) -> 
 
 
 def ingest_directory(
-    data_dir: str | Path, vectorstore_path: str | Path | None = None, audience: str = "internal"
+    data_dir: str | Path,
+    vectorstore_path: str | Path | None = None,
+    audience: str = "internal",
 ) -> tuple[int, list[str]]:
     """
     Ingest all .pdf, .csv, and .md files in *data_dir*.
@@ -293,7 +315,9 @@ def ingest_directory(
     for file_path in files_found:
         if file_path.suffix.lower() in loaders:
             try:
-                docs, overridden = loaders[file_path.suffix.lower()](file_path, audience)
+                docs, overridden = loaders[file_path.suffix.lower()](
+                    file_path, audience
+                )
                 raw_docs.extend(docs)
                 if overridden:
                     files_overridden.append(file_path.name)
@@ -318,7 +342,9 @@ def ingest_directory(
 
 
 def ingest_extracted_images(
-    images_data: list[dict[str, Any]], vectorstore_path: str | Path | None = None, audience: str = "internal"
+    images_data: list[dict[str, Any]],
+    vectorstore_path: str | Path | None = None,
+    audience: str = "internal",
 ) -> tuple[int, list[str]]:
     """
     Ingest a list of extracted image data.
@@ -339,7 +365,7 @@ def ingest_extracted_images(
         text = img.get("extracted_text", "").strip()
         if not text:
             continue
-            
+
         final_audience, overridden = _check_override(text, audience)
         if overridden:
             files_overridden.append(img.get("filename", "unknown_image"))
@@ -398,7 +424,9 @@ def main(argv: list[str] | None = None) -> None:
     args = _parse_args(argv)
     try:
         n, overridden = ingest_directory(args.dir, args.vectorstore, args.audience)
-        logger.info("Ingestion complete. %d chunk(s) stored. Overridden: %s", n, overridden)
+        logger.info(
+            "Ingestion complete. %d chunk(s) stored. Overridden: %s", n, overridden
+        )
     except Exception:
         # Broad exception caught because ingest_directory wraps multiple third-party loaders and operations
         logger.exception("Ingestion failed")

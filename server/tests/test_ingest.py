@@ -15,6 +15,7 @@ def test_load_md(tmp_path):
     assert docs[0]["audience"] == "external"
     assert overridden is False
 
+
 def test_load_md_override(tmp_path):
     md_file = tmp_path / "test.md"
     md_file.write_text("Do not forward externally\nHello World", encoding="utf-8")
@@ -22,6 +23,7 @@ def test_load_md_override(tmp_path):
     assert len(docs) == 1
     assert docs[0]["audience"] == "internal"
     assert overridden is True
+
 
 def test_load_csv(tmp_path):
     csv_file = tmp_path / "test.csv"

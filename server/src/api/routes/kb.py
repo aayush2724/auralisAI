@@ -39,14 +39,14 @@ from src.services.image_processor import (
 logger = logging.getLogger("auralis.api.kb")
 router = APIRouter()
 
-# ─── Config ───────────────────────────────────────────────────────────────────
+# ─── Config ───────────────────────────────────────────────────────────[...]
 
 UPLOAD_BASE = Path(os.getenv("KB_UPLOAD_DIR", "data/uploads"))
 VECTORSTORE_PATH = Path(os.getenv("VECTORSTORE_PATH", "vectorstore"))
 ALLOWED_EXTENSIONS = {".pdf", ".csv", ".md"}
 
 
-# ─── POST /kb/ingest ─────────────────────────────────────────────────────────
+# ─── POST /kb/ingest ────────────────────────────────────────────────────────[...]
 
 
 @router.post(
@@ -238,7 +238,7 @@ async def kb_ingest_image(
         )
 
 
-# ─── GET /kb/stats ───────────────────────────────────────────────────────────
+# ─── GET /kb/stats ────────────────────────────────────────────────────────�[...]
 
 
 
@@ -303,7 +303,7 @@ async def kb_stats(
         )
 
 
-# ─── DELETE /kb/reset ────────────────────────────────────────────────────────
+# ─── DELETE /kb/reset ───────────────────────────────────────────────────────�[...]
 
 
 @router.delete(
@@ -397,6 +397,6 @@ async def kb_retag_document(
         return {"status": "ok", "chunks_updated": updated_chunks, "new_audience": req.audience}
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         logger.exception("Failed to re-tag document")
         raise HTTPException(status_code=500, detail="Internal error during re-tagging.")

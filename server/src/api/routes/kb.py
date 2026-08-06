@@ -20,9 +20,10 @@ import os
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from pydantic import BaseModel
 
 from src.api.auth import User, require_roles
 from src.api.schemas import (
@@ -358,7 +359,7 @@ async def kb_reset(
 
 # ─── PATCH /kb/documents/{source_file}/audience ──────────────────────────────
 
-from pydantic import BaseModel
+
 class ReTagRequest(BaseModel):
     audience: Literal["internal", "external"]
 
@@ -372,8 +373,8 @@ async def kb_retag_document(
     req: ReTagRequest,
     current_user: User = require_roles("admin"),
 ) -> dict:
-    from src.rag.retriever import _get_vectorstore
     from src.rag.kb_store import save_kb_to_postgres
+    from src.rag.retriever import _get_vectorstore
 
     index_file = VECTORSTORE_PATH / "index.faiss"
     if not index_file.exists():

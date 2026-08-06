@@ -79,7 +79,8 @@ def _load_pdf(path: Path, audience: str = "internal") -> tuple[list[dict[str, An
             text = page.get_text("text").strip()
             if text:
                 final_audience, overridden = _check_override(text, audience)
-                if overridden: file_overridden = True
+                if overridden:
+                    file_overridden = True
                 docs.append(
                     {
                         "text": text,
@@ -113,7 +114,8 @@ def _load_pdf(path: Path, audience: str = "internal") -> tuple[list[dict[str, An
                     
                     text = "\n".join(md_lines)
                     final_audience, overridden = _check_override(text, audience)
-                    if overridden: file_overridden = True
+                    if overridden:
+                        file_overridden = True
                     docs.append(
                         {
                             "text": text,
@@ -139,7 +141,8 @@ def _load_csv(path: Path, audience: str = "internal") -> tuple[list[dict[str, An
         text = " | ".join(str(v) for v in row.values if pd.notna(v))
         if text.strip():
             final_audience, overridden = _check_override(text, audience)
-            if overridden: file_overridden = True
+            if overridden:
+                file_overridden = True
             docs.append(
                 {
                     "text": text,

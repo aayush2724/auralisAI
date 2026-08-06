@@ -155,6 +155,31 @@ class TestRetrieve:
         with pytest.raises(ValueError, match="non-empty"):
             retrieve("", vectorstore_path=built_vectorstore)
 
+    def test_stitching_audience_filtering(self, built_vectorstore):
+        """Chunk stitching must respect the audience filter and never pull in internal neighbors."""
+        _reset_cache()
+        from src.rag.retriever import _get_vectorstore
+        from langchain_core.documents import Document
+        vs = _get_vectorstore(built_vectorstore)
+        
+        # Manually add 3 chunks to the vectorstore
+        doc1 = Document(page_content="External chunk zero", metadata={"source_file": "stitching_test.txt", "chunk_index": 0, "audience": "external"})
+        doc2 = Document(page_content="Internal chunk one", metadata={"source_file": "stitching_test.txt", "chunk_index": 1, "audience": "internal"})
+        doc3 = Document(page_content="External chunk two", metadata={"source_file": "stitching_test.txt", "chunk_index": 2, "audience": "external"})
+        
+        vs.add_documents([doc1, doc2, doc3])
+        vs.save_local(str(built_vectorstore))
+        _reset_cache()
+        
+        results = retrieve("External chunk zero", top_k=3, vectorstore_path=built_vectorstore, audience="external")
+        # Find the result corresponding to chunk 0
+        target_res = next((r for r in results if r["source_file"] == "stitching_test.txt" and r["chunk_index"] == 0), None)
+        assert target_res is not None, "Failed to retrieve the test chunk"
+        
+        stitched_text = target_res["text"]
+        assert "External chunk zero" in stitched_text
+        assert "Internal chunk one" not in stitched_text, "Internal neighbor was improperly stitched!"
+
 
 class TestFormatCitations:
     def test_format_basic(self):

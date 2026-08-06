@@ -142,11 +142,38 @@ def retrieve(
         if audience == "external" and meta.get("audience", "internal") == "internal":
             continue
 
+        # Chunk stitching
+        source_file = meta.get("source_file")
+        chunk_idx = meta.get("chunk_index", -1)
+        
+        stitched_text = doc.page_content
+        
+        if source_file and chunk_idx >= 0:
+            prev_chunk = None
+            next_chunk = None
+            for _id, d in vs.docstore._dict.items():
+                d_meta = d.metadata or {}
+                if d_meta.get("source_file") == source_file:
+                    # Enforce audience filter on stitched neighbors
+                    if audience == "external" and d_meta.get("audience", "internal") == "internal":
+                        continue
+                    
+                    idx = d_meta.get("chunk_index", -1)
+                    if idx == chunk_idx - 1:
+                        prev_chunk = d.page_content
+                    elif idx == chunk_idx + 1:
+                        next_chunk = d.page_content
+                        
+            if prev_chunk:
+                stitched_text = prev_chunk + "\n\n" + stitched_text
+            if next_chunk:
+                stitched_text = stitched_text + "\n\n" + next_chunk
+
         output.append(
             {
-                "text": doc.page_content,
-                "source_file": meta.get("source_file", "unknown"),
-                "chunk_index": meta.get("chunk_index", -1),
+                "text": stitched_text,
+                "source_file": source_file or "unknown",
+                "chunk_index": chunk_idx,
                 "score": float(score),
             }
         )

@@ -1,6 +1,10 @@
 import asyncio
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
+
 from src.rag.retriever import retrieve
 from src.rag.kb_store import load_kb_from_postgres_on_startup
 from src.memory.db import _get_engine
@@ -22,8 +26,8 @@ async def main():
         docs = retrieve(q)
         for i, doc in enumerate(docs):
             text = doc["text"]
-            source = doc["metadata"].get("source_file", "unknown")
-            chunk_idx = doc["metadata"].get("chunk_index", "unknown")
+            source = doc.get("source_file", "unknown")
+            chunk_idx = doc.get("chunk_index", "unknown")
             
             print(f"\n--- Result {i+1} | Source: {source} | Chunk: {chunk_idx} ---")
             print(text)

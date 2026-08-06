@@ -149,7 +149,7 @@ def _load_csv(
     docs: list[dict[str, Any]] = []
     file_overridden = False
     for row_idx, row in df.iterrows():
-        text = " | ".join(str(v) for v in row.values if pd.notna(v))
+        text = " | ".join(f"{col}: {v}" for col, v in row.items() if pd.notna(v))
         if text.strip():
             final_audience, overridden = _check_override(text, audience)
             if overridden:

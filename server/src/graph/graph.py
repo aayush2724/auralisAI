@@ -477,20 +477,26 @@ def generate_node(state: GraphState) -> dict[str, Any]:
         SystemMessage(content=system_prompt),
         HumanMessage(content=user_prompt),
     ]
-    ai_msg_chunks = llm.stream(messages)
+    try:
+        ai_msg_chunks = llm.stream(messages)
 
-    response_parts = []
-    for chunk in ai_msg_chunks:
-        if isinstance(chunk.content, list):
-            for part in chunk.content:
-                if isinstance(part, dict) and "text" in part:
-                    response_parts.append(part["text"])
-                elif isinstance(part, str):
-                    response_parts.append(part)
-        else:
-            response_parts.append(str(chunk.content))
+        response_parts = []
+        for chunk in ai_msg_chunks:
+            if isinstance(chunk.content, list):
+                for part in chunk.content:
+                    if isinstance(part, dict) and "text" in part:
+                        response_parts.append(part["text"])
+                    elif isinstance(part, str):
+                        response_parts.append(part)
+            else:
+                response_parts.append(str(chunk.content))
 
-    response_text = "".join(response_parts)
+        response_text = "".join(response_parts)
+    except Exception:
+        logger.exception("generate_node LLM call failed")
+        return {
+            "response": "I'm having trouble generating a response right now — could you try rephrasing that, or give me a moment and try again?"
+        }
 
     # Append citations block if the strategy prompt didn't embed them
     if citations and citations not in response_text:

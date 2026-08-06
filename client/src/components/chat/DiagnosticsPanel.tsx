@@ -48,7 +48,7 @@ function Accordion({ title, children, defaultOpen = false }: { title: string, ch
 export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }) {
   if (!data) {
     return (
-      <GlassPanel className="h-full w-80 border-l border-theme-border bg-white/55 p-5 shadow-[0_24px_70px_rgba(16,32,51,0.10)]">
+      <GlassPanel className="h-full w-80 min-h-0 border-l border-theme-border bg-white/55 p-5 shadow-[0_24px_70px_rgba(16,32,51,0.10)]">
         <div className="flex h-full flex-col items-center justify-center text-center">
           <IconCircle icon={Zap} variant="secondary" className="mb-4" />
           <p className="max-w-[220px] text-sm font-medium leading-relaxed text-theme-secondary">
@@ -66,9 +66,9 @@ export default function DiagnosticsPanel({ data }: { data: ChatResponse | null }
     <motion.div 
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="h-full w-80 border-l border-theme-border bg-white/55 shadow-[0_24px_70px_rgba(16,32,51,0.10)] backdrop-blur-2xl"
+      className="h-full w-80 min-h-0 border-l border-theme-border bg-white/55 shadow-[0_24px_70px_rgba(16,32,51,0.10)] backdrop-blur-2xl"
     >
-      <div className="flex h-full flex-col gap-4 overflow-y-auto p-4">
+      <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-4">
         <SectionHeader
           eyebrow="Diagnostics"
           title="Conversation Intelligence"

@@ -374,7 +374,7 @@ export default function ChatPanel({ sessionId }: { sessionId: string }) {
         </div>
       </div>
 
-      <div className="hidden lg:block">
+      <div className="hidden lg:block min-h-0">
         <DiagnosticsPanel data={lastResponse} />
       </div>
 

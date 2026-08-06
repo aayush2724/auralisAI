@@ -45,12 +45,12 @@ from src.classifier.persona import (
     PersonaResult,
 )
 from src.classifier.sentiment import (
+    _CANDIDATE_LABELS as SENTIMENT_LABELS,
+    _DESCRIPTIONS as SENTIMENT_DESCRIPTIONS,
+    _TONE_INSTRUCTIONS,
     SentimentResult,
-    analyze,
 )
-from src.classifier.shared_model import (
-    get_zeroshot_pipeline,
-)
+from src.classifier.shared_model import get_zeroshot_pipeline, GeminiRateLimitError
 from src.handoff.handoff import evaluate_handoff
 from src.memory.memory import ConversationMemory
 from src.rag.retriever import format_citations, retrieve
@@ -149,23 +149,29 @@ def classify_node(state: GraphState) -> dict[str, Any]:
     text = state["user_input"]
     logger.info("[classify_node] text='%s'", text[:80])
 
-    # Sentiment is independent (local model)
-    sentiment = analyze(text)
-
-    # Combined LLM call for Objection + Persona
     clf = get_zeroshot_pipeline()
 
     obj_descs = [_HYPOTHESIS_TEMPLATES[c] for c in CLASSES]
     candidate_personas = [p for p in PERSONAS if p != "Unknown"]
     per_descs = [_HYPOTHESES[p] for p in candidate_personas]
 
-    combined_result = clf.classify_combined(
-        text=text,
-        objection_labels=CLASSES,
-        objection_descriptions=obj_descs,
-        persona_labels=candidate_personas,
-        persona_descriptions=per_descs,
-    )
+    try:
+        combined_result = clf.classify_combined(
+            text=text,
+            objection_labels=CLASSES,
+            objection_descriptions=obj_descs,
+            persona_labels=candidate_personas,
+            persona_descriptions=per_descs,
+            sentiment_labels=SENTIMENT_LABELS,
+            sentiment_descriptions=SENTIMENT_DESCRIPTIONS,
+        )
+    except GeminiRateLimitError:
+        logger.warning("Rate limit exhausted. Falling back to default classifications.")
+        combined_result = {
+            "objection": {"label": "neutral", "confidence": 0.0},
+            "persona": {"label": "Unknown", "confidence": 0.0},
+            "sentiment": {"label": "neutral", "confidence": 0.0},
+        }
 
     # Process Objection
     obj_label = combined_result["objection"]["label"]
@@ -188,7 +194,16 @@ def classify_node(state: GraphState) -> dict[str, Any]:
     persona: PersonaResult = {
         "label": per_label,
         "confidence": per_conf,
-        "pitch_angle": _PITCH_ANGLES[per_label],
+        "pitch_angle": _PITCH_ANGLES.get(per_label, "Unknown pitch angle"),
+    }
+
+    # Process Sentiment
+    sent_label = combined_result["sentiment"]["label"]
+    sent_conf = combined_result["sentiment"]["confidence"]
+    sentiment: SentimentResult = {
+        "label": sent_label,  # type: ignore
+        "score": round(sent_conf, 4),
+        "tone_instruction": _TONE_INSTRUCTIONS[sent_label],
     }
 
     logger.info(

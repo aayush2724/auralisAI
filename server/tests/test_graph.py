@@ -38,6 +38,7 @@ def _mock_combined(
     return {
         "objection": {"label": obj_label, "confidence": obj_conf},
         "persona": {"label": per_label, "confidence": per_conf},
+        "sentiment": {"label": "neutral", "confidence": 0.55},
     }
 
 
@@ -111,8 +112,7 @@ def _base_state(**overrides) -> GraphState:
 
 class TestClassifyNode:
     @patch("src.graph.graph.get_zeroshot_pipeline")
-    @patch("src.graph.graph.analyze", return_value=_mock_sentiment())
-    def test_returns_all_classifier_results(self, mock_analyze, mock_pipeline):
+    def test_returns_all_classifier_results(self, mock_pipeline):
         mock_pipeline.return_value.classify_combined.return_value = _mock_combined()
         state = {"user_input": "This is too expensive."}
         result = classify_node(state)
@@ -124,8 +124,7 @@ class TestClassifyNode:
         assert "metadata" in result
 
     @patch("src.graph.graph.get_zeroshot_pipeline")
-    @patch("src.graph.graph.analyze", return_value=_mock_sentiment())
-    def test_confidence_mirrors_objection(self, mock_analyze, mock_pipeline):
+    def test_confidence_mirrors_objection(self, mock_pipeline):
         mock_pipeline.return_value.classify_combined.return_value = _mock_combined(
             "competitor", 0.91
         )
@@ -133,15 +132,13 @@ class TestClassifyNode:
         assert result["confidence"] == pytest.approx(0.91)
 
     @patch("src.graph.graph.get_zeroshot_pipeline")
-    @patch("src.graph.graph.analyze", return_value=_mock_sentiment())
-    def test_metadata_contains_pitch_angle(self, mock_analyze, mock_pipeline):
+    def test_metadata_contains_pitch_angle(self, mock_pipeline):
         mock_pipeline.return_value.classify_combined.return_value = _mock_combined()
         result = classify_node({"user_input": "Explain your APIs."})
         assert "pitch_angle" in result["metadata"]
 
     @patch("src.graph.graph.get_zeroshot_pipeline")
-    @patch("src.graph.graph.analyze", return_value=_mock_sentiment())
-    def test_classifier_failure_propagates(self, mock_analyze, mock_pipeline):
+    def test_classifier_failure_propagates(self, mock_pipeline):
         mock_pipeline.return_value.classify_combined.side_effect = RuntimeError(
             "Model down"
         )
@@ -342,7 +339,6 @@ class TestRunGraph:
 
         patches = [
             um.patch("src.graph.graph.get_zeroshot_pipeline"),
-            um.patch("src.graph.graph.analyze", return_value=_mock_sentiment()),
             um.patch("src.graph.graph.retrieve", return_value=_mock_docs()),
             um.patch("src.graph.graph.format_citations", return_value="[1] Source"),
             um.patch("src.graph.graph._get_llm"),

@@ -30,7 +30,7 @@ def test_load_csv(tmp_path):
     csv_file.write_text("col1,col2\nval1,val2\n", encoding="utf-8")
     docs, overridden = _load_csv(csv_file)
     assert len(docs) == 1
-    assert docs[0]["text"] == "val1 | val2"
+    assert docs[0]["text"] == "col1: val1 | col2: val2"
     assert docs[0]["doc_type"] == "csv"
     assert docs[0]["audience"] == "internal"
 

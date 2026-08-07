@@ -158,8 +158,9 @@ class TestRetrieve:
     def test_stitching_audience_filtering(self, built_vectorstore):
         """Chunk stitching must respect the audience filter and never pull in internal neighbors."""
         _reset_cache()
-        from src.rag.retriever import _get_vectorstore
         from langchain_core.documents import Document
+
+        from src.rag.retriever import _get_vectorstore
         vs = _get_vectorstore(built_vectorstore)
         
         # Manually add 3 chunks to the vectorstore

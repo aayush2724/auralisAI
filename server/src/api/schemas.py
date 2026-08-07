@@ -180,13 +180,6 @@ class UserResponse(BaseModel):
     role: str = Field(description="User role: admin | sales_rep | viewer.")
 
 
-class SignupRequest(BaseModel):
-    """Request body for email/password signup."""
-
-    email: str = Field(description="User email address.")
-    password: str = Field(description="User password.")
-
-
 # ─── Analytics ────────────────────────────────────────────────────────────────
 
 

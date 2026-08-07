@@ -13,15 +13,6 @@ export const useLogin = () => {
   });
 };
 
-export const useSignup = () => {
-  return useMutation({
-    mutationFn: async (payload: { email: string; password: string }) => {
-      const { data } = await client.post<{ id: string; email: string; role: string }>('/auth/signup', payload);
-      return data;
-    },
-  });
-};
-
 export const useLogout = () => {
   return () => {
     useAuthStore.getState().clearToken();

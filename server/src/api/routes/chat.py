@@ -143,6 +143,9 @@ async def _run_chat_turn(
         log_event(
             session_id=session_id,
             state=state,
+            # NOTE: did_convert currently tracks handoff events (should_handoff), not
+            # actual deal conversions. Displayed on the dashboard as "Escalation Rate".
+            # A true buying-signal-based conversion metric is separate future work.
             did_convert=bool(response.should_handoff),
         )
     )

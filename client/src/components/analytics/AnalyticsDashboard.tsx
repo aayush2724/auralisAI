@@ -138,7 +138,7 @@ export default function AnalyticsDashboard() {
           size="large"
         />
         <MetricCard
-          label="Conversion Rate"
+          label="Escalation Rate"
           value={(data.conversion_rate * 100).toFixed(1)}
           suffix="%"
           icon={TrendingUp}

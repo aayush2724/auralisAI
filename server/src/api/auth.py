@@ -215,9 +215,6 @@ async def get_user_by_email(email: str) -> dict | None:
     }
 
 
-
-
-
 async def authenticate_user(email: str, password: str) -> User | None:
     """
     Verify *email* + *password* against the database.

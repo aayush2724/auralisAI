@@ -22,7 +22,7 @@ python-jose[cryptography] # JWT signing / verification
 passlib[bcrypt]           # bcrypt password hashing
 bcrypt==4.0.1             # passlib is incompatible with bcrypt >= 4.1.0
 # Database
-sqlalchemy
+sqlalchemy[asyncio]
 asyncpg
 redis
 # Frontend / Visualization

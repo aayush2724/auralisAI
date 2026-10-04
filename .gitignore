@@ -18,12 +18,15 @@ ENV/
 .test_venv/
 
 # ─── Environment files ────────────────────────────
+.env
+.env.local
 .env.*.local
 
 # ─── Vector store (large binary) ──────────────────
 vectorstore/
 
 # ─── IDE / editors ────────────────────────────────
+.vscode/
 .idea/
 *.swp
 *.swo
@@ -46,5 +49,3 @@ logs/
 # ─── Data (large files tracked separately) ────────
 data/*.pdf
 data/*.csv
-config.bat
-node_modules
